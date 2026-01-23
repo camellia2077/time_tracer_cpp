@@ -3,3 +3,7 @@ __pycache__/
 html/
 
 *.exe
+out/
+*.ttf
+*.dll
+*.exe
