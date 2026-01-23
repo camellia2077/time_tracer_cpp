@@ -53,17 +53,17 @@ set(SERIALIZER_SOURCES
 set(VALIDATOR_SOURCES
 
     # common 模块
-    "src/validator/common/ValidatorUtils.cpp"
+    "src/validator/common/validator_utils.cpp"
 
     # json 模块
-    "src/validator/json/facade/JsonValidator.cpp"
-    "src/validator/json/rules/ActivityRules.cpp"
-    "src/validator/json/rules/DateRules.cpp"
+    "src/validator/json/facade/json_validator.cpp"
+    "src/validator/json/rules/activity_rules.cpp"
+    "src/validator/json/rules/date_rules.cpp"
 
     # source_txt 模块
-    "src/validator/txt/facade/TextValidator.cpp"
-    "src/validator/txt/rules/LineRules.cpp"
-    "src/validator/txt/rules/StructureRules.cpp"
+    "src/validator/txt/facade/text_validator.cpp"
+    "src/validator/txt/rules/line_rules.cpp"
+    "src/validator/txt/rules/structure_rules.cpp"
 )
 
 

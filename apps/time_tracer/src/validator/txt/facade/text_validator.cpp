@@ -1,7 +1,7 @@
 // validator/txt/facade/TextValidator.cpp
-#include "TextValidator.hpp"
-#include "validator/txt/rules/LineRules.hpp"
-#include "validator/txt/rules/StructureRules.hpp"
+#include "validator/txt/facade/text_validator.hpp"
+#include "validator/txt/rules/line_rules.hpp"
+#include "validator/txt/rules/structure_rules.hpp"
 #include "common/utils/string_utils.hpp" 
 #include <sstream> 
 #include <iostream>

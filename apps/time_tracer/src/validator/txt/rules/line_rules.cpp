@@ -1,5 +1,5 @@
 // validator/txt/rules/LineRules.cpp
-#include "LineRules.hpp"
+#include "validator/txt/rules/line_rules.hpp"
 #include "common/utils/string_utils.hpp"
 #include <algorithm>
 #include <iostream>

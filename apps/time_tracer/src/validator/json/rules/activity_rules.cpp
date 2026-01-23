@@ -1,4 +1,4 @@
-#include "ActivityRules.hpp"
+#include "activity_rules.hpp"
 #include <string>
 
 namespace validator {

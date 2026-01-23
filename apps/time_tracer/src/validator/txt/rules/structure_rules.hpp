@@ -2,7 +2,7 @@
 #ifndef VALIDATOR_TXT_RULES_STRUCTURE_RULES_HPP_
 #define VALIDATOR_TXT_RULES_STRUCTURE_RULES_HPP_
 
-#include "validator/common/ValidatorUtils.hpp"
+#include "validator/common/validator_utils.hpp"
 #include <string>
 #include <set>
 

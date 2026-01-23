@@ -1,8 +1,8 @@
 #ifndef VALIDATOR_JSON_RULES_ACTIVITY_RULES_HPP_
 #define VALIDATOR_JSON_RULES_ACTIVITY_RULES_HPP_
 
-#include "validator/common/ValidatorUtils.hpp"
-#include "yyjson.h" // [修改] 引入 yyjson
+#include "validator/common/validator_utils.hpp"
+#include "yyjson.h"
 #include <set>
 
 namespace validator {
