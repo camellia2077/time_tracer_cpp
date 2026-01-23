@@ -4,10 +4,17 @@
 option(BUILD_INSTALLER "Build a CPack installer package" OFF)
 
 if(BUILD_INSTALLER)
-    # 安装主程序到 bin 目录
-    install(TARGETS ${ALL_TARGETS}
-        RUNTIME DESTINATION bin
+    # 安装主程序
+    install(TARGETS ${ALL_TARGETS} RUNTIME DESTINATION bin)
+    # ==================== [新增] ====================
+    # 安装 yyjson 动态库
+    # 因为 yyjson 是通过 add_subdirectory (FetchContent) 引入的，它是一个合法的 CMake Target
+    install(TARGETS yyjson 
+        RUNTIME DESTINATION bin  # Windows DLL 属于 RUNTIME
+        LIBRARY DESTINATION bin  # Linux SO 属于 LIBRARY
+        ARCHIVE DESTINATION lib  # Windows LIB (导入库) 属于 ARCHIVE
     )
+    # ================================================
 
     # 安装所有 DLL 插件到 bin/plugins 目录
     install(TARGETS

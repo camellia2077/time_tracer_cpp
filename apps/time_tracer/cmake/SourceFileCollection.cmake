@@ -82,7 +82,6 @@ set(REPORTS_SHARED_SOURCES
     "src/reports/daily/formatters/statistics/stat_formatter.cpp"
 
     # Shared - 内部工具与配置
-    "src/reports/shared/utils/config/config_utils.cpp"
     "src/reports/shared/utils/format/bool_to_string.cpp"
     "src/reports/shared/utils/format/report_string_utils.cpp"
     "src/reports/shared/utils/format/time_format.cpp"
@@ -162,8 +161,6 @@ set(IMPORTER_SOURCES
 
     # Parser Layer (Parsing logic)
     "src/importer/parser/memory_parser.cpp"
-    "src/importer/parser/details/day_parser.cpp"
-    "src/importer/parser/details/activity_parser.cpp"
 
     # Storage Layer (Database persistence)
     "src/importer/storage/repository.cpp"

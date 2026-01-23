@@ -13,7 +13,7 @@ public:
     bool execute(PipelineContext& context);
 
 private:
-    const AppConfig& app_config_;
+    // [Fix] Removed unused app_config_ member
     void printTiming(double ms) const;
 };
 

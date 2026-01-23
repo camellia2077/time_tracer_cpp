@@ -4,8 +4,8 @@
 #include "config/validator/reports/strategies/daily/daily_md.hpp"
 #include "config/validator/reports/strategies/daily/daily_tex.hpp"
 #include "config/validator/reports/strategies/daily/daily_typ.hpp"
-#include "config/validator/reports/strategies/monthly/Monthly.hpp"
-#include "config/validator/reports/strategies/periodic/Periodic.hpp"
+#include "config/validator/reports/strategies/monthly/monthly.hpp"
+#include "config/validator/reports/strategies/periodic/periodic.hpp"
 
 #include <memory>
 #include <string>

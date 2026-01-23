@@ -2,7 +2,7 @@
 #ifndef SERIALIZER_CORE_LOG_SERIALIZER_HPP_
 #define SERIALIZER_CORE_LOG_SERIALIZER_HPP_
 
-#include <nlohmann/json.hpp>
+#include "yyjson.h"
 #include "common/model/daily_log.hpp"
 
 namespace serializer::core {
@@ -10,9 +10,12 @@ namespace serializer::core {
 class LogSerializer {
 public:
     /**
-     * @brief 将单个 DailyLog 结构体序列化为 JSON 对象
+     * @brief 将 DailyLog 序列化为 yyjson 可变对象
+     * @param doc 所属的 yyjson 文档（用于内存分配）
+     * @param day 数据源
+     * @return 指向生成的 yyjson 对象的指针
      */
-    static nlohmann::json serialize(const DailyLog& day);
+    static yyjson_mut_val* serialize(yyjson_mut_doc* doc, const DailyLog& day);
 };
 
 } // namespace serializer::core

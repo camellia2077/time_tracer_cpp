@@ -1,5 +1,6 @@
 # 架构与模块 (Architecture & Modules)
-
+**核心设计理念**：
+TimeTracer 采用**模块化单体 (Modular Monolith)** 架构，以 **Core Orchestration** 为核心，实现了业务逻辑与 IO、UI 的彻底解耦，旨在构建一个可插拔、易于跨平台移植的量化生活引擎。
 ## 0. 系统分层与职责边界 (System Layers & Responsibilities)
 
 为了确保系统的健壮性与可维护性，系统采用了严格的分层架构，各层职责互不越界。
@@ -24,6 +25,15 @@
     * **信任原则**: 该层**假设**环境是健康的、配置是合法的（由上层保证）。
     * **流程编排**: 专注于调度预处理、数据库转换、报表生成等核心业务逻辑。
     * **数据校验**: 仅关注**用户数据**（如日志内容）的合法性，不关注**系统配置**的合法性。
+
+### 0.4 跨平台核心引擎设计 (Cross-Platform Core Engine)
+* **设计理念**: 类似于现代工业软件（如 Photoshop, VS Code）的 "Stub Executable" 模式。
+* **Core 的角色**: 
+    * **无头模式 (Headless)**: Core 编译为动态库 (DLL/SO)，不包含任何 UI 代码，也不直接依赖具体的渲染引擎（如 LaTeX/Typst 具体实现）。
+    * **调度中心**: Core 仅负责下达指令（Ingest, Export），具体的脏活（解析、格式化）由底层模块完成。
+* **API 边界**: 
+    * Core 仅向外部暴露 **基础类型 (String/JSON)** 或 **状态码**。
+    * 严禁将内部 C++ 复杂对象（如 `DailyReportData`）暴露给 UI 层，确保未来适配 Flutter/Electron/Native UI 时实现“一次编写，到处运行”。
 
 ## 1. 系统概览与数据流 (System Overview & Data Flow)
 

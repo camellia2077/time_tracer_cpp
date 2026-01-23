@@ -1,5 +1,5 @@
 // core/reporting/report_handler.cpp
-#include "report_handler.hpp"
+#include "core/reporting/report_handler.hpp"
 #include "core/reporting/generator/report_generator.hpp"
 #include "core/reporting/export/exporter.hpp"
 #include <iostream>
@@ -7,6 +7,8 @@
 
 ReportHandler::ReportHandler(std::unique_ptr<ReportGenerator> generator, std::unique_ptr<Exporter> exporter)
     : generator_(std::move(generator)), exporter_(std::move(exporter)) {}
+
+ReportHandler::~ReportHandler() = default;
 
 std::string ReportHandler::run_daily_query(const std::string& date, ReportFormat format) {
     return generator_->generate_daily_report(date, format);

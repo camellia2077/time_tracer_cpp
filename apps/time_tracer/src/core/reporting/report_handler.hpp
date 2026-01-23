@@ -11,7 +11,8 @@ class Exporter;
 class ReportHandler : public IReportHandler {
 public:
     ReportHandler(std::unique_ptr<ReportGenerator> generator, std::unique_ptr<Exporter> exporter);
-    
+    // [新增] 显式声明析构函数
+    ~ReportHandler() override;
     // 查询方法
     std::string run_daily_query(const std::string& date, ReportFormat format) override;
     std::string run_monthly_query(const std::string& month, ReportFormat format) override;

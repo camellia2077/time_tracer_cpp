@@ -13,7 +13,7 @@ Repository::Repository(const std::string& db_path) {
             connection_manager_->get_db(), 
             statement_manager_->get_insert_day_stmt(), 
             statement_manager_->get_insert_record_stmt(), 
-            statement_manager_->get_select_project_id_stmt(), 
+            // [Fix] Removed statement_manager_->get_select_project_id_stmt() call
             statement_manager_->get_insert_project_stmt() 
         );
     }

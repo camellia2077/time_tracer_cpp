@@ -8,9 +8,9 @@
 #include "importer/model/time_sheet_data.hpp"
 
 // 引用新的组件头文件
-#include "importer/storage/sqlite/Writer.hpp"
-#include "importer/storage/sqlite/Connection.hpp"
-#include "importer/storage/sqlite/Statement.hpp"
+#include "importer/storage/sqlite/writer.hpp"
+#include "importer/storage/sqlite/connection.hpp"
+#include "importer/storage/sqlite/statement.hpp"
 
 /**
  * @class Repository

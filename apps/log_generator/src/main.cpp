@@ -1,10 +1,10 @@
 ﻿// main.cpp
-#include "core/Application.hpp"
-
+#include "core/application.hpp"
 int main(int argc, char* argv[]) {
-    // 实例化 Core 模块中的 Application 类
+    // [Core Layer] 启动核心逻辑
     Core::Application app;
-    
-    // 将控制权移交给 Application
+
+    // 直接传递原始命令行参数
+    // Application 内部会调用 ConfigHandler -> LogGeneratorCli 进行解析、帮助打印或错误处理
     return app.run(argc, argv);
 }

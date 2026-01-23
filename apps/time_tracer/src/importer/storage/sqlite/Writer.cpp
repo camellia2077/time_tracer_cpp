@@ -5,12 +5,12 @@
 Writer::Writer(sqlite3* db,
                sqlite3_stmt* stmt_day,
                sqlite3_stmt* stmt_record,
-               sqlite3_stmt* stmt_select_project,
+               // [Fix] Removed unused stmt_select_project argument
                sqlite3_stmt* stmt_insert_project)
     : db_(db), 
       stmt_insert_day_(stmt_day),
       stmt_insert_record_(stmt_record),
-      stmt_select_project_id_(stmt_select_project),
+      // [Fix] Removed unused initialization
       stmt_insert_project_(stmt_insert_project) 
 {
     // [核心修改] 初始化解析器委托对象

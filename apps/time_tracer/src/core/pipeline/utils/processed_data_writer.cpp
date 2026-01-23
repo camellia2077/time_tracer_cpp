@@ -12,7 +12,7 @@ namespace core::pipeline {
 
 std::vector<fs::path> ProcessedDataWriter::write(
     const std::map<std::string, std::vector<DailyLog>>& data,
-    const std::map<std::string, nlohmann::json>& cached_json_outputs,
+    const std::map<std::string, std::string>& cached_json_outputs,
     const fs::path& output_root
 ) {
     std::vector<fs::path> written_files;
@@ -26,14 +26,13 @@ std::vector<fs::path> ProcessedDataWriter::write(
             
             std::string content_to_write;
 
-            // [优化] 优先使用缓存的 JSON 对象
+            // [优化] 优先使用缓存的 JSON 字符串
             auto cache_it = cached_json_outputs.find(month_key);
             if (cache_it != cached_json_outputs.end()) {
-                content_to_write = cache_it->second.dump(4);
+                content_to_write = cache_it->second; // [修改] 直接拷贝字符串
             } else {
-                // 如果没有缓存（比如跳过了验证步骤），则执行序列化
-                nlohmann::json json_content = serializer::JsonSerializer::serializeDays(month_days);
-                content_to_write = json_content.dump(4);
+                // 如果没有缓存，则执行序列化 (现在返回 std::string)
+                content_to_write = serializer::JsonSerializer::serializeDays(month_days);
             }
             
             FileWriter::write_content(output_file_path, content_to_write);

@@ -14,7 +14,7 @@ public:
     explicit Writer(sqlite3* db, 
                     sqlite3_stmt* stmt_day, 
                     sqlite3_stmt* stmt_record, 
-                    sqlite3_stmt* stmt_select_project, 
+                    // [Fix] Removed unused stmt_select_project argument
                     sqlite3_stmt* stmt_insert_project);
     
     ~Writer();
@@ -27,8 +27,7 @@ private:
     sqlite3_stmt* stmt_insert_day_;
     sqlite3_stmt* stmt_insert_record_;
     
-    // 保留这些句柄，传递给 Resolver 使用
-    sqlite3_stmt* stmt_select_project_id_; 
+    // [Fix] Removed unused stmt_select_project_id_ member
     sqlite3_stmt* stmt_insert_project_;
 
     // [核心修改] 所有的树、缓存、解析逻辑都封装在这里

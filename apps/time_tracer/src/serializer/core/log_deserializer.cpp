@@ -2,83 +2,109 @@
 #include "log_deserializer.hpp"
 #include "common/utils/string_utils.hpp"
 #include <iostream>
+#include <stdexcept>
 
 namespace serializer::core {
 
-DailyLog LogDeserializer::deserialize(const nlohmann::json& day_json) {
+// 辅助宏：安全的从对象获取值，如果 key 不存在或类型不匹配则返回默认值
+static int64_t get_int_safe(yyjson_val* obj, const char* key, int64_t def = 0) {
+    yyjson_val* val = yyjson_obj_get(obj, key);
+    if (val && yyjson_is_int(val)) return yyjson_get_int(val);
+    if (val && yyjson_is_uint(val)) return (int64_t)yyjson_get_uint(val); // 兼容 uint
+    return def;
+}
+
+static std::string get_str_safe(yyjson_val* obj, const char* key, const char* def = "") {
+    yyjson_val* val = yyjson_obj_get(obj, key);
+    if (val && yyjson_is_str(val)) return std::string(yyjson_get_str(val));
+    return std::string(def);
+}
+
+DailyLog LogDeserializer::deserialize(yyjson_val* day_json) {
     DailyLog day;
-    try {
-        const auto& headers = day_json.at("headers");
-        const auto& generated_stats = day_json.at("generated_stats");
+    if (!day_json || !yyjson_is_obj(day_json)) {
+        throw std::runtime_error("Invalid JSON object for DailyLog");
+    }
 
-        // 1. Headers -> Basic Info
-        day.date = headers.at("date");
-        day.hasStudyActivity = (headers.value("status", 0) != 0);
-        day.hasSleepActivity = (headers.value("sleep", 0) != 0);
-        day.hasExerciseActivity = (headers.value("exercise", 0) != 0);
-        
-        std::string getup = headers.value("getup", "00:00");
-        if (getup == "Null") {
-            day.isContinuation = true;
-            day.getupTime = "";
-        } else {
-            day.isContinuation = false;
-            day.getupTime = getup;
-        }
-        
-        std::string remark = headers.value("remark", "");
-        if (!remark.empty()) {
-            day.generalRemarks = split_string(remark, '\n');
-        }
+    yyjson_val* headers = yyjson_obj_get(day_json, "headers");
+    yyjson_val* generated_stats = yyjson_obj_get(day_json, "generated_stats");
 
-        day.activityCount = headers.value("activity_count", 0);
+    if (!headers) throw std::runtime_error("Missing 'headers' field");
+    if (!generated_stats) throw std::runtime_error("Missing 'generated_stats' field");
 
-        // 2. Generated Stats -> Stats Struct
-        day.stats.sleep_night_time = generated_stats.value("sleep_night_time", 0);
-        day.stats.sleep_day_time = generated_stats.value("sleep_day_time", 0);
-        day.stats.sleep_total_time = generated_stats.value("sleep_total_time", 0);
-        
-        day.stats.total_exercise_time = generated_stats.value("total_exercise_time", 0);
-        day.stats.cardio_time = generated_stats.value("cardio_time", 0);
-        day.stats.anaerobic_time = generated_stats.value("anaerobic_time", 0);
-        
-        day.stats.grooming_time = generated_stats.value("grooming_time", 0);
-        day.stats.toilet_time = generated_stats.value("toilet_time", 0);
-        day.stats.gaming_time = generated_stats.value("gaming_time", 0);
-        
-        day.stats.recreation_time = generated_stats.value("recreation_time", 0);
-        day.stats.recreation_zhihu_time = generated_stats.value("recreation_zhihu_time", 0);
-        day.stats.recreation_bilibili_time = generated_stats.value("recreation_bilibili_time", 0);
-        day.stats.recreation_douyin_time = generated_stats.value("recreation_douyin_time", 0);
-        
-        day.stats.study_time = generated_stats.value("total_study_time", 0);
+    // 1. Headers -> Basic Info
+    yyjson_val* date_val = yyjson_obj_get(headers, "date");
+    if (!date_val || !yyjson_is_str(date_val)) {
+        throw std::runtime_error("Missing or invalid 'date' in headers");
+    }
+    day.date = yyjson_get_str(date_val);
 
-        // 3. Activities
-        const auto& activities_array = day_json.at("activities");
-        if (activities_array.is_array()) {
-            for (const auto& activity_json : activities_array) {
-                BaseActivityRecord record;
-                record.logical_id = activity_json.at("logical_id");
-                record.start_timestamp = activity_json.at("start_timestamp");
-                record.end_timestamp = activity_json.at("end_timestamp");
-                record.start_time_str = activity_json.at("start_time");
-                record.end_time_str = activity_json.at("end_time");
-                record.duration_seconds = activity_json.at("duration_seconds");
-                
-                if (activity_json.contains("activity_remark") && !activity_json["activity_remark"].is_null()) {
-                    record.remark = activity_json["activity_remark"].get<std::string>();
-                }
-                
-                const auto& activity_details = activity_json.at("activity");
-                record.project_path = activity_details.at("project_path");
-                
-                day.processedActivities.push_back(record);
+    day.hasStudyActivity = (get_int_safe(headers, "status") != 0);
+    day.hasSleepActivity = (get_int_safe(headers, "sleep") != 0);
+    day.hasExerciseActivity = (get_int_safe(headers, "exercise") != 0);
+    
+    std::string getup = get_str_safe(headers, "getup", "00:00");
+    if (getup == "Null") {
+        day.isContinuation = true;
+        day.getupTime = "";
+    } else {
+        day.isContinuation = false;
+        day.getupTime = getup;
+    }
+    
+    std::string remark = get_str_safe(headers, "remark");
+    if (!remark.empty()) {
+        day.generalRemarks = split_string(remark, '\n');
+    }
+
+    day.activityCount = (int)get_int_safe(headers, "activity_count");
+
+    // 2. Generated Stats -> Stats Struct
+    day.stats.sleep_night_time = get_int_safe(generated_stats, "sleep_night_time");
+    day.stats.sleep_day_time = get_int_safe(generated_stats, "sleep_day_time");
+    day.stats.sleep_total_time = get_int_safe(generated_stats, "sleep_total_time");
+    
+    day.stats.total_exercise_time = get_int_safe(generated_stats, "total_exercise_time");
+    day.stats.cardio_time = get_int_safe(generated_stats, "cardio_time");
+    day.stats.anaerobic_time = get_int_safe(generated_stats, "anaerobic_time");
+    
+    day.stats.grooming_time = get_int_safe(generated_stats, "grooming_time");
+    day.stats.toilet_time = get_int_safe(generated_stats, "toilet_time");
+    day.stats.gaming_time = get_int_safe(generated_stats, "gaming_time");
+    
+    day.stats.recreation_time = get_int_safe(generated_stats, "recreation_time");
+    day.stats.recreation_zhihu_time = get_int_safe(generated_stats, "recreation_zhihu_time");
+    day.stats.recreation_bilibili_time = get_int_safe(generated_stats, "recreation_bilibili_time");
+    day.stats.recreation_douyin_time = get_int_safe(generated_stats, "recreation_douyin_time");
+    
+    day.stats.study_time = get_int_safe(generated_stats, "total_study_time");
+
+    // 3. Activities
+    yyjson_val* activities_array = yyjson_obj_get(day_json, "activities");
+    if (activities_array && yyjson_is_arr(activities_array)) {
+        size_t idx, max;
+        yyjson_val *activity_json;
+        yyjson_arr_foreach(activities_array, idx, max, activity_json) {
+            BaseActivityRecord record;
+            record.logical_id = (int)get_int_safe(activity_json, "logical_id");
+            record.start_timestamp = get_int_safe(activity_json, "start_timestamp");
+            record.end_timestamp = get_int_safe(activity_json, "end_timestamp");
+            record.start_time_str = get_str_safe(activity_json, "start_time");
+            record.end_time_str = get_str_safe(activity_json, "end_time");
+            record.duration_seconds = get_int_safe(activity_json, "duration_seconds");
+            
+            yyjson_val* remark_val = yyjson_obj_get(activity_json, "activity_remark");
+            if (remark_val && yyjson_is_str(remark_val)) {
+                record.remark = yyjson_get_str(remark_val);
             }
+            
+            yyjson_val* activity_details = yyjson_obj_get(activity_json, "activity");
+            if (activity_details) {
+                record.project_path = get_str_safe(activity_details, "project_path");
+            }
+            
+            day.processedActivities.push_back(record);
         }
-
-    } catch (const nlohmann::json::exception& e) {
-        std::cerr << "Deserialization error for day: " << e.what() << std::endl;
-        throw; 
     }
     
     return day;

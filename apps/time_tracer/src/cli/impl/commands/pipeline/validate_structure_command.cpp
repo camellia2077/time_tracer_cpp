@@ -1,3 +1,4 @@
+// cli/impl/commands/pipeline/validate_structure_command.cpp
 #include "validate_structure_command.hpp"
 #include "cli/framework/core/command_parser.hpp"
 #include "cli/framework/core/command_validator.hpp"

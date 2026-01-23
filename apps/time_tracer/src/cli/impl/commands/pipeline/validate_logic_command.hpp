@@ -1,3 +1,4 @@
+// cli/impl/commands/pipeline/validate_logic_command.hpp
 #ifndef CLI_IMPL_COMMANDS_PIPELINE_VALIDATE_LOGIC_COMMAND_HPP_
 #define CLI_IMPL_COMMANDS_PIPELINE_VALIDATE_LOGIC_COMMAND_HPP_
 

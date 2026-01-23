@@ -1,5 +1,5 @@
-// utils/Utils.cpp
-#include "utils/Utils.hpp"
+// utils/utils.cpp
+#include "utils/utils.hpp"
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN64)

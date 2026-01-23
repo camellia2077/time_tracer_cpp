@@ -12,7 +12,8 @@
 
 namespace core::pipeline {
 
-ConverterStep::ConverterStep(const AppConfig& config) : app_config_(config) {}
+// [Fix] Removed app_config_ initialization and commented out unused parameter name
+ConverterStep::ConverterStep(const AppConfig& /*config*/) {}
 
 bool ConverterStep::execute(PipelineContext& context) {
     std::cout << "Step: Converting files (Parallel)..." << std::endl;

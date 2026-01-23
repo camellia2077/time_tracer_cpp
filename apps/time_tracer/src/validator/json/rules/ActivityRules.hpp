@@ -1,14 +1,19 @@
-// validator/json/rules/ActivityRules.hpp
 #ifndef VALIDATOR_JSON_RULES_ACTIVITY_RULES_HPP_
 #define VALIDATOR_JSON_RULES_ACTIVITY_RULES_HPP_
 
 #include "validator/common/ValidatorUtils.hpp"
-#include <nlohmann/json.hpp>
+#include "yyjson.h" // [修改] 引入 yyjson
+#include <set>
 
 namespace validator {
 namespace json {
 
-void validateActivityCount(const nlohmann::json& day_object, std::set<Error>& errors);
+/**
+ * @brief 验证一天的活动数量是否达标
+ * @param day_object yyjson 对象 (代表一天的数据)
+ * @param errors 错误集合
+ */
+void validateActivityCount(yyjson_val* day_object, std::set<Error>& errors);
 
 } // namespace json
 } // namespace validator

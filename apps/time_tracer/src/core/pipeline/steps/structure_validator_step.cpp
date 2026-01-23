@@ -1,3 +1,4 @@
+// core/pipeline/steps/structure_validator_step.cpp
 #include "structure_validator_step.hpp"
 #include "validator/txt/facade/TextValidator.hpp"
 #include "core/helpers/file_import_reader.hpp"

@@ -1,6 +1,6 @@
 #include "logic_validator_step.hpp"
 #include "validator/json/facade/JsonValidator.hpp"
-#include "serializer/json_serializer.hpp" // 需要序列化后进行 JSON 验证
+#include "serializer/json_serializer.hpp" 
 #include "common/ansi_colors.hpp"
 #include <iostream>
 
@@ -14,7 +14,7 @@ bool LogicValidatorStep::execute(PipelineContext& context) {
         return true;
     }
 
-    // 初始化 JSON 验证器 (注入日期检查模式)
+    // 初始化 JSON 验证器
     validator::json::JsonValidator validator(context.config.date_check_mode);
     
     bool all_valid = true;
@@ -23,14 +23,18 @@ bool LogicValidatorStep::execute(PipelineContext& context) {
     for (const auto& [month_key, days] : context.result.processed_data) {
         if (days.empty()) continue;
 
-        // 为了复用现有的 JsonValidator 逻辑，我们将 Struct 临时序列化为 JSON
-        // 这样避免了重写一套针对 Struct 的验证器，且逻辑保持一致
-        nlohmann::json json_content = serializer::JsonSerializer::serializeDays(days);
+        // [修改] 序列化为字符串 (yyjson backend)
+        std::string json_content = serializer::JsonSerializer::serializeDays(days);
         
+        // [新增] 缓存序列化结果，供后续 Write 步骤直接使用，避免二次序列化
+        context.cached_json_outputs[month_key] = json_content;
+
         // 构造一个虚拟文件名用于报错显示
         std::string pseudo_filename = "ProcessedData[" + month_key + "]";
 
         std::set<validator::Error> errors;
+        
+        // [假设] JsonValidator::validate 接口已更新为接收 const std::string&
         if (!validator.validate(pseudo_filename, json_content, errors)) {
             all_valid = false;
             validator::printGroupedErrors(pseudo_filename, errors);

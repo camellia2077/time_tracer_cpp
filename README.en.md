@@ -28,7 +28,6 @@ Before you begin, please ensure your system has the following dependencies insta
       * **CMake** \>= 3.10
       * **GCC** (with C++23 support)
       * **SQLite3** library
-      * **nlohmann/json** library
   * **Python Component (`graph_generator`)**:
       * **Python** \>= 3.8
       * **Matplotlib** library
@@ -97,3 +96,4 @@ The implementation of this project would not be possible without these excellent
   * **[SQLite C Library](https://www.sqlite.org/index.html)**: Used for data storage (Public Domain).
   * **[nlohmann/json](https://github.com/nlohmann/json)**: Used for reading configurations (MIT License).
   * **[Matplotlib](https://matplotlib.org/)**: Used for data visualization (BSD-style License).
+  * **[yyjson](https://github.com/ibireme/yyjson)**: 用于高性能 JSON 解析与生成 (MIT License)。

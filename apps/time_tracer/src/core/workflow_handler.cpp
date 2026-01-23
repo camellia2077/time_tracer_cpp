@@ -1,19 +1,16 @@
 // core/workflow_handler.cpp
 #include "core/workflow_handler.hpp"
 #include "core/pipeline/pipeline_manager.hpp" 
-#include "importer/data_importer.hpp"         // 包含 handle_process_memory_data
+#include "importer/data_importer.hpp"
 #include "core/helpers/file_import_reader.hpp"
 #include "core/database/db_manager.hpp"
-#include "serializer/json_serializer.hpp"     // 包含 JsonSerializer
+#include "serializer/json_serializer.hpp"
 
 #include "common/ansi_colors.hpp"
 #include <iostream>
 #include <stdexcept>
-#include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
-
-// 使用之前定义的命名空间
 using namespace core::pipeline;
 using namespace core::helpers;
 
@@ -36,24 +33,20 @@ const AppConfig& WorkflowHandler::get_config() const {
     return app_config_;
 }
 
-// [关键修复] 重写此函数：读取文件 -> 解析 JSON -> 传递 Struct 给 Importer
 void WorkflowHandler::run_database_import(const std::string& processed_path_str) {
-    // 1. 使用 Helper 读取文件内容
     auto import_payload = FileImportReader::read_json_files(processed_path_str);
     
     if (import_payload.empty()) return;
 
     std::cout << "正在解析 JSON 数据..." << std::endl;
 
-    // 2. 在 Core 层完成解析 (JSON string -> DailyLog Struct)
     std::map<std::string, std::vector<DailyLog>> memory_data;
 
     for(const auto& [filepath, content] : import_payload) {
         try {
-            auto json_obj = nlohmann::json::parse(content);
-            std::vector<DailyLog> logs = serializer::JsonSerializer::deserializeDays(json_obj);
+            // [修改] 直接传递 content 字符串，JsonSerializer 内部会用 yyjson 解析
+            std::vector<DailyLog> logs = serializer::JsonSerializer::deserializeDays(content);
             
-            // 使用文件路径作为 key (仅用于日志/批次区分)
             memory_data[filepath] = logs;
             
         } catch (const std::exception& e) {
@@ -66,7 +59,6 @@ void WorkflowHandler::run_database_import(const std::string& processed_path_str)
         return;
     }
 
-    // 3. 调用内存导入接口 (Importer 不再依赖 JSON)
     run_database_import_from_memory(memory_data);
 }
 
@@ -77,12 +69,10 @@ void WorkflowHandler::run_database_import_from_memory(const std::map<std::string
 void WorkflowHandler::run_ingest(const std::string& source_path, DateCheckMode date_check_mode, bool save_processed) {
     std::cout << "\n--- 启动数据摄入 (Ingest) ---" << std::endl;
     
-    // RAII 检查数据库连接
     {
         DBManager db_manager(db_path_);
     } 
 
-    // 这里依然使用 PipelineManager，因为这是内部实现机制，没问题
     PipelineManager pipeline(app_config_, output_root_path_);
     
     AppOptions full_options;

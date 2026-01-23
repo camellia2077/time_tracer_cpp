@@ -1,0 +1,3 @@
+[submodule "apps/time_tracer/external/yyjson"]
+	path = apps/time_tracer/external/yyjson
+	url = https://github.com/ibireme/yyjson.git

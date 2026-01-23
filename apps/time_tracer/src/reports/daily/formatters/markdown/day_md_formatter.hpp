@@ -4,7 +4,7 @@
 
 #include "reports/shared/formatters/templates/base_md_formatter.hpp"
 #include "reports/data/model/daily_report_data.hpp"
-#include "reports/daily/formatters/markdown/day_md_Config.hpp"
+#include "reports/daily/formatters/markdown/day_md_config.hpp"
 
 class DayMdFormatter : public BaseMdFormatter<DailyReportData, DayMdConfig> {
 public:

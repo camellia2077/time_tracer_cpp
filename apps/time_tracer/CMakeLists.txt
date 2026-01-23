@@ -3,10 +3,9 @@
 # [修改] 升级最低版本以更好地支持 C++23 和现代 CMake 特性
 cmake_minimum_required(VERSION 3.25)
 
-project(TimeTrackerApp VERSION "0.4.0.1" LANGUAGES CXX)
+project(TimeTrackerApp VERSION "0.4.3.1" LANGUAGES CXX)
 
 # [新增] 强制 CMake 的命令行输出使用 UTF-8 编码
-# 这可以从根本上解决在 Windows GBK 环境下因中文字符导致的编码错误
 set(CMAKE_CLI_FORCE_UTF8 ON)
 
 # 所有源文件都必须明确写出它们的扩展名
@@ -14,11 +13,29 @@ cmake_policy(SET CMP0115 NEW)
 
 # --- Find External Dependencies ---
 find_package(SQLite3 REQUIRED)
-find_package(nlohmann_json REQUIRED)
+# find_package(nlohmann_json REQUIRED)
 find_package(tomlplusplus REQUIRED)
 
-# --- 1. 项目范围的设置 ---
+# ==================== [关键修改: 顺序调整与修复] ====================
+# 1. 先设置输出目录！确保 yyjson.dll 生成在 bin/ 下
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# 2. 配置 yyjson 选项
+set(BUILD_SHARED_LIBS ON) 
+set(YYJSON_INSTALL OFF CACHE BOOL "Disable yyjson default install" FORCE)
+
+# [修正] 截图显示 external 就在当前目录下，直接引用即可
+# 不需要 ../../，也不需要指定第二个构建目录参数（CMake 会自动处理子目录）
+add_subdirectory(external/yyjson)
+
+# [恢复] 将默认构建方式改回静态
+set(BUILD_SHARED_LIBS OFF)
+
+# ====================================================================
+
+# --- 1. 项目范围的设置 ---
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -85,6 +102,28 @@ add_subdirectory(src/reports/period/formatters/markdown)
 add_subdirectory(src/reports/period/formatters/typst)
 add_subdirectory(src/reports/period/formatters/latex)
 
+
+# ==================== [新增配置] ====================
+# 定义所有插件目标的列表
+set(FORMATTER_PLUGINS
+    DayMdFormatter DayTypFormatter DayTexFormatter
+    MonthMdFormatter MonthTypFormatter MonthTexFormatter
+    PeriodMdFormatter PeriodTypFormatter PeriodTexFormatter
+)
+
+# 统一修改插件属性
+foreach(PLUGIN ${FORMATTER_PLUGINS})
+    set_target_properties(${PLUGIN} PROPERTIES
+        # 1. [关键] 去掉 MinGW 自动添加的 'lib' 前缀
+        PREFIX ""
+        
+        # 2. [可选] 自动输出到 bin/plugins 目录，省去手动移动文件的麻烦
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins"
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/plugins"
+    )
+endforeach()
+
 # 创建一个包含所有可执行文件目标的列表
 set(ALL_TARGETS time_tracker_cli)
 
@@ -92,6 +131,8 @@ set(ALL_TARGETS time_tracker_cli)
 foreach(TARGET_NAME ${ALL_TARGETS})
   setup_project_target(${TARGET_NAME})
 endforeach()
+
+# [已移除] 之前底部的 if(NOT TARGET yyjson) 块已删除，因为我们在顶部显式添加了它。
 
 # 在每次构建后，无论是否为安装包，都将配置文件复制到输出目录
 # 这样可以直接从 build/bin 目录运行程序

@@ -1,6 +1,6 @@
-﻿// utils/Utils.hpp
-#ifndef UTILS_HPP
-#define UTILS_HPP
+// utils/utils.hpp
+#ifndef UTILS_UTILS_HPP_
+#define UTILS_UTILS_HPP_
 
 #include <string>
 
@@ -16,4 +16,4 @@ namespace Utils {
     int get_days_in_month(int year, int month);
     
 } // namespace Utils
-#endif // UTILS_HPP
+#endif // UTILS_UTILS_HPP_

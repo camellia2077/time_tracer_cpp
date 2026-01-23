@@ -31,43 +31,41 @@ def run_cmake(should_package, cmake_args, compiler, config):
     if should_package:
         cmake_command.append("-DBUILD_INSTALLER=ON")
     
-    # 使用传入的 config 对象
     warning_level = config.WARNING_LEVEL
     cmake_command.append(f"-DWARNING_LEVEL={warning_level}")
 
-    # LTO 设置
     lto_option = "ON" if config.ENABLE_LTO else "OFF"
     print(f"{AnsiColors.OKBLUE}--- LTO is {'enabled' if config.ENABLE_LTO else 'disabled'}. ---{AnsiColors.ENDC}")
     cmake_command.append(f"-DENABLE_LTO={lto_option}")
         
     cmake_command.extend(cmake_args)
     
-    # 执行 CMake
-    # 强制使用 utf-8 解码，遇到无法解码的字符用 ? 代替 (replace)
+    # [核心修改] 使用 subprocess.Popen 实时打印输出
+    # 将 stderr 合并到 stdout，确保所有信息（包括警告和错误）都能实时看到
     process = subprocess.Popen(
         cmake_command, 
         stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE, 
+        stderr=subprocess.STDOUT,  # <--- 关键修改：错误流合并到输出流
         text=True, 
         env=cmake_env,
         encoding='utf-8',
-        errors='replace'
+        errors='replace',
+        bufsize=1 # 行缓冲
     )
     
-    for line in process.stdout:
-        sys.stdout.write(line)
+    # 实时逐行打印,避免报错的时候一直卡住不刷新
+    with process.stdout:
+        for line in iter(process.stdout.readline, ''):
+            sys.stdout.write(line)
+            sys.stdout.flush() # 强制刷新缓冲区
 
-    stderr_output = ""
-    for line in process.stderr:
-        stderr_output += line
-        sys.stderr.write(line)
-
-    process.wait()
-    if process.returncode != 0:
-        raise subprocess.CalledProcessError(process.returncode, cmake_command, output=None, stderr=stderr_output)
+    return_code = process.wait()
+    
+    if return_code != 0:
+        # 因为 stderr 已经合并打印过了，这里不需要再单独打印 stderr_output
+        raise subprocess.CalledProcessError(return_code, cmake_command)
         
     print("--- CMake configuration complete.")
-
 def run_build():
     """执行编译"""
     print_header("Building with Ninja...")

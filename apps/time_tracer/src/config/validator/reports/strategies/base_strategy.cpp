@@ -103,7 +103,8 @@ bool BaseStrategy::validate_common_rules(const toml::table& query_config, const 
         }
         
         if (node.is_string()) {
-            const std::string& val_str = *node.value<std::string>();
+            // [Fix] Use std::string value copy instead of reference to temporary optional content
+            std::string val_str = *node.value<std::string>();
             if (val_str.empty() && key_str != "remark" && key_str != "db_column") {
                  // 注意：remark允许为空，db_column也可能为空
             }

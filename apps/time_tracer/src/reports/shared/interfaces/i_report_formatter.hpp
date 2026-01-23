@@ -24,7 +24,7 @@ typedef void* FormatterHandle;
 
 // [核心修改] 创建函数现在接收配置的 JSON 字符串内容，而不是 AppConfig 对象
 // 外部模块负责读取文件，将内容传给这里
-typedef FormatterHandle (*CreateFormatterFunc)(const char* config_json);
+typedef FormatterHandle (*CreateFormatterFunc)(const char* config_content);
 
 typedef void (*DestroyFormatterFunc)(FormatterHandle);
 

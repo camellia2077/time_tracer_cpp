@@ -32,9 +32,19 @@ if(ENABLE_LTO)
 
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         message(STATUS "Clang detected, enabling Link-Time Optimization (LTO) with lld linker.") 
-        # 为 Clang 添加 LTO 标志，并指定使用 lld 链接器 
+        
+        # 1. 编译标志 (生成 Bitcode)
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto=thin") 
+        
+        # 2. 链接器标志 (必须覆盖所有类型！之前报错就是因为漏了 SHARED)
+        # 针对可执行文件 (.exe)
         set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -fuse-ld=lld -flto=thin") 
+        
+        # [核心修复] 针对动态库 (.dll) -> 修复 reports_shared 报错
+        set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} -fuse-ld=lld -flto=thin") 
+        
+        # [建议添加] 针对模块/插件 (.dll) -> 修复 formatter plugins 可能的报错
+        set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${CMAKE_MODULE_LINKER_FLAGS_RELEASE} -fuse-ld=lld -flto=thin") 
     endif()
 else()
     message(STATUS "Link-Time Optimization (LTO) is disabled by user configuration.")

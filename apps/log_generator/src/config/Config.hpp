@@ -1,7 +1,7 @@
-﻿// src/config/Config.hpp
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
-#include "common/ConfigTypes.hpp"
+// config/config.hpp
+#ifndef CONFIG_CONFIG_HPP_
+#define CONFIG_CONFIG_HPP_
+#include "common/config_types.hpp"
 #include <string>
 #include <vector>
 #include <optional>
@@ -25,4 +25,4 @@ private:
     void _load_wake_keywords(const toml::table& data, TomlConfigData& config);
 };
 
-#endif // CONFIG_HPP
+#endif // CONFIG_CONFIG_HPP_
