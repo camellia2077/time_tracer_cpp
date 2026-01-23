@@ -4,7 +4,7 @@
 # 源文件列表只包含此模块特有的文件。
 add_library(MonthMdFormatter SHARED
     month_md_formatter.cpp
-    month_md_Config.cpp
+    month_md_config.cpp
 )
 
 # --- 2. 设置目标属性 ---

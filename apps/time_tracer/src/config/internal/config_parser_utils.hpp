@@ -3,7 +3,7 @@
 #define CONFIG_INTERNAL_CONFIG_PARSER_UTILS_HPP_
 
 #include <filesystem>
-#include <toml++/toml.h>
+#include "toml.hpp"
 #include "common/config/app_config.hpp"
 
 namespace ConfigParserUtils {

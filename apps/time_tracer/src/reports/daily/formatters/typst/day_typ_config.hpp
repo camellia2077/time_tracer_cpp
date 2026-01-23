@@ -6,7 +6,7 @@
 #include "reports/shared/config/typst_style_config.hpp"
 #include <string>
 #include <map>
-#include <toml++/toml.h>
+#include "toml.hpp"
 
 class DayTypConfig : public DayBaseConfig {
 public:

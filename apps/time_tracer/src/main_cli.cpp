@@ -1,7 +1,8 @@
 // main_cli.cpp
 #include <filesystem>
 #include <iostream>
-#include <print>
+#include <format>   // [修改] 替换 <print> 为 <format>
+// #include <print> // [删除] 移除不支持的 C++23 头文件
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -54,13 +55,15 @@ int main(int argc, char* argv[]) {
 
   // 彩蛋逻辑
   if (args[1] == "tracer") {
-    std::println("\n{}{}{}\n", CYAN_COLOR,
+    // [修改] std::println -> std::cout << std::format
+    std::cout << std::format("\n{}{}{}\n\n", CYAN_COLOR,
                  "  \"Cheers, love! The timetracer is here.\"", RESET_COLOR);
     return 0;
   }
   if (args[1] == "motto" || args[1] == "zen") {
-    std::println("");
-    std::println("{}  \"Trace your time, log your life.\"{}\n", CYAN_COLOR,
+    // [修改] std::println("") -> std::cout << "\n"
+    std::cout << "\n";
+    std::cout << std::format("{}  \"Trace your time, log your life.\"{}\n\n", CYAN_COLOR,
                  RESET_COLOR);
     return 0;
   }
@@ -79,8 +82,9 @@ int main(int argc, char* argv[]) {
 
   // 处理全局 version 参数 (help 参数已移交 CliApplication)
   if (command == "-v" || command == "--version") {
-    std::println("TimeMaster Command Version: {}", AppInfo::VERSION);
-    std::println("Last Updated:  {}", AppInfo::LAST_UPDATED);
+    // [修改] std::println -> std::cout << std::format (手动加 \n)
+    std::cout << std::format("TimeMaster Command Version: {}\n", AppInfo::VERSION);
+    std::cout << std::format("Last Updated:  {}\n", AppInfo::LAST_UPDATED);
     return 0;
   }
 
@@ -94,9 +98,10 @@ int main(int argc, char* argv[]) {
     // [修改] 如果是帮助模式，跳过环境验证，避免因配置错误导致无法查看帮助
     if (!is_help_mode) {
         if (!StartupValidator::validate_environment(config)) {
-          std::println(std::cerr,
+          // [修改] std::println(std::cerr, ...) -> std::cerr << std::format(...)
+          std::cerr << std::format(
                        "\n{}Configuration validation failed. Please check the "
-                       "errors above.{}\n",
+                       "errors above.{}\n\n",
                        RED_COLOR, RESET_COLOR);
           return 1;  // 验证失败，直接退出
         }
@@ -110,12 +115,14 @@ int main(int argc, char* argv[]) {
 
   } catch (const std::exception& e) {
     // 统一错误处理
-    std::println(std::cerr, "{}Startup Error: {}{}", RED_COLOR, e.what(),
+    // [修改] std::println(std::cerr, ...) -> std::cerr << std::format(...)
+    std::cerr << std::format("{}Startup Error: {}{}\n", RED_COLOR, e.what(),
                  RESET_COLOR);
 
     if (std::string(e.what()).find("command") != std::string::npos ||
         std::string(e.what()).find("argument") != std::string::npos) {
-      std::println("\nUse '{} --help' for more information.", args[0]);
+      // [修改] std::println -> std::cout << std::format
+      std::cout << std::format("\nUse '{} --help' for more information.\n", args[0]);
     }
     return 1;
   }

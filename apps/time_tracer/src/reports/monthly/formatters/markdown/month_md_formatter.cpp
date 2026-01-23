@@ -2,7 +2,7 @@
 #include "month_md_formatter.hpp"
 #include <format>
 #include "reports/shared/utils/format/time_format.hpp"
-#include <toml++/toml.h>
+#include "toml.hpp"
 
 MonthMdFormatter::MonthMdFormatter(std::shared_ptr<MonthMdConfig> config) 
     : BaseMdFormatter(config) {}

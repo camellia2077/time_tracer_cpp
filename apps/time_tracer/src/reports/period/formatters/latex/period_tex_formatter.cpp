@@ -2,7 +2,7 @@
 #include "period_tex_formatter.hpp"
 #include <format>
 #include "reports/period/formatters/latex/period_tex_utils.hpp"
-#include <toml++/toml.h>
+#include "toml.hpp"
 
 namespace reporting {
 

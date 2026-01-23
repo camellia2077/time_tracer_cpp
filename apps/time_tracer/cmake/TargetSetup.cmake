@@ -17,10 +17,9 @@ function(setup_project_target TARGET_NAME)
     # 目前强制链接 stdc++exp 是为了支持实验性 format
     target_link_libraries(${TARGET_NAME} PRIVATE
         SQLite::SQLite3
-        # nlohmann_json::nlohmann_json
         yyjson
         tomlplusplus::tomlplusplus
-        stdc++exp
+        # stdc++exp
     )
 
     # 配置预编译头 (PCH) - 使用绝对路径

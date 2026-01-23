@@ -5,7 +5,7 @@
 #include "reports/period/common/period_base_config.hpp"
 #include "reports/shared/config/typst_style_config.hpp"
 #include <string>
-#include <toml++/toml.h>
+#include "toml.hpp"
 
 namespace reporting {
 

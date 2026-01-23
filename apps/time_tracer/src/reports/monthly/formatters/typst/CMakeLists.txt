@@ -3,8 +3,8 @@
 # --- 1. 定义共享库（DLL）目标 ---
 # 源文件列表只包含此模块特有的文件。
 add_library(MonthTypFormatter SHARED
-    month_typ_Formatter.cpp
-    month_typ_Config.cpp
+    month_typ_formatter.cpp
+    month_typ_config.cpp
 )
 
 # --- 2. 设置目标属性 ---

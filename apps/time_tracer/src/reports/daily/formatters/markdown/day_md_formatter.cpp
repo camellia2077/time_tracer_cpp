@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <format>
 #include <memory>
-#include <toml++/toml.h>
+#include "toml.hpp"
 
 #include "reports/shared/utils/format/bool_to_string.hpp"
 #include "reports/shared/utils/format/time_format.hpp"

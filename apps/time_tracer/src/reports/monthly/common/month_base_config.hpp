@@ -4,7 +4,7 @@
 
 #include "reports/shared/api/shared_api.hpp"
 #include <string>
-#include <toml++/toml.h>
+#include "toml.hpp"
 
 DISABLE_C4251_WARNING
 

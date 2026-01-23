@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <vector> 
-#include <toml++/toml.h>
+#include "toml.hpp"
 
 struct StatisticItemConfig {
     std::string label;

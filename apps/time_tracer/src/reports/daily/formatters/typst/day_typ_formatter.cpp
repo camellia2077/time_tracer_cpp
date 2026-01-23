@@ -5,7 +5,7 @@
 #include "reports/daily/formatters/statistics/stat_formatter.hpp"
 #include "reports/daily/formatters/statistics/typst_strategy.hpp"
 #include <memory>
-#include <toml++/toml.h> 
+#include "toml.hpp" 
 
 DayTypFormatter::DayTypFormatter(std::shared_ptr<DayTypConfig> config) 
     : BaseTypFormatter(config) {}

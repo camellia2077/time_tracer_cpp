@@ -4,7 +4,7 @@
 
 #include "reports/monthly/common/month_base_config.hpp"
 #include <string> 
-#include <toml++/toml.h>
+#include "toml.hpp"
 
 class MonthMdConfig : public MonthBaseConfig {
 public:

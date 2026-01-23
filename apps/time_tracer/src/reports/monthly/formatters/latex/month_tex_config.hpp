@@ -5,7 +5,7 @@
 #include "reports/monthly/common/month_base_config.hpp"
 #include "reports/shared/config/tex_style_config.hpp"
 #include <string>
-#include <toml++/toml.h> 
+#include "toml.hpp" 
 
 class MonthTexConfig : public MonthBaseConfig {
 public:
