@@ -1,5 +1,5 @@
 // reports/report_service.cpp
-#include "report_service.hpp"
+#include "reports/report_service.hpp"
 
 #include "reports/shared/generators/base_generator.hpp"
 

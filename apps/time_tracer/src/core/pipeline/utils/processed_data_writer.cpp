@@ -1,5 +1,5 @@
 // core/pipeline/utils/processed_data_writer.cpp
-#include "processed_data_writer.hpp"
+#include "core/pipeline/utils/processed_data_writer.hpp"
 #include "serializer/json_serializer.hpp"
 #include "io/core/file_system_helper.hpp"
 #include "io/core/file_writer.hpp"

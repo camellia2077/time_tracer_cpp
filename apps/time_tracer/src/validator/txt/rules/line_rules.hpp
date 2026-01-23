@@ -1,10 +1,10 @@
-// validator/txt/rules/LineRules.hpp
+// validator/txt/rules/line_rules.hpp
 #ifndef VALIDATOR_TXT_RULES_LINE_RULES_HPP_
 #define VALIDATOR_TXT_RULES_LINE_RULES_HPP_
 
 // [Fix] 修改头文件路径：指向重构后的位置
 #include "common/config/models/converter_config_models.hpp"
-#include "validator/common/ValidatorUtils.hpp"
+#include "validator/common/validator_utils.hpp"
 #include <string>
 #include <set>
 #include <unordered_set>

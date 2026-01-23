@@ -1,5 +1,5 @@
 // reports/data/queriers/daily/day_querier.cpp
-#include "day_querier.hpp"
+#include "reports/data/queriers/daily/day_querier.hpp"
 #include "reports/data/utils/project_tree_builder.hpp"
 #include "reports/data/cache/project_name_cache.hpp"
 #include <stdexcept>

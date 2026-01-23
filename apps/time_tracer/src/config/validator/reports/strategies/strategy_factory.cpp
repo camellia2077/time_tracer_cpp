@@ -1,5 +1,5 @@
 // config/validator/reports/strategies/strategy_factory.cpp
-#include "strategy_factory.hpp"
+#include "config/validator/reports/strategies/strategy_factory.hpp"
 
 #include "config/validator/reports/strategies/daily/daily_md.hpp"
 #include "config/validator/reports/strategies/daily/daily_tex.hpp"

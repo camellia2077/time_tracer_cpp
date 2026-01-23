@@ -1,5 +1,5 @@
 // reports/daily/formatters/typst/day_typ_utils.cpp
-#include "day_typ_utils.hpp"
+#include "reports/daily/formatters/typst/day_typ_utils.hpp"
 #include <iomanip>
 #include <format>
 #include <string>

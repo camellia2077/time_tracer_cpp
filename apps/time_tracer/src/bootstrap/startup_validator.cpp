@@ -1,11 +1,10 @@
 // bootstrap/startup_validator.cpp
-#include "startup_validator.hpp"
+#include "bootstrap/startup_validator.hpp"
 
 #include <iostream>
 #include <filesystem>
 #include <vector>
 
-// [修改] 直接引入 PluginValidator
 #include "config/validator/plugins/facade/plugin_validator.hpp"
 #include "common/ansi_colors.hpp"
 

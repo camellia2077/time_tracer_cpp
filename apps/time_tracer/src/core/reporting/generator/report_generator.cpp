@@ -1,5 +1,5 @@
 // core/reporting/generator/report_generator.cpp
-#include "report_generator.hpp"
+#include "core/reporting/generator/report_generator.hpp"
 #include "reports/report_service.hpp"
 
 ReportGenerator::ReportGenerator(sqlite3* db, const AppConfig& config) {

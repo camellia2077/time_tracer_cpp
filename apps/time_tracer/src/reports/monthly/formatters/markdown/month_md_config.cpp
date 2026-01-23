@@ -1,5 +1,5 @@
 // reports/monthly/formatters/markdown/month_md_config.cpp
-#include "month_md_config.hpp"
+#include "reports/monthly/formatters/markdown/month_md_config.hpp"
 
 MonthMdConfig::MonthMdConfig(const toml::table& config)
     : MonthBaseConfig(config) 

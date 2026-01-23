@@ -1,5 +1,5 @@
 // core/pipeline/pipeline_manager.cpp
-#include "pipeline_manager.hpp"
+#include "core/pipeline/pipeline_manager.hpp"
 #include "core/pipeline/steps/file_collector.hpp"
 #include "core/pipeline/steps/converter_step.hpp"
 #include "core/pipeline/steps/logic_linker_step.hpp" 

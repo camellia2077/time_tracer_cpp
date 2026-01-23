@@ -1,5 +1,5 @@
-// validator/txt/rules/StructureRules.cpp
-#include "StructureRules.hpp"
+// validator/txt/rules/structure_rules.cpp
+#include "validator/txt/rules/structure_rules.hpp"
 
 namespace validator {
 namespace txt {

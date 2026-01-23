@@ -1,5 +1,5 @@
 // cli/impl/utils/help_formatter.cpp
-#include "help_formatter.hpp"
+#include "cli/impl/utils/help_formatter.hpp"
 #include "cli/framework/interfaces/i_command.hpp"
 #include "cli/framework/core/arg_definitions.hpp"
 #include "common/ansi_colors.hpp"

@@ -1,5 +1,5 @@
 // config/validator/reports/strategies/base_strategy.cpp
-#include "base_strategy.hpp"
+#include "config/validator/reports/strategies/base_strategy.hpp"
 #include <iostream>
 #include <set>
 #include <regex>

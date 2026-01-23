@@ -1,5 +1,5 @@
 // config/validator/reports/strategies/daily/daily_typ.cpp
-#include "daily_typ.hpp"
+#include "config/validator/reports/strategies/daily/daily_typ.hpp"
 #include <iostream>
 #include <set>
 

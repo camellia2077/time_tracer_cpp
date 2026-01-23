@@ -1,5 +1,5 @@
 // core/reporting/export/exporter.cpp
-#include "exporter.hpp"
+#include "core/reporting/export/exporter.hpp"
 #include "core/reporting/export/export_utils.hpp"
 #include "core/reporting/generator/report_file_manager.hpp"
 #include "common/ansi_colors.hpp"

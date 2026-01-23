@@ -1,5 +1,5 @@
 // reports/daily/formatters/latex/day_tex_config.cpp
-#include "day_tex_config.hpp"
+#include "reports/daily/formatters/latex/day_tex_config.hpp"
 
 DayTexConfig::DayTexConfig(const toml::table& config)
     : DayBaseConfig(config), 

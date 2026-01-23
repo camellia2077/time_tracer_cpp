@@ -1,5 +1,5 @@
 // core/pipeline/steps/converter_step.cpp
-#include "converter_step.hpp"
+#include "core/pipeline/steps/converter_step.hpp"
 #include "converter/log_processor.hpp"
 #include "common/ansi_colors.hpp"
 #include "io/core/file_reader.hpp"

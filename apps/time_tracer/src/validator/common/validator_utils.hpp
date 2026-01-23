@@ -1,4 +1,4 @@
-// validator/common/ValidatorUtils.hpp
+// validator/common/validator_utils.hpp
 #ifndef VALIDATOR_COMMON_VALIDATOR_UTILS_HPP_
 #define VALIDATOR_COMMON_VALIDATOR_UTILS_HPP_
 

@@ -1,5 +1,5 @@
 // reports/daily/formatters/latex/day_tex_formatter.cpp
-#include "day_tex_formatter.hpp"
+#include "reports/daily/formatters/latex/day_tex_formatter.hpp"
 #include "day_tex_utils.hpp"
 #include "reports/daily/formatters/statistics/stat_formatter.hpp"
 #include "reports/daily/formatters/statistics/latex_strategy.hpp"

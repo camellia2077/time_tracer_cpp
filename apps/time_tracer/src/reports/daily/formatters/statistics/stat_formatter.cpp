@@ -1,5 +1,5 @@
 // reports/daily/formatters/statistics/stat_formatter.cpp
-#include "stat_formatter.hpp"
+#include "reports/daily/formatters/statistics/stat_formatter.hpp"
 #include "reports/shared/utils/format/time_format.hpp"
 #include <vector>
 

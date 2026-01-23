@@ -1,5 +1,5 @@
 // reports/shared/formatters/latex/tex_utils.cpp
-#include "tex_utils.hpp"
+#include "reports/shared/formatters/latex/tex_utils.hpp"
 #include "reports/shared/formatters/base/project_tree_formatter.hpp"
 #include "reports/shared/utils/format/time_format.hpp"
 #include <sstream>

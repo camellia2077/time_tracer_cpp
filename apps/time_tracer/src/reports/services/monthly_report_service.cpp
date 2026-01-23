@@ -1,5 +1,5 @@
 // reports/services/monthly_report_service.cpp
-#include "monthly_report_service.hpp"
+#include "reports/services/monthly_report_service.hpp"
 // [修改] 指向新的 data 模块路径
 #include "reports/data/queriers/monthly/batch_month_data_fetcher.hpp"
 #include "reports/shared/factories/generic_formatter_factory.hpp"

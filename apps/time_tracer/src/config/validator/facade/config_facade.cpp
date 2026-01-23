@@ -1,5 +1,5 @@
 // config/validator/facade/config_facade.cpp
-#include "config_facade.hpp"
+#include "config/validator/facade/config_facade.hpp"
 #include "config/validator/converter/facade/converter_facade.hpp"
 #include "config/validator/reports/facade/query_facade.hpp"
 #include "config/validator/plugins/facade/plugin_validator.hpp"

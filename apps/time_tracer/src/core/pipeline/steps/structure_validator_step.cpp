@@ -1,6 +1,6 @@
 // core/pipeline/steps/structure_validator_step.cpp
-#include "structure_validator_step.hpp"
-#include "validator/txt/facade/TextValidator.hpp"
+#include "core/pipeline/steps/structure_validator_step.hpp"
+#include "validator/txt/facade/text_validator.hpp"
 #include "core/helpers/file_import_reader.hpp"
 #include "common/ansi_colors.hpp"
 #include <iostream>

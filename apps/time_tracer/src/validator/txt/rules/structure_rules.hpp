@@ -1,4 +1,4 @@
-// validator/txt/rules/StructureRules.hpp
+// validator/txt/rules/structure_rules.hpp
 #ifndef VALIDATOR_TXT_RULES_STRUCTURE_RULES_HPP_
 #define VALIDATOR_TXT_RULES_STRUCTURE_RULES_HPP_
 

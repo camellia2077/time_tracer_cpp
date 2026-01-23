@@ -1,5 +1,5 @@
 // reports/shared/formatters/base/project_tree_formatter.cpp
-#include "project_tree_formatter.hpp"
+#include "reports/shared/formatters/base/project_tree_formatter.hpp"
 #include "reports/shared/utils/format/time_format.hpp"
 #include <vector>
 #include <algorithm>

@@ -1,5 +1,5 @@
 // reports/shared/formatters/typst/typ_utils.cpp
-#include "typ_utils.hpp"
+#include "reports/shared/formatters/typst/typ_utils.hpp"
 #include "reports/shared/formatters/base/project_tree_formatter.hpp"
 #include <memory>
 #include <format>

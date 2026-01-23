@@ -1,5 +1,5 @@
 // config/validator/converter/rules/mapping_rule.cpp
-#include "mapping_rule.hpp"
+#include "config/validator/converter/rules/mapping_rule.hpp"
 #include <iostream>
 
 bool MappingRule::validate(const toml::table& mappings_tbl) const {

@@ -1,4 +1,5 @@
-#include "activity_rules.hpp"
+// validator/json/rules/activity_rules.cpp
+#include "validator/json/rules/activity_rules.hpp"
 #include <string>
 
 namespace validator {

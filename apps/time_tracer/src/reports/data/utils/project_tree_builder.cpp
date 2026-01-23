@@ -1,5 +1,5 @@
 // reports/data/utils/project_tree_builder.cpp
-#include "project_tree_builder.hpp"
+#include "reports/data/utils/project_tree_builder.hpp"
 #include "common/utils/string_utils.hpp"
 
 void build_project_tree_from_records(

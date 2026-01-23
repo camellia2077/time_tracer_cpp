@@ -1,5 +1,5 @@
 // reports/shared/formatters/latex/tex_common_utils.cpp
-#include "tex_common_utils.hpp"
+#include "reports/shared/formatters/latex/tex_common_utils.hpp"
 #include <format>
 
 namespace TexCommonUtils {

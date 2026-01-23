@@ -1,5 +1,5 @@
 // reports/period/formatters/latex/period_tex_formatter.cpp
-#include "period_tex_formatter.hpp"
+#include "reports/period/formatters/latex/period_tex_formatter.hpp"
 #include <format>
 #include "reports/period/formatters/latex/period_tex_utils.hpp"
 #include <toml++/toml.hpp>

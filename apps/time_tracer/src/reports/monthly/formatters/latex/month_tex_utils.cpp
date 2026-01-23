@@ -1,5 +1,5 @@
 // reports/monthly/formatters/latex/month_tex_utils.cpp
-#include "month_tex_utils.hpp"
+#include "reports/monthly/formatters/latex/month_tex_utils.hpp"
 #include <iomanip>
 #include <format>
 #include "reports/shared/utils/format/time_format.hpp"

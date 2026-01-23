@@ -1,5 +1,5 @@
 // reports/period/formatters/latex/period_tex_utils.cpp
-#include "period_tex_utils.hpp"
+#include "reports/period/formatters/latex/period_tex_utils.hpp"
 #include <iomanip>
 #include <format>
 #include "reports/shared/utils/format/time_format.hpp"

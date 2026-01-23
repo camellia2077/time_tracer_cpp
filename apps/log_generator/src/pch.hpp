@@ -77,6 +77,6 @@
 #include "reports/shared/formatters/latex/tex_utils.hpp" // 使用次数: 5
 #include "reports/shared/interfaces/i_report_formatter.hpp" // 使用次数: 5
 
-#include "validator/common/ValidatorUtils.hpp" // 使用次数: 10
+#include "validator/common/validator_utils.hpp" // 使用次数: 10
 
 #endif //PCH_HPP_

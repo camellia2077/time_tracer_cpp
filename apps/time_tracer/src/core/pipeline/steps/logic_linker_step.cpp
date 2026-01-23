@@ -1,5 +1,5 @@
 // core/pipeline/steps/logic_linker_step.cpp
-#include "logic_linker_step.hpp"
+#include "core/pipeline/steps/logic_linker_step.hpp"
 #include "converter/convert/core/log_linker.hpp" // 引用 Converter 服务
 #include "common/ansi_colors.hpp"
 #include <iostream>

@@ -1,5 +1,5 @@
 // reports/monthly/formatters/typst/month_typ_formatter.cpp
-#include "month_typ_formatter.hpp"
+#include "reports/monthly/formatters/typst/month_typ_formatter.hpp"
 #include <format>
 #include "reports/shared/utils/format/time_format.hpp"
 #include <toml++/toml.hpp>

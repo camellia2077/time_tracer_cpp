@@ -1,5 +1,5 @@
 // reports/shared/config/tex_style_config.cpp
-#include "tex_style_config.hpp"
+#include "reports/shared/config/tex_style_config.hpp"
 
 TexStyleConfig::TexStyleConfig(const toml::table& tbl) {
     // 移除 value_or 后面的 <std::string>，让编译器自动推导类型

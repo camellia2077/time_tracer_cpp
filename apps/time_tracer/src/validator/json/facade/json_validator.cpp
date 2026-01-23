@@ -1,9 +1,9 @@
-// src/validator/json/facade/JsonValidator.cpp
-#include "json_validator.hpp"
+// validator/json/facade/json_validator.cpp
+#include "validator/json/facade/json_validator.hpp"
 #include <iostream>
 #include "yyjson.h"
-#include "validator/json/rules/DateRules.hpp"
-#include "validator/json/rules/ActivityRules.hpp"
+#include "validator/json/rules/date_rules.hpp"
+#include "validator/json/rules/activity_rules.hpp"
 
 namespace validator {
 namespace json {

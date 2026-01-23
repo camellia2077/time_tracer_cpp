@@ -1,5 +1,5 @@
 // reports/daily/formatters/typst/day_typ_config.cpp
-#include "day_typ_config.hpp"
+#include "reports/daily/formatters/typst/day_typ_config.hpp"
 
 DayTypConfig::DayTypConfig(const toml::table& config)
     : DayBaseConfig(config),

@@ -1,5 +1,5 @@
 // cli/impl/commands/pipeline/convert_command.cpp
-#include "convert_command.hpp"
+#include "cli/impl/commands/pipeline/convert_command.hpp"
 #include "cli/framework/core/command_parser.hpp"
 #include "cli/framework/core/command_validator.hpp" // [新增]
 #include "common/app_options.hpp"

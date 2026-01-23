@@ -1,5 +1,5 @@
 // common/utils/string_utils.cpp
-#include "string_utils.hpp"
+#include "common/utils/string_utils.hpp"
 #include <sstream>
 
 std::string trim(const std::string& str) {

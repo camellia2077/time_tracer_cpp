@@ -1,5 +1,5 @@
 // config/validator/plugins/facade/plugin_validator.cpp
-#include "plugin_validator.hpp"
+#include "config/validator/plugins/facade/plugin_validator.hpp"
 #include <iostream>
 #include <vector>
 

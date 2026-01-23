@@ -1,4 +1,4 @@
-// validator/txt/facade/TextValidator.hpp
+// validator/txt/facade/text_validator.hpp
 #ifndef VALIDATOR_TXT_FACADE_TEXT_VALIDATOR_HPP_
 #define VALIDATOR_TXT_FACADE_TEXT_VALIDATOR_HPP_
 

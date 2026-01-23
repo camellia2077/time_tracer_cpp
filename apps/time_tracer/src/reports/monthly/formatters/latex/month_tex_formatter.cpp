@@ -1,5 +1,5 @@
 // reports/monthly/formatters/latex/month_tex_formatter.cpp
-#include "month_tex_formatter.hpp"
+#include "reports/monthly/formatters/latex/month_tex_formatter.hpp"
 #include "month_tex_utils.hpp"
 #include <toml++/toml.hpp>
 

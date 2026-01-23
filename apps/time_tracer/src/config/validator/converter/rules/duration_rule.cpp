@@ -1,5 +1,5 @@
 // config/validator/converter/rules/duration_rule.cpp
-#include "duration_rule.hpp"
+#include "config/validator/converter/rules/duration_rule.hpp"
 #include <iostream>
 
 bool DurationRule::validate(const toml::table& duration_tbl) const {

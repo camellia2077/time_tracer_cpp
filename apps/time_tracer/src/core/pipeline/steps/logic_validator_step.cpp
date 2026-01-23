@@ -1,5 +1,6 @@
-#include "logic_validator_step.hpp"
-#include "validator/json/facade/JsonValidator.hpp"
+// core/pipeline/steps/logic_validator_step.cpp
+#include "core/pipeline/steps/logic_validator_step.hpp"
+#include "validator/json/facade/json_validator.hpp"
 #include "serializer/json_serializer.hpp" 
 #include "common/ansi_colors.hpp"
 #include <iostream>

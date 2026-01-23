@@ -7,7 +7,7 @@
 #include <vector>
 #include "common/app_options.hpp"
 #include "common/model/daily_log.hpp"
-#include "validator/common/ValidatorUtils.hpp"
+#include "validator/common/validator_utils.hpp"
 
 // 前向声明，减少头文件依赖
 class AppConfig;

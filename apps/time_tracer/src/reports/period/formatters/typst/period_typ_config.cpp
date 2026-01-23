@@ -1,5 +1,5 @@
 // reports/period/formatters/typst/period_typ_config.cpp
-#include "period_typ_config.hpp"
+#include "reports/period/formatters/typst/period_typ_config.hpp"
 
 namespace reporting {
 

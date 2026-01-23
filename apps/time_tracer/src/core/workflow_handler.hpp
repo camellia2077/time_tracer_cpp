@@ -9,7 +9,7 @@
 #include <vector>
 #include "common/config/app_config.hpp"
 #include "common/app_options.hpp"
-#include "validator/common/ValidatorUtils.hpp"
+#include "validator/common/validator_utils.hpp"
 #include "common/model/daily_log.hpp" 
 
 namespace fs = std::filesystem;

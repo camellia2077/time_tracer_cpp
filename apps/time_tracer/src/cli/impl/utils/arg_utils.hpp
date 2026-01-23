@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <algorithm> // for std::find if needed
 #include "reports/shared/types/report_format.hpp"
-#include "validator/common/ValidatorUtils.hpp" // DateCheckMode definition
+#include "validator/common/validator_utils.hpp" // DateCheckMode definition
 
 class ArgUtils {
 public:

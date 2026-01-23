@@ -1,5 +1,5 @@
 // converter/convert/core/activity_mapper.cpp
-#include "activity_mapper.hpp"
+#include "converter/convert/core/activity_mapper.hpp"
 #include "common/utils/string_utils.hpp"
 #include <stdexcept>
 #include <sstream> 

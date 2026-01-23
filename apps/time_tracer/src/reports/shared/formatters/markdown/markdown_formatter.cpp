@@ -1,5 +1,5 @@
 // reports/shared/formatters/markdown/markdown_formatter.cpp
-#include "markdown_formatter.hpp"
+#include "reports/shared/formatters/markdown/markdown_formatter.hpp"
 #include "reports/shared/formatters/base/project_tree_formatter.hpp"
 #include <memory>
 #include <sstream>

@@ -1,5 +1,5 @@
 // reports/period/formatters/markdown/period_md_config.cpp
-#include "period_md_config.hpp"
+#include "reports/period/formatters/markdown/period_md_config.hpp"
 
 namespace reporting {
 

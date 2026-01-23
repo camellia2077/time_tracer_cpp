@@ -1,5 +1,5 @@
 // reports/monthly/formatters/typst/month_typ_config.cpp
-#include "month_typ_config.hpp"
+#include "reports/monthly/formatters/typst/month_typ_config.hpp"
 
 MonthTypConfig::MonthTypConfig(const toml::table& config)
     : MonthBaseConfig(config),

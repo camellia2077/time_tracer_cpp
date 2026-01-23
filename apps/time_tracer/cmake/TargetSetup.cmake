@@ -12,14 +12,10 @@ function(setup_project_target TARGET_NAME)
     # 使用 PROJECT_SOURCE_DIR 确保路径始终从项目根目录开始，支持作为子项目构建
     target_include_directories(${TARGET_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/src")
 
-    # 链接库
-    # TODO: 2026年后关注 std::format 兼容性。
-    # 目前强制链接 stdc++exp 是为了支持实验性 format
     target_link_libraries(${TARGET_NAME} PRIVATE
         SQLite::SQLite3
         yyjson
         tomlplusplus::tomlplusplus
-        # stdc++exp
     )
 
     # 配置预编译头 (PCH) - 使用绝对路径

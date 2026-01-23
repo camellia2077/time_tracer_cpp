@@ -1,5 +1,5 @@
 // reports/monthly/common/month_base_config.cpp
-#include "month_base_config.hpp"
+#include "reports/monthly/common/month_base_config.hpp"
 #include <stdexcept>
 
 MonthBaseConfig::MonthBaseConfig(const toml::table& config) 

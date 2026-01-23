@@ -1,5 +1,5 @@
 // reports/period/common/period_base_config.cpp
-#include "period_base_config.hpp"
+#include "reports/period/common/period_base_config.hpp"
 #include <stdexcept>
 
 namespace reporting {

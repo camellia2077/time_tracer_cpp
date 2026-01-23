@@ -1,5 +1,5 @@
 // reports/daily/common/day_base_config.cpp
-#include "day_base_config.hpp"
+#include "reports/daily/common/day_base_config.hpp"
 #include <stdexcept>
 
 static std::vector<StatisticItemConfig> parse_statistics_items_recursive(const toml::array* arr) {

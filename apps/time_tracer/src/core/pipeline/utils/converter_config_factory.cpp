@@ -1,5 +1,5 @@
 // core/pipeline/utils/converter_config_factory.cpp
-#include "converter_config_factory.hpp"
+#include "core/pipeline/utils/converter_config_factory.hpp"
 #include "config/loader/converter_config_loader.hpp"
 #include <iostream>
 

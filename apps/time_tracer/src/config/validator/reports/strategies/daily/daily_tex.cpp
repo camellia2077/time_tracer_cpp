@@ -1,5 +1,5 @@
 // config/validator/reports/strategies/daily/daily_tex.cpp
-#include "daily_tex.hpp"
+#include "config/validator/reports/strategies/daily/daily_tex.hpp"
 #include <iostream>
 #include <set>
 

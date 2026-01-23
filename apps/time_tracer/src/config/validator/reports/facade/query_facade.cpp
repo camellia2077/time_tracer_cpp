@@ -1,5 +1,5 @@
 // config/validator/reports/facade/query_facade.cpp
-#include "query_facade.hpp"
+#include "config/validator/reports/facade/query_facade.hpp"
 #include "config/validator/reports/strategies/strategy_factory.hpp"
 #include <iostream>
 #include <memory>

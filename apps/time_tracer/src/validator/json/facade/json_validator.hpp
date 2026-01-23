@@ -1,8 +1,8 @@
-// src/validator/json/facade/JsonValidator.hpp
+// validator/json/facade/json_validator.hpp
 #ifndef VALIDATOR_JSON_FACADE_JSON_VALIDATOR_HPP_
 #define VALIDATOR_JSON_FACADE_JSON_VALIDATOR_HPP_
 
-#include "validator/common/ValidatorUtils.hpp"
+#include "validator/common/validator_utils.hpp"
 #include <string>
 #include <set>
 

@@ -1,5 +1,5 @@
 // core/pipeline/steps/file_collector.cpp
-#include "file_collector.hpp"
+#include "core/pipeline/steps/file_collector.hpp"
 #include "io/utils/file_utils.hpp"
 #include "io/core/file_system_helper.hpp"
 #include "common/ansi_colors.hpp"

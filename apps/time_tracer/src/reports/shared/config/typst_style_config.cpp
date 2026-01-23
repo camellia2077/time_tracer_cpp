@@ -1,5 +1,5 @@
 // reports/shared/config/typst_style_config.cpp
-#include "typst_style_config.hpp"
+#include "reports/shared/config/typst_style_config.hpp"
 
 TypstStyleConfig::TypstStyleConfig(const toml::table& tbl) {
     // 移除 value_or 后的 <std::string>

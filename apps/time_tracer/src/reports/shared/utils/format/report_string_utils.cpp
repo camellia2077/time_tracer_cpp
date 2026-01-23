@@ -1,5 +1,5 @@
 // reports/shared/utils/format/report_string_utils.cpp
-#include "report_string_utils.hpp"
+#include "reports/shared/utils/format/report_string_utils.hpp"
 
 std::string replace_all(std::string str, const std::string& from, const std::string& to) {
     size_t start_pos = 0;

@@ -1,5 +1,5 @@
 // cli/impl/commands/pipeline/validate_logic_command.cpp
-#include "validate_logic_command.hpp"
+#include "cli/impl/commands/pipeline/validate_logic_command.hpp"
 #include "cli/framework/core/command_parser.hpp"
 #include "cli/framework/core/command_validator.hpp"
 #include "cli/impl/utils/arg_utils.hpp"

@@ -1,5 +1,5 @@
 // cli/impl/commands/query/query_command.cpp
-#include "query_command.hpp"
+#include "cli/impl/commands/query/query_command.hpp"
 #include "cli/framework/core/command_parser.hpp" 
 #include "cli/framework/core/command_registry.hpp" 
 #include "cli/framework/core/command_validator.hpp" 
