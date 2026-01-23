@@ -5,7 +5,7 @@
 #include "common/config/i_config_loader.hpp"
 // [Fix] 修改头文件路径：指向重构后的位置
 #include "common/config/models/converter_config_models.hpp"
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 
 /**
  * @brief 基于 TOML 的 Converter 配置加载器

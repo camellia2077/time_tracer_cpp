@@ -3,7 +3,7 @@
 #define REPORTS_SHARED_CONFIG_TEX_STYLE_CONFIG_HPP_
 
 #include <string>
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 #include "reports/shared/api/shared_api.hpp"
 
 DISABLE_C4251_WARNING

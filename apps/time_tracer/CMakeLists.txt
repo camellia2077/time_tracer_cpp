@@ -13,8 +13,7 @@ cmake_policy(SET CMP0115 NEW)
 
 # --- Find External Dependencies ---
 find_package(SQLite3 REQUIRED)
-# find_package(nlohmann_json REQUIRED)
-find_package(tomlplusplus REQUIRED)
+
 
 # ==================== [关键修改: 顺序调整与修复] ====================
 # 1. 先设置输出目录！确保 yyjson.dll 生成在 bin/ 下
@@ -26,11 +25,26 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(BUILD_SHARED_LIBS ON) 
 set(YYJSON_INSTALL OFF CACHE BOOL "Disable yyjson default install" FORCE)
 
-# [修正] 截图显示 external 就在当前目录下，直接引用即可
-# 不需要 ../../，也不需要指定第二个构建目录参数（CMake 会自动处理子目录）
-add_subdirectory(external/yyjson)
+include(FetchContent)
 
-# [恢复] 将默认构建方式改回静态
+# --- 声明 yyjson ---
+FetchContent_Declare(
+  yyjson
+  GIT_REPOSITORY https://github.com/ibireme/yyjson.git
+  GIT_TAG        master
+)
+
+# --- 声明 tomlplusplus ---
+FetchContent_Declare(
+  tomlplusplus
+  GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+  GIT_TAG        v3.4.0 # 建议使用稳定版本
+)
+
+# 一次性使两者可用
+FetchContent_MakeAvailable(yyjson tomlplusplus)
+
+# 恢复默认构建方式为静态
 set(BUILD_SHARED_LIBS OFF)
 
 # ====================================================================

@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 #include "common/config/report_config_models.hpp"
 
 namespace fs = std::filesystem;

@@ -1,5 +1,5 @@
 // importer/storage/repository.cpp
-#include "importer/storage/repository.hpp.hpp"
+#include "importer/storage/repository.hpp"
 #include <iostream>
 
 Repository::Repository(const std::string& db_path) {

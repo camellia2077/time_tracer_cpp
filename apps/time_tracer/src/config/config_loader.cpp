@@ -2,7 +2,7 @@
 #include "config_loader.hpp"
 #include <iostream>
 #include <stdexcept>
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 
 #include "io/core/file_system_helper.hpp"
 #include "config/loader/report_config_loader.hpp"

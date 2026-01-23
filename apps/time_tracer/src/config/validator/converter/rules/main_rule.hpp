@@ -3,7 +3,7 @@
 #define CONFIG_VALIDATOR_CONVERTER_RULES_MAIN_RULE_HPP_
 
 #include <string>
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 
 class MainRule {
 public:

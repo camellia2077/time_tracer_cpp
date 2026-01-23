@@ -1,7 +1,7 @@
 // reports/monthly/formatters/latex/month_tex_formatter.cpp
 #include "month_tex_formatter.hpp"
 #include "month_tex_utils.hpp"
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 
 MonthTexFormatter::MonthTexFormatter(std::shared_ptr<MonthTexConfig> config) 
     : BaseTexFormatter(config) {}

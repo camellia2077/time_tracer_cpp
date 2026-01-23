@@ -5,7 +5,7 @@
 #include "reports/monthly/common/month_base_config.hpp"
 #include "reports/shared/config/typst_style_config.hpp"
 #include <string>
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 
 class MonthTypConfig : public MonthBaseConfig {
 public:

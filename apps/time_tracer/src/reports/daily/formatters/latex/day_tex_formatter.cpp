@@ -4,7 +4,7 @@
 #include "reports/daily/formatters/statistics/stat_formatter.hpp"
 #include "reports/daily/formatters/statistics/latex_strategy.hpp"
 #include <memory>
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 
 DayTexFormatter::DayTexFormatter(std::shared_ptr<DayTexConfig> config) 
     : BaseTexFormatter(config) {}

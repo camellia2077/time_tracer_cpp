@@ -6,7 +6,7 @@
 #include "reports/shared/config/tex_style_config.hpp"
 #include <string>
 #include <map>
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 
 class DayTexConfig : public DayBaseConfig {
 public:

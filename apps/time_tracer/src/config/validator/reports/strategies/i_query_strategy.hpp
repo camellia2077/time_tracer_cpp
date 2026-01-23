@@ -2,7 +2,7 @@
 #ifndef CONFIG_VALIDATOR_REPORTS_STRATEGIES_I_QUERY_STRATEGY_HPP_
 #define CONFIG_VALIDATOR_REPORTS_STRATEGIES_I_QUERY_STRATEGY_HPP_
 
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 #include <string>
 
 /**

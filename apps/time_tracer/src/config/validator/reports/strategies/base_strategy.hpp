@@ -3,7 +3,7 @@
 #define CONFIG_VALIDATOR_REPORTS_STRATEGIES_BASE_STRATEGY_HPP_
 
 #include "i_query_strategy.hpp"
-#include "toml.hpp"
+#include <toml++/toml.hpp>
 
 /**
  * @class BaseStrategy
