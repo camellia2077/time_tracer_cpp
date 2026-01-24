@@ -1,26 +1,34 @@
 // core/config/config_handler.hpp
+#pragma once
 #ifndef CORE_CONFIG_CONFIG_HANDLER_HPP_
 #define CORE_CONFIG_CONFIG_HANDLER_HPP_
 
 #include "common/app_context.hpp"
-#include "io/file_system_interfaces.hpp" 
-#include <optional>
-#include <filesystem> // [新增] 需要 std::filesystem::path
+#include "common/config_types.hpp"
+#include "io/file_system_interfaces.hpp"
+#include <memory>
+#include <string>
 
-namespace Core {
+namespace Core::Config {
 
     class ConfigHandler {
     public:
+        // 依赖注入 FileReader 接口，便于测试或更换文件源
+        explicit ConfigHandler(std::shared_ptr<IFileReader> file_reader);
+
         /**
-         * @brief 加载业务配置（Activity Mapping 等）。
-         * [修改] 签名已更新，直接接收 CLI 解析后的 Config 和执行路径。
-         * * @param config 已解析的基础配置
-         * @param exe_path 可执行文件的路径（用于定位配置文件）
-         * @param file_reader 文件读取接口
+         * @brief 加载配置文件并与 CLI 参数合并
+         * @param cli_config 命令行解析出的配置（优先级最高）
+         * @param settings_path settings.toml 路径
+         * @param mapping_path mapping.toml 路径
+         * @return 构建完成的应用上下文
          */
-        std::optional<AppContext> load(const Config& config, 
-                                       const std::filesystem::path& exe_path, 
-                                       IFileReader& file_reader);
+        AppContext load_and_merge(const ::Config& cli_config, 
+                                  const std::string& settings_path, 
+                                  const std::string& mapping_path);
+
+    private:
+        std::shared_ptr<IFileReader> file_reader_;
     };
 
 }

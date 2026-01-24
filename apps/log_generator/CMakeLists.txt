@@ -23,20 +23,20 @@ include(StandardSettings)
 # B. 查找依赖
 include(Dependencies)
 
-# C. 定义源文件列表 (加载 Sources.cmake)
-include(Sources)
+# 必须先加载包含函数定义的文件！
+# 对应 cmake/TargetSetup.cmake
+include(TargetSetup)  
+
+# C. 定义源文件列表
+include(SourceFileCollection) 
 
 # --- 3. Executable Definition ---
-# 使用 Sources.cmake 中定义的 ${SOURCES} 变量
 add_executable(log_generator ${SOURCES})
 
-# 添加头文件包含路径
-target_include_directories(log_generator PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+# [修改] 现在可以安全调用了，因为它已经被 include 进来了
+setup_project_target(log_generator)
 
-# --- 4. Link Libraries ---
-target_link_libraries(log_generator PRIVATE tomlplusplus::tomlplusplus)
-
-# --- 5. Apply Remaining Modules ---
+# --- 4. Apply Remaining Modules ---
 
 # D. 应用编译优化 (需要 target 已经定义)
 include(CompilerOptions)
@@ -44,6 +44,6 @@ include(CompilerOptions)
 # E. 执行文件操作 (需要 target 已经定义)
 include(FileOperations)
 
-# --- 6. Status Messages ---
+# --- 5. Status Messages ---
 message(STATUS "Project configured.")
 message(STATUS "To compile, run: cmake --build . --config Release")

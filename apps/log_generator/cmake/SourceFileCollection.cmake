@@ -6,11 +6,11 @@ set(SOURCES
     # 入口
     src/main.cpp
     src/infrastructure/concurrency/thread_pool_executor.cpp
-    # Core 核心模块
+
+    # Core
+    src/core/config/config_handler.cpp
     src/core/application.cpp
-    src/core/config/config_handler.cpp      
-    src/core/workflow/workflow_handler.cpp 
-    src/core/reporting/report_handler.cpp
+    src/core/workflow/workflow_handler.cpp
     
     # CLI 命令行模块
         

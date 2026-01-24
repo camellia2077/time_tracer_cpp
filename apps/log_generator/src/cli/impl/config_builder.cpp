@@ -8,8 +8,16 @@ namespace Cli::Impl {
     Config ConfigBuilder::build(const Framework::ParsedArgs& args) {
         Config config;
 
+        // [Fix] 初始化默认值，防止未定义的行为
+        // 这里的默认值应与 --help 中的描述保持一致
+        config.items_per_day = 10; 
+        config.enable_nosleep = false;
+        config.start_year = 0;
+        config.end_year = 0;
+
         // 1. 提取基础选项
         if (auto val = args.get_value("--items")) {
+            // 这里可以加简单的防御性检查，尽管 Validator 会再次检查
             config.items_per_day = std::stoi(*val);
         }
 

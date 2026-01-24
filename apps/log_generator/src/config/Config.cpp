@@ -1,4 +1,4 @@
-// config/config.cpp
+// config/Config.cpp
 #include "config/config.hpp"
 #include <iostream>
 

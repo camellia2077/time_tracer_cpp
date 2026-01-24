@@ -1,77 +1,86 @@
 // core/workflow/workflow_handler.cpp
 #include "core/workflow/workflow_handler.hpp"
 #include "utils/utils.hpp"
-#include <format>
-#include <filesystem>
+#include "common/ansi_colors.hpp"
 #include <iostream>
+#include <chrono>
+#include <format>
 #include <atomic>
 
-namespace Core {
+namespace Core::Workflow {
 
-    WorkflowHandler::WorkflowHandler(IFileWriter& file_writer, 
-                                     ILogGeneratorFactory& generator_factory,
-                                     Common::ITaskExecutor& executor)
-        : file_writer_(file_writer), 
-          generator_factory_(generator_factory),
-          executor_(executor) {}
+    WorkflowHandler::WorkflowHandler(std::shared_ptr<IFileWriter> file_writer,
+                                     std::shared_ptr<Common::ITaskExecutor> task_executor,
+                                     std::shared_ptr<ILogGeneratorFactory> generator_factory)
+        : file_writer_(std::move(file_writer)),
+          task_executor_(std::move(task_executor)),
+          generator_factory_(std::move(generator_factory)) {}
 
-    int WorkflowHandler::run(const AppContext& context, ReportHandler& report_handler) {
-        const std::string master_dir_name = "Date";
+    void WorkflowHandler::run(const AppContext& context) {
+        auto start_time = std::chrono::high_resolution_clock::now();
+        PerformanceReporter reporter;
+        std::atomic<int> files_generated{0};
 
-        // 1. IO: 准备目录结构 (业务前置条件)
-        if (!file_writer_.setup_directories(master_dir_name, context.config.start_year, context.config.end_year)) {
-            return -1;
+        // 1. 初始化目录结构
+        std::string master_dir = "logs"; // 硬编码或从配置读取
+        if (!file_writer_->setup_directories(master_dir, context.config.start_year, context.config.end_year)) {
+            return;
         }
 
-        auto& reporter = report_handler.get_reporter();
-        
-        // 使用原子变量统计成功生成的文件数，因为这将在多线程中被修改
-        // 注意：如果你不想在 lambda 里用 atomic，也可以让 task 返回 future，但这里为了解耦使用了引用捕获
-        std::atomic<int> total_files_generated{0};
+        std::cout << "Starting generation for years " << context.config.start_year 
+                  << " to " << context.config.end_year << "...\n";
 
-        std::cout << "Dispatching tasks to executor...\n";
-
-        // 2. 任务分发循环
+        // 2. 提交任务
         for (int year = context.config.start_year; year <= context.config.end_year; ++year) {
-            
-            // 提交任务到抽象的 Executor
-            // 注意：capture 需要确保 context/reporter/master_dir_name 在执行期间有效 (Run 方法栈未销毁)
-            executor_.submit([=, this, &context, &reporter, &total_files_generated, &master_dir_name]() {
-                
-                // --- 业务逻辑开始 (与线程管理无关) ---
-                
-                // 为该线程/任务创建独立的生成器实例
-                auto generator = generator_factory_.create(context);
-                
-                std::string buffer;
-                buffer.reserve(1024 * 1024); // 预分配 1MB
-
-                for (int month = 1; month <= 12; ++month) {
-                    // 路径逻辑
-                    std::string filename = std::format("{}_{:02}.txt", year, month);
-                    std::filesystem::path full_path = std::filesystem::path(master_dir_name) / std::to_string(year) / filename;
-
-                    // 生成阶段
-                    auto gen_start = std::chrono::high_resolution_clock::now();
-                    generator->generate_for_month(year, month, Utils::get_days_in_month(year, month), buffer);
-                    reporter.add_generation_time(std::chrono::high_resolution_clock::now() - gen_start);
-
-                    // 写入阶段
-                    auto io_start = std::chrono::high_resolution_clock::now();
-                    if (file_writer_.write_log_file(full_path, buffer)) {
-                        total_files_generated.fetch_add(1, std::memory_order_relaxed);
-                    }
-                    reporter.add_io_time(std::chrono::high_resolution_clock::now() - io_start);
-                }
-                // --- 业务逻辑结束 ---
-            });
+            for (int month = 1; month <= 12; ++month) {
+                // Lambda 捕获 context 引用是危险的如果 context 生命周期短于任务
+                // 但在此架构中 AppContext 在 main 中存活，且 wait_all 保证同步，故安全。
+                // 为了保险，按值捕获基础类型，引用捕获大对象
+                task_executor_->submit([this, &context, &reporter, &files_generated, year, month, master_dir]() {
+                    execute_month_task(context, year, month, reporter);
+                    files_generated.fetch_add(1, std::memory_order_relaxed);
+                });
+            }
         }
 
-        // 3. 控制流同步：等待所有任务完成
-        // WorkflowHandler 不需要知道是 `std::thread` join 还是 `condition_variable` wait，它只调用 wait_all
-        executor_.wait_all();
+        // 3. 等待所有任务完成
+        task_executor_->wait_all();
 
-        return total_files_generated.load();
+        // 4. 汇报
+        auto end_time = std::chrono::high_resolution_clock::now();
+        auto duration = end_time - start_time;
+        reporter.report(context.config, files_generated.load(), duration);
+    }
+
+    void WorkflowHandler::execute_month_task(const AppContext& context, 
+                                             int year, 
+                                             int month, 
+                                             PerformanceReporter& reporter) {
+        // [线程安全关键点] 
+        // LogGenerator 包含随机数引擎，不可跨线程共享。
+        // 必须在任务内部通过工厂创建一个新的实例。
+        auto generator = generator_factory_->create(context);
+
+        // 1. 生成逻辑
+        auto t1 = std::chrono::high_resolution_clock::now();
+        
+        std::string buffer;
+        int days = Utils::get_days_in_month(year, month);
+        generator->generate_for_month(year, month, days, buffer);
+        
+        auto t2 = std::chrono::high_resolution_clock::now();
+        reporter.add_generation_time(t2 - t1);
+
+        // 2. IO 逻辑
+        auto t3 = std::chrono::high_resolution_clock::now();
+        
+        std::filesystem::path path = std::filesystem::path("logs") 
+                                     / std::to_string(year) 
+                                     / std::format("{:02}.txt", month); // 假设文件名格式
+        file_writer_->write_log_file(path, buffer);
+        
+        auto t4 = std::chrono::high_resolution_clock::now();
+        reporter.add_io_time(t4 - t3);
     }
 
 }

@@ -1,4 +1,4 @@
-// config/config.hpp
+// config/Config.hpp
 #ifndef CONFIG_CONFIG_HPP_
 #define CONFIG_CONFIG_HPP_
 #include "common/config_types.hpp"
