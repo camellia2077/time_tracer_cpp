@@ -3,41 +3,42 @@
 # 职责：仅定义源文件列表变量，不创建任何构建目标。
 
 # ----------------------------------------------------
-# 最佳实践：显式列出所有源文件以确保构建系统的稳定性和可预测性。
+# 显式列出所有源文件以确保构建系统的稳定性和可预测性。
 # --- Core Sources ---
 set(CORE_SOURCES
-    # Root
-    "src/core/workflow_handler.cpp"
+    # Application - Root
+    src/core/application/pipeline_factory.cpp
+    src/core/application/pipeline_runner.cpp
 
-    # Database
-    "src/core/database/db_manager.cpp"
+    # Application - Service
+    src/core/application/service/report_generator.cpp
+    src/core/application/service/report_handler.cpp
+    src/core/application/service/workflow_handler.cpp
 
-    # Pipeline
-    "src/core/pipeline/pipeline_manager.cpp"
-    
-    
-    # Pipeline - Steps
-    "src/core/pipeline/steps/logic_linker_step.cpp"
-    "src/core/pipeline/steps/converter_step.cpp"
-    "src/core/pipeline/steps/file_collector.cpp"
+    # Application - Steps
+    src/core/application/steps/config_loader_step.cpp
+    src/core/application/steps/converter_step.cpp
+    src/core/application/steps/file_collector.cpp
+    src/core/application/steps/logic_linker_step.cpp
+    src/core/application/steps/logic_validator_step.cpp
+    src/core/application/steps/processed_data_writer_step.cpp
+    src/core/application/steps/structure_validator_step.cpp
 
-    "src/core/pipeline/steps/structure_validator_step.cpp"
-    "src/core/pipeline/steps/logic_validator_step.cpp"
+    # Application - Utils
+    src/core/application/utils/converter_config_factory.cpp
+    src/core/application/utils/processed_data_writer.cpp
 
-    # Pipeline - Utils
-    "src/core/pipeline/utils/converter_config_factory.cpp"
-    "src/core/pipeline/utils/processed_data_writer.cpp"
+    # Infrastructure - Persistence
+    src/core/infrastructure/persistence/db_manager.cpp
+    src/core/infrastructure/persistence/sqlite_report_repository.cpp
 
-    # Reporting
-    "src/core/reporting/report_handler.cpp"
-    
-    # Reporting - Export
-    "src/core/reporting/export/export_utils.cpp"
-    "src/core/reporting/export/exporter.cpp"
-    
-    # Reporting - Generator
-    "src/core/reporting/generator/report_file_manager.cpp"
-    "src/core/reporting/generator/report_generator.cpp"
+    # Infrastructure - Reporting
+    src/core/infrastructure/reporting/export_utils.cpp
+    src/core/infrastructure/reporting/exporter.cpp
+    src/core/infrastructure/reporting/report_file_manager.cpp
+
+    # Infrastructure - Services
+    src/core/infrastructure/services/import_service.cpp
 )
 
 # --- Common  ---
@@ -137,6 +138,7 @@ set(CLI_SOURCES
 
     "src/cli/impl/app/cli_application.cpp"
     "src/cli/impl/utils/help_formatter.cpp"
+    "src/cli/impl/ui/console_notifier.cpp"
 
     "src/cli/impl/commands/export/export_command.cpp"
 
@@ -183,13 +185,9 @@ set(CONVERTER_SOURCES
     "src/converter/convert/core/day_stats.cpp"
     "src/converter/convert/io/text_parser.cpp"
 )
-# --- File Handler Sources ---
+
 set(IO_SOURCES
-    "src/io/file_controller.cpp"
-    "src/io/core/file_reader.cpp"
-    "src/io/core/file_writer.cpp"
-    "src/io/core/file_system_helper.cpp"
-    "src/io/utils/file_utils.cpp"
+    "src/io/disk_file_system.cpp"
 )
 
 set(CONFIG_SOURCES
@@ -197,7 +195,6 @@ set(CONFIG_SOURCES
 
     "src/config/internal/config_parser_utils.cpp"
     "src/config/loader/report_config_loader.cpp"
-    # [修复] 添加缺失的 Converter 配置加载器实现
     "src/config/loader/converter_config_loader.cpp"
     "src/config/loader/toml_converter_config_loader.cpp"
     

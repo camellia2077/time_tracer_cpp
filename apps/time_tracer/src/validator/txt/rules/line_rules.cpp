@@ -2,13 +2,11 @@
 #include "validator/txt/rules/line_rules.hpp"
 #include "common/utils/string_utils.hpp"
 #include <algorithm>
-#include <iostream>
 
 namespace validator {
 namespace txt {
 
 LineRules::LineRules(const ConverterConfig& config) : config_(config) {
-    // [Fix] 直接访问 public 成员变量，不再使用 Getter
     const auto& text_map = config.text_mapping;
     for(const auto& pair : text_map) {
         valid_event_keywords_.insert(pair.first);
@@ -27,7 +25,6 @@ LineRules::LineRules(const ConverterConfig& config) : config_(config) {
         valid_event_keywords_.insert(pair.first);
     }
 
-    // 这部分是对运行时注入的配置进行处理，保持不变
     for(const auto& pair : config.initial_top_parents) {
         valid_event_keywords_.insert(pair.first);
     }

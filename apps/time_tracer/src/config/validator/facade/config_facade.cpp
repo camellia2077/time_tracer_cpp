@@ -4,6 +4,9 @@
 #include "config/validator/reports/facade/query_facade.hpp"
 #include "config/validator/plugins/facade/plugin_validator.hpp"
 
+// [新增] 引入磁盘文件系统
+#include "io/disk_file_system.hpp"
+
 bool ConfigFacade::validate_converter_configs(
     const toml::table& main_tbl,
     const toml::table& mappings_tbl,
@@ -21,7 +24,6 @@ bool ConfigFacade::validate_query_configs(
 }
 
 bool ConfigFacade::validate_plugins(const std::filesystem::path& plugins_path) const {
-    // 逻辑保持不变...
     const std::vector<std::string> expected_plugins = {
         "DayMdFormatter", "DayTexFormatter", "DayTypFormatter",
         "MonthMdFormatter", "MonthTexFormatter", "MonthTypFormatter",
@@ -29,10 +31,16 @@ bool ConfigFacade::validate_plugins(const std::filesystem::path& plugins_path) c
     };
 
     PluginValidator validator;
-    bool plugins_ok = validator.validate(plugins_path, expected_plugins);
+    
+    // [新增] 创建 FS 实例用于验证
+    io::DiskFileSystem fs;
+
+    // [修改] 传递 fs
+    bool plugins_ok = validator.validate(fs, plugins_path, expected_plugins);
 
     std::filesystem::path bin_dir = plugins_path.parent_path();
-    bool core_ok = validator.validate(bin_dir, {"reports_shared"});
+    // [修改] 传递 fs
+    bool core_ok = validator.validate(fs, bin_dir, {"reports_shared"});
 
     return plugins_ok && core_ok;
 }

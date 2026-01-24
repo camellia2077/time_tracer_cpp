@@ -3,21 +3,22 @@
 #define CLI_IMPL_APP_APP_CONTEXT_HPP_
 
 #include <memory>
-#include "common/config/app_config.hpp" // [新增] 必须包含此头文件
+#include "common/config/app_config.hpp" 
 
-// 前向声明接口
 class IWorkflowHandler;
 class IReportHandler;
+namespace core::interfaces { 
+    class IFileSystem; 
+    class IUserNotifier; // [新增]
+}
 
-/**
- * @brief 服务容器，持有应用程序核心服务的共享实例。
- */
 struct AppContext {
-    // 使用 shared_ptr 共享所有权，确保服务在命令执行期间存活
     std::shared_ptr<IWorkflowHandler> workflow_handler;
     std::shared_ptr<IReportHandler> report_handler;
     
-    // [修复] 添加 config 成员，供 Command 使用
+    std::shared_ptr<core::interfaces::IFileSystem> file_system;
+    std::shared_ptr<core::interfaces::IUserNotifier> user_notifier; // [新增]
+    
     AppConfig config; 
 };
 

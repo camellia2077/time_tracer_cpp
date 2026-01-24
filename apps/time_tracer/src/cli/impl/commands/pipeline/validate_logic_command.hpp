@@ -4,12 +4,18 @@
 
 #include "cli/framework/interfaces/i_command.hpp"
 #include "common/config/app_config.hpp"
+#include "core/application/interfaces/i_file_system.hpp"
+#include "core/application/interfaces/i_user_notifier.hpp" // [新增]
 #include <filesystem>
+#include <memory>
 
-// [重命名] ValidateOutputCommand -> ValidateLogicCommand
 class ValidateLogicCommand : public ICommand {
 public:
-    explicit ValidateLogicCommand(const AppConfig& config, const std::filesystem::path& output_root);
+    // [修改] 构造函数增加 notifier
+    explicit ValidateLogicCommand(const AppConfig& config, 
+                                  const std::filesystem::path& output_root,
+                                  std::shared_ptr<core::interfaces::IFileSystem> fs,
+                                  std::shared_ptr<core::interfaces::IUserNotifier> notifier);
     
     std::vector<ArgDef> get_definitions() const override;
     std::string get_help() const override;
@@ -18,6 +24,8 @@ public:
 private:
     const AppConfig& app_config_;
     std::filesystem::path output_root_;
+    std::shared_ptr<core::interfaces::IFileSystem> fs_;
+    std::shared_ptr<core::interfaces::IUserNotifier> notifier_; // [新增]
 };
 
 #endif

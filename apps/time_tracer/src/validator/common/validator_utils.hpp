@@ -40,7 +40,13 @@ struct Error {
     }
 };
 
-void printGroupedErrors(const std::string& filename, const std::set<Error>& errors);
+/**
+ * @brief 将错误集合格式化为易读的字符串报告
+ * @param filename 文件名
+ * @param errors 错误集合
+ * @return 格式化后的错误报告字符串
+ */
+std::string format_error_report(const std::string& filename, const std::set<Error>& errors);
 
 } // namespace validator
 

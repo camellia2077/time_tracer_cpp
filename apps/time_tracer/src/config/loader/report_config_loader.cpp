@@ -8,8 +8,10 @@ using namespace TomlLoaderUtils;
 // Daily Loaders
 // ==========================================
 
-DailyTexConfig ReportConfigLoader::loadDailyTexConfig(const fs::path& path) {
-    toml::table tbl = read_toml(path); 
+// [修改] 增加 IFileSystem& fs 参数，并传给 read_toml
+
+DailyTexConfig ReportConfigLoader::loadDailyTexConfig(core::interfaces::IFileSystem& fs, const fs::path& path) {
+    toml::table tbl = read_toml(fs, path); 
     DailyTexConfig config;
     
     fill_tex_style(tbl, config.fonts, config.layout);
@@ -22,8 +24,8 @@ DailyTexConfig ReportConfigLoader::loadDailyTexConfig(const fs::path& path) {
     return config;
 }
 
-DailyTypConfig ReportConfigLoader::loadDailyTypConfig(const fs::path& path) {
-    toml::table tbl = read_toml(path);
+DailyTypConfig ReportConfigLoader::loadDailyTypConfig(core::interfaces::IFileSystem& fs, const fs::path& path) {
+    toml::table tbl = read_toml(fs, path);
     DailyTypConfig config;
     
     fill_typ_style(tbl, config.fonts, config.layout);
@@ -36,8 +38,8 @@ DailyTypConfig ReportConfigLoader::loadDailyTypConfig(const fs::path& path) {
     return config;
 }
 
-DailyMdConfig ReportConfigLoader::loadDailyMdConfig(const fs::path& path) {
-    toml::table tbl = read_toml(path);
+DailyMdConfig ReportConfigLoader::loadDailyMdConfig(core::interfaces::IFileSystem& fs, const fs::path& path) {
+    toml::table tbl = read_toml(fs, path);
     DailyMdConfig config;
 
     fill_daily_labels(tbl, config.labels);
@@ -52,8 +54,8 @@ DailyMdConfig ReportConfigLoader::loadDailyMdConfig(const fs::path& path) {
 // Monthly Loaders
 // ==========================================
 
-MonthlyTexConfig ReportConfigLoader::loadMonthlyTexConfig(const fs::path& path) {
-    toml::table tbl = read_toml(path);
+MonthlyTexConfig ReportConfigLoader::loadMonthlyTexConfig(core::interfaces::IFileSystem& fs, const fs::path& path) {
+    toml::table tbl = read_toml(fs, path);
     MonthlyTexConfig config;
     
     fill_tex_style(tbl, config.fonts, config.layout);
@@ -62,8 +64,8 @@ MonthlyTexConfig ReportConfigLoader::loadMonthlyTexConfig(const fs::path& path) 
     return config;
 }
 
-MonthlyTypConfig ReportConfigLoader::loadMonthlyTypConfig(const fs::path& path) {
-    toml::table tbl = read_toml(path);
+MonthlyTypConfig ReportConfigLoader::loadMonthlyTypConfig(core::interfaces::IFileSystem& fs, const fs::path& path) {
+    toml::table tbl = read_toml(fs, path);
     MonthlyTypConfig config;
     
     fill_typ_style(tbl, config.fonts, config.layout);
@@ -72,8 +74,8 @@ MonthlyTypConfig ReportConfigLoader::loadMonthlyTypConfig(const fs::path& path) 
     return config;
 }
 
-MonthlyMdConfig ReportConfigLoader::loadMonthlyMdConfig(const fs::path& path) {
-    toml::table tbl = read_toml(path);
+MonthlyMdConfig ReportConfigLoader::loadMonthlyMdConfig(core::interfaces::IFileSystem& fs, const fs::path& path) {
+    toml::table tbl = read_toml(fs, path);
     MonthlyMdConfig config;
     
     fill_monthly_labels(tbl, config.labels);
@@ -85,8 +87,8 @@ MonthlyMdConfig ReportConfigLoader::loadMonthlyMdConfig(const fs::path& path) {
 // Period Loaders
 // ==========================================
 
-PeriodTexConfig ReportConfigLoader::loadPeriodTexConfig(const fs::path& path) {
-    toml::table tbl = read_toml(path);
+PeriodTexConfig ReportConfigLoader::loadPeriodTexConfig(core::interfaces::IFileSystem& fs, const fs::path& path) {
+    toml::table tbl = read_toml(fs, path);
     PeriodTexConfig config;
     
     fill_tex_style(tbl, config.fonts, config.layout);
@@ -95,8 +97,8 @@ PeriodTexConfig ReportConfigLoader::loadPeriodTexConfig(const fs::path& path) {
     return config;
 }
 
-PeriodTypConfig ReportConfigLoader::loadPeriodTypConfig(const fs::path& path) {
-    toml::table tbl = read_toml(path);
+PeriodTypConfig ReportConfigLoader::loadPeriodTypConfig(core::interfaces::IFileSystem& fs, const fs::path& path) {
+    toml::table tbl = read_toml(fs, path);
     PeriodTypConfig config;
     
     fill_typ_style(tbl, config.fonts, config.layout);
@@ -105,8 +107,8 @@ PeriodTypConfig ReportConfigLoader::loadPeriodTypConfig(const fs::path& path) {
     return config;
 }
 
-PeriodMdConfig ReportConfigLoader::loadPeriodMdConfig(const fs::path& path) {
-    toml::table tbl = read_toml(path);
+PeriodMdConfig ReportConfigLoader::loadPeriodMdConfig(core::interfaces::IFileSystem& fs, const fs::path& path) {
+    toml::table tbl = read_toml(fs, path);
     PeriodMdConfig config;
     
     fill_period_labels(tbl, config.labels);

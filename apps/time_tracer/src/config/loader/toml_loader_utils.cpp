@@ -1,14 +1,19 @@
 // config/loader/toml_loader_utils.cpp
 #include "config/loader/toml_loader_utils.hpp"
-#include "io/core/file_reader.hpp"
 #include <iostream>
 #include <stdexcept>
 
+// [移除] #include "io/core/file_reader.hpp" 
+
 namespace TomlLoaderUtils {
 
-    toml::table read_toml(const fs::path& path) {
+    toml::table read_toml(core::interfaces::IFileSystem& fs, const fs::path& path) {
         try {
-            return toml::parse_file(path.string());
+            // 1. 使用接口读取内容
+            std::string content = fs.read_content(path);
+            
+            // 2. 解析字符串内容
+            return toml::parse(content);
         } catch (const toml::parse_error& e) {
             throw std::runtime_error("Config TOML Parse Error [" + path.string() + "]: " + std::string(e.description()));
         } catch (const std::exception& e) {
@@ -16,6 +21,8 @@ namespace TomlLoaderUtils {
         }
     }
 
+    // ... (其余辅助函数保持不变，因为它们只处理 TOML 数据结构，不涉及 IO) ...
+    
     void parse_statistics_items(const toml::array* arr, std::vector<ReportStatisticsItem>& out_items) {
         if (!arr) return;
 
@@ -109,7 +116,6 @@ namespace TomlLoaderUtils {
         if (const toml::table* color_tbl = tbl["keyword_colors"].as_table()) {
             for (const auto& [key, val] : *color_tbl) {
                 if (auto s = val.value<std::string>()) {
-                    // [修复] 显式转换为 std::string
                     colors[std::string(key.str())] = *s;
                 }
             }

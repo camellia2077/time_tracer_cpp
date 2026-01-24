@@ -3,7 +3,7 @@
 # [修改] 升级最低版本以更好地支持 C++23 和现代 CMake 特性
 cmake_minimum_required(VERSION 3.25)
 
-project(TimeTrackerApp VERSION "0.4.3.1" LANGUAGES CXX)
+project(TimeTracer VERSION "0.4.3" LANGUAGES CXX)
 
 # [新增] 强制 CMake 的命令行输出使用 UTF-8 编码
 set(CMAKE_CLI_FORCE_UTF8 ON)

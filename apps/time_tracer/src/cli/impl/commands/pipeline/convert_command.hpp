@@ -3,7 +3,7 @@
 #define CLI_IMPL_COMMANDS_PIPELINE_CONVERT_COMMAND_HPP_
 
 #include "cli/framework/interfaces/i_command.hpp"
-#include "core/interfaces/i_workflow_handler.hpp"
+#include "core/application/interfaces/i_workflow_handler.hpp"
 
 class ConvertCommand : public ICommand {
 public:
