@@ -4,17 +4,16 @@
 #include <stdexcept>
 #include <toml++/toml.hpp>
 
-// [移除] #include "io/core/file_system_helper.hpp"
 #include "config/loader/report_config_loader.hpp"
 #include "config/internal/config_parser_utils.hpp"
 #include "config/loader/converter_config_loader.hpp" 
-#include "config/loader/toml_loader_utils.hpp" // 使用 read_toml
+#include "config/loader/toml_loader_utils.hpp" 
 
 namespace fs = std::filesystem;
 
 namespace {
-    // 辅助函数：传递 fs 引用
     void load_detailed_reports(core::interfaces::IFileSystem& fs, AppConfig& config) {
+        // ... (保持不变) ...
         // --- Typst ---
         if (!config.reports.day_typ_config_path.empty())
             config.loaded_reports.typst.day = ReportConfigLoader::loadDailyTypConfig(fs, config.reports.day_typ_config_path);
@@ -64,7 +63,6 @@ AppConfig ConfigLoader::load_configuration() {
 
     toml::table tbl;
     try {
-        // [修改] 使用 fs 读取
         tbl = TomlLoaderUtils::read_toml(*fs_, main_config_path);
     } catch (const std::exception& err) {
         throw std::runtime_error("Failed to parse config.toml: " + std::string(err.what()));
@@ -73,7 +71,7 @@ AppConfig ConfigLoader::load_configuration() {
     AppConfig app_config;
     app_config.exe_dir_path = exe_path;
 
-    // 1. 解析基础路径和设置 (纯内存操作，ConfigParserUtils 无需修改)
+    // 1. 解析基础路径和设置
     ConfigParserUtils::parse_system_settings(tbl, exe_path, app_config);
     ConfigParserUtils::parse_pipeline_settings(tbl, config_dir_path, app_config);
     ConfigParserUtils::parse_report_paths(tbl, config_dir_path, app_config);
@@ -81,12 +79,12 @@ AppConfig ConfigLoader::load_configuration() {
     // 2. 加载 Converter 配置
     try {
         if (!app_config.pipeline.interval_processor_config_path.empty()) {
-            // [修改] 传递 *fs_
             app_config.pipeline.loaded_converter_config = 
                 ConverterConfigLoader::load_from_file(*fs_, app_config.pipeline.interval_processor_config_path);
             
+            // [修复] initial_top_parents 现在位于 mapper_config 中
             for (const auto& [key, val] : app_config.pipeline.initial_top_parents) {
-                app_config.pipeline.loaded_converter_config.initial_top_parents[key.string()] = val.string();
+                app_config.pipeline.loaded_converter_config.mapper_config.initial_top_parents[key.string()] = val.string();
             }
         }
     } catch (const std::exception& e) {
@@ -95,7 +93,6 @@ AppConfig ConfigLoader::load_configuration() {
 
     // 3. 加载报表配置
     try {
-        // [修改] 传递 *fs_
         load_detailed_reports(*fs_, app_config);
     } catch (const std::exception& e) {
         throw std::runtime_error("Failed to load report configuration details: " + std::string(e.what()));

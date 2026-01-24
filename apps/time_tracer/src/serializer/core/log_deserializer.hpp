@@ -3,7 +3,7 @@
 #define SERIALIZER_CORE_LOG_DESERIALIZER_HPP_
 
 #include "yyjson.h"
-#include "common/model/daily_log.hpp"
+#include "core/domain/model/daily_log.hpp"
 
 namespace serializer::core {
 

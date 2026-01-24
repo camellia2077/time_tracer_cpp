@@ -6,7 +6,8 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include "common/model/daily_log.hpp"
+// [路径修正]
+#include "core/domain/model/daily_log.hpp"
 #include "core/application/interfaces/i_file_system.hpp"
 #include "core/application/interfaces/i_user_notifier.hpp"
 
@@ -18,10 +19,7 @@ public:
                   std::shared_ptr<core::interfaces::IFileSystem> fs,
                   std::shared_ptr<core::interfaces::IUserNotifier> notifier);
 
-    // 从文件系统读取 JSON 并导入
     void import_from_files(const std::string& directory_path);
-
-    // 直接从内存导入
     void import_from_memory(const std::map<std::string, std::vector<DailyLog>>& data_map);
 
 private:

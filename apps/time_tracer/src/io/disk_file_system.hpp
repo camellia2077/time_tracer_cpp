@@ -1,6 +1,6 @@
 // io/disk_file_system.hpp
-#ifndef CORE_INFRASTRUCTURE_IO_DISK_FILE_SYSTEM_HPP_
-#define CORE_INFRASTRUCTURE_IO_DISK_FILE_SYSTEM_HPP_
+#ifndef IO_DISK_FILE_SYSTEM_HPP_
+#define IO_DISK_FILE_SYSTEM_HPP_
 
 #include "core/application/interfaces/i_file_system.hpp"
 #include <filesystem>
@@ -40,4 +40,4 @@ public:
 
 } // namespace io
 
-#endif // CORE_INFRASTRUCTURE_IO_DISK_FILE_SYSTEM_HPP_
+#endif // IO_DISK_FILE_SYSTEM_HPP_

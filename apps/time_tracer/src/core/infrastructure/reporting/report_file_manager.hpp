@@ -1,6 +1,6 @@
 // core/infrastructure/reporting/report_file_manager.hpp
-#ifndef CORE_REPORTING_GENERATOR_REPORT_FILE_MANAGER_HPP_
-#define CORE_REPORTING_GENERATOR_REPORT_FILE_MANAGER_HPP_
+#ifndef CORE_INFRASTRUCTURE_REPORTING_REPORT_FILE_MANAGER_HPP_
+#define CORE_INFRASTRUCTURE_REPORTING_REPORT_FILE_MANAGER_HPP_
 
 #include <filesystem>
 #include <string>
@@ -25,4 +25,4 @@ private:
     fs::path export_root_path_;
 };
 
-#endif // CORE_REPORTING_GENERATOR_REPORT_FILE_MANAGER_HPP_
+#endif // CORE_INFRASTRUCTURE_REPORTING_REPORT_FILE_MANAGER_HPP_

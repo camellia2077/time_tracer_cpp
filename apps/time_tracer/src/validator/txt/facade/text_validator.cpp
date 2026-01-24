@@ -1,10 +1,8 @@
-// validator/txt/facade/text_validator.cpp
 #include "validator/txt/facade/text_validator.hpp"
 #include "validator/txt/rules/line_rules.hpp"
 #include "validator/txt/rules/structure_rules.hpp"
 #include "common/utils/string_utils.hpp" 
 #include <sstream> 
-// [移除] #include <iostream>
 
 namespace validator {
 namespace txt {
@@ -14,7 +12,7 @@ struct TextValidator::PImpl {
     StructureRules structural_validator;
 
     PImpl(const ConverterConfig& config)
-        : line_processor(config) {}
+        : line_processor(config) {} // 将 Config 传递给 LineRules
 };
 
 TextValidator::TextValidator(const ConverterConfig& config)

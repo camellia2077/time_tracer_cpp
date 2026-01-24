@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <string>
-#include "common/model/daily_log.hpp"
+#include "core/domain/model/daily_log.hpp"
 
 namespace serializer {
 

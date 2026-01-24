@@ -1,62 +1,32 @@
-// converter/convert/core/activity_mapper.cpp
 #include "converter/convert/core/activity_mapper.hpp"
+#include "common/utils/time_utils.hpp"
 #include "common/utils/string_utils.hpp"
-#include <stdexcept>
-#include <sstream> 
-#include <algorithm> // for std::find
+#include <algorithm>
+#include <sstream>
 
-std::string ActivityMapper::formatTime(const std::string& timeStrHHMM) const {
-    if (timeStrHHMM.length() == 4) {
-        return timeStrHHMM.substr(0, 2) + ":" + timeStrHHMM.substr(2, 2);
-    }
-    return timeStrHHMM;
-}
-
-int ActivityMapper::calculateDurationMinutes(const std::string& startTimeStr, const std::string& endTimeStr) const {
-    if (startTimeStr.length() != 5 || endTimeStr.length() != 5) return 0;
-    try {
-        int startHour = std::stoi(startTimeStr.substr(0, 2));
-        int startMin = std::stoi(startTimeStr.substr(3, 2));
-        int endHour = std::stoi(endTimeStr.substr(0, 2));
-        int endMin = std::stoi(endTimeStr.substr(3, 2));
-        int startTimeInMinutes = startHour * 60 + startMin;
-        int endTimeInMinutes = endHour * 60 + endMin;
-        if (endTimeInMinutes < startTimeInMinutes) {
-            endTimeInMinutes += 24 * 60;
-        }
-        return endTimeInMinutes - startTimeInMinutes;
-    } catch (const std::exception&) {
-        return 0;
-    }
-}
-
-ActivityMapper::ActivityMapper(const ConverterConfig& config)
-    : config_(config),
-      wake_keywords_(config.wake_keywords) // 直接绑定引用
-{}
+// [Fix] 类型重命名
+ActivityMapper::ActivityMapper(const LogMapperConfig& config)
+    : config_(config) {}
 
 void ActivityMapper::map_activities(DailyLog& day) {
     day.processedActivities.clear();
-    
     if (day.getupTime.empty() && !day.isContinuation) return;
     
     std::string startTime = day.getupTime;
 
     for (const auto& rawEvent : day.rawEvents) {
-        // [修复] vector 没有 count 方法，使用 std::find
-        bool is_wake = std::find(wake_keywords_.begin(), wake_keywords_.end(), rawEvent.description) != wake_keywords_.end();
+        bool is_wake = std::find(config_.wake_keywords.begin(), config_.wake_keywords.end(), rawEvent.description) != config_.wake_keywords.end();
         
         if (is_wake) {
             if (startTime.empty()) {
-                 startTime = formatTime(rawEvent.endTimeStr);
+                 startTime = TimeUtils::formatTime(rawEvent.endTimeStr);
             }
             continue;
         }
 
-        std::string formattedEventEndTime = formatTime(rawEvent.endTimeStr);
+        std::string formattedEventEndTime = TimeUtils::formatTime(rawEvent.endTimeStr);
         std::string mappedDescription = rawEvent.description;
         
-        // [修复] 直接访问 public 成员
         auto mapIt = config_.text_mapping.find(mappedDescription);
         if (mapIt != config_.text_mapping.end()) {
             mappedDescription = mapIt->second;
@@ -69,7 +39,7 @@ void ActivityMapper::map_activities(DailyLog& day) {
         
         auto durationRulesIt = config_.duration_mappings.find(mappedDescription);
         if (durationRulesIt != config_.duration_mappings.end()) {
-            int duration = calculateDurationMinutes(startTime, formattedEventEndTime);
+            int duration = TimeUtils::calculateDurationMinutes(startTime, formattedEventEndTime);
             for (const auto& rule : durationRulesIt->second) {
                 if (duration < rule.less_than_minutes) {
                     mappedDescription = rule.value; 
@@ -85,13 +55,11 @@ void ActivityMapper::map_activities(DailyLog& day) {
                 activity.start_time_str = startTime;
                 activity.end_time_str = formattedEventEndTime;
                 
-                // [修复] 直接访问 public 成员
                 const auto& topParentsMap = config_.top_parent_mapping;
                 auto map_it = topParentsMap.find(parts[0]);
                 if (map_it != topParentsMap.end()) {
                     parts[0] = map_it->second;
                 } else {
-                    // 检查运行时注入的配置 (Initial Top Parents)
                     auto init_map_it = config_.initial_top_parents.find(parts[0]);
                     if (init_map_it != config_.initial_top_parents.end()) {
                         parts[0] = init_map_it->second;
@@ -103,10 +71,7 @@ void ActivityMapper::map_activities(DailyLog& day) {
                     ss << parts[i] << (i < parts.size() - 1 ? "_" : "");
                 }
                 activity.project_path = ss.str();
-
-                if (!rawEvent.remark.empty()) {
-                    activity.remark = rawEvent.remark;
-                }
+                if (!rawEvent.remark.empty()) activity.remark = rawEvent.remark;
                 
                 day.processedActivities.push_back(activity);
             }

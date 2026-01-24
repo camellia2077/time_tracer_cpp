@@ -12,7 +12,8 @@ bool LogicLinkerStep::execute(PipelineContext& context) {
     context.notifier->notify_info("Step: Linking cross-month data...");
 
     try {
-        LogLinker linker(context.state.converter_config);
+        // [逻辑修复] 只传递 linker_config 子结构
+        LogLinker linker(context.state.converter_config.linker_config);
         linker.link_logs(context.result.processed_data);
     } catch (const std::exception& e) {
         context.notifier->notify_error("[Pipeline] Logic Linker Error: " + std::string(e.what()));

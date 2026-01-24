@@ -7,8 +7,7 @@
 #include <istream> 
 #include <functional>
 #include <map> 
-#include "common/model/daily_log.hpp" 
-// [重构] 引用 Common 定义的配置结构体
+#include "core/domain/model/daily_log.hpp"
 #include "common/config/models/converter_config_models.hpp"
 
 struct LogProcessingResult {
@@ -26,6 +25,7 @@ public:
                                              const std::string& content);
 
 private:
+    // 这里保留总 Config，以便分发给子组件
     const ConverterConfig& config_;
 };
 

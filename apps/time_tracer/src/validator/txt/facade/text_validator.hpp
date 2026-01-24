@@ -1,10 +1,7 @@
-// validator/txt/facade/text_validator.hpp
 #ifndef VALIDATOR_TXT_FACADE_TEXT_VALIDATOR_HPP_
 #define VALIDATOR_TXT_FACADE_TEXT_VALIDATOR_HPP_
 
 #include "validator/common/validator_utils.hpp"
-
-// [Fix] 修改头文件路径：指向重构后的位置
 #include "common/config/models/converter_config_models.hpp" 
 
 #include <string>
@@ -16,6 +13,7 @@ namespace txt {
 
 class TextValidator {
 public:
+    // 保持接收完整的 ConverterConfig，内部再分发
     explicit TextValidator(const ConverterConfig& config);
     ~TextValidator();
 

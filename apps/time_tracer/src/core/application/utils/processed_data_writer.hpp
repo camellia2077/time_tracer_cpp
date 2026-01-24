@@ -7,9 +7,10 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include "common/model/daily_log.hpp"
+// [路径修正]
+#include "core/domain/model/daily_log.hpp"
 #include "core/application/interfaces/i_file_system.hpp"
-#include "core/application/interfaces/i_user_notifier.hpp" // [新增]
+#include "core/application/interfaces/i_user_notifier.hpp"
 
 namespace core::pipeline {
 
@@ -20,7 +21,7 @@ public:
         const std::map<std::string, std::string>& cached_json_outputs,
         const std::filesystem::path& output_root,
         core::interfaces::IFileSystem& fs,
-        core::interfaces::IUserNotifier& notifier // [新增] 引用传递
+        core::interfaces::IUserNotifier& notifier
     );
 };
 

@@ -2,7 +2,7 @@
 #include "cli/impl/commands/export/export_command.hpp"
 #include "cli/framework/core/command_parser.hpp"
 #include "cli/framework/core/command_registry.hpp"
-#include "cli/framework/core/command_validator.hpp" // [新增]
+#include "cli/framework/core/command_validator.hpp" 
 #include "cli/impl/utils/arg_utils.hpp"
 #include "common/utils/time_utils.hpp"
 #include "cli/impl/app/app_context.hpp"
@@ -58,10 +58,12 @@ void ExportCommand::execute(const CommandParser& parser) {
             }
 
             if (sub_command == "daily") {
-                std::string date_str = normalize_to_date_format(export_arg);
+                // [Fix] 添加 TimeUtils:: 命名空间
+                std::string date_str = TimeUtils::normalize_to_date_format(export_arg);
                 report_handler_.run_export_single_day_report(date_str, format);
             } else if (sub_command == "monthly") {
-                std::string month_str = normalize_to_month_format(export_arg);
+                // [Fix] 添加 TimeUtils:: 命名空间
+                std::string month_str = TimeUtils::normalize_to_month_format(export_arg);
                 report_handler_.run_export_single_month_report(month_str, format);
             } else if (sub_command == "period") {
                 try {

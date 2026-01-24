@@ -46,9 +46,11 @@ void QueryCommand::execute(const CommandParser& parser) {
 
     // 预处理日期格式
     if (sub_command == "daily") {
-        query_arg = normalize_to_date_format(query_arg);
+        // [Fix] 添加 TimeUtils:: 命名空间
+        query_arg = TimeUtils::normalize_to_date_format(query_arg);
     } else if (sub_command == "monthly") {
-        query_arg = normalize_to_month_format(query_arg);
+        // [Fix] 添加 TimeUtils:: 命名空间
+        query_arg = TimeUtils::normalize_to_month_format(query_arg);
     }
 
     // 执行查询
@@ -64,14 +66,12 @@ void QueryCommand::execute(const CommandParser& parser) {
         } else if (sub_command == "monthly") {
             std::cout << report_handler_.run_monthly_query(query_arg, format);
         } else if (sub_command == "period") {
-            // [修改] 解析逗号分隔列表，但将循环逻辑下沉到 Core
             std::vector<int> periods;
             std::string token;
             std::istringstream tokenStream(query_arg);
             
             while (std::getline(tokenStream, token, ',')) {
                 try {
-                    // 简单的去空格处理
                     token.erase(0, token.find_first_not_of(" \t\n\r"));
                     token.erase(token.find_last_not_of(" \t\n\r") + 1);
                     
@@ -84,7 +84,6 @@ void QueryCommand::execute(const CommandParser& parser) {
             }
 
             if (!periods.empty()) {
-                // 一次性调用 Core
                 std::cout << report_handler_.run_period_queries(periods, format);
             }
         } else {

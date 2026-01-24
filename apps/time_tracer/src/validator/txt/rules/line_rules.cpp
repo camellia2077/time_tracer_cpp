@@ -1,4 +1,3 @@
-// validator/txt/rules/line_rules.cpp
 #include "validator/txt/rules/line_rules.hpp"
 #include "common/utils/string_utils.hpp"
 #include <algorithm>
@@ -7,25 +6,31 @@ namespace validator {
 namespace txt {
 
 LineRules::LineRules(const ConverterConfig& config) : config_(config) {
-    const auto& text_map = config.text_mapping;
+    // 1. 从 MapperConfig 获取合法的映射键值 (Text Mapping)
+    const auto& text_map = config.mapper_config.text_mapping;
     for(const auto& pair : text_map) {
         valid_event_keywords_.insert(pair.first);
     }
 
-    const auto& dur_text_map = config.text_duration_mapping;
+    // 2. 从 MapperConfig 获取时长映射键值 (Duration Mapping)
+    const auto& dur_text_map = config.mapper_config.text_duration_mapping;
     for(const auto& pair : dur_text_map) {
         valid_event_keywords_.insert(pair.first);
     }
 
-    const auto& wake_vec = config.wake_keywords;
+    // 3. 从 ParserConfig 获取唤醒词 (Wake Keywords)
+    // 唤醒词也是合法的活动描述
+    const auto& wake_vec = config.parser_config.wake_keywords;
     wake_keywords_.insert(wake_vec.begin(), wake_vec.end());
 
-    const auto& top_map = config.top_parent_mapping;
+    // 4. 从 MapperConfig 获取顶级父类映射 (Top Parent Mapping)
+    const auto& top_map = config.mapper_config.top_parent_mapping;
     for(const auto& pair : top_map) {
         valid_event_keywords_.insert(pair.first);
     }
 
-    for(const auto& pair : config.initial_top_parents) {
+    // 5. 从 MapperConfig 获取运行时注入的顶级父类 (Initial Top Parents)
+    for(const auto& pair : config.mapper_config.initial_top_parents) {
         valid_event_keywords_.insert(pair.first);
     }
 }
@@ -42,8 +47,8 @@ bool LineRules::is_date(const std::string& line) const {
 }
 
 bool LineRules::is_remark(const std::string& line) const {
-    // [Fix] 直接访问 public 成员变量
-    const std::string& prefix = config_.remark_prefix;
+    // [Fix] 访问 parser_config
+    const std::string& prefix = config_.parser_config.remark_prefix;
     
     if (prefix.empty() || line.rfind(prefix, 0) != 0) return false;
     return !trim(line.substr(prefix.length())).empty();

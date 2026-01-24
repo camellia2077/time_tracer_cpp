@@ -2,7 +2,7 @@
 #ifndef CONVERTER_CONVERT_CORE_STATS_RULES_HPP_
 #define CONVERTER_CONVERT_CORE_STATS_RULES_HPP_
 
-#include "common/model/daily_log.hpp"
+#include "core/domain/model/daily_log.hpp"
 #include <initializer_list>
 
 struct StatsRule {

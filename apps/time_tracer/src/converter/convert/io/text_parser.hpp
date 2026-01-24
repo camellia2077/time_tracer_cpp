@@ -1,25 +1,21 @@
-﻿// converter/convert/io/text_parser.hpp
 #ifndef CONVERTER_CONVERT_IO_TEXT_PARSER_HPP_
 #define CONVERTER_CONVERT_IO_TEXT_PARSER_HPP_
 
-#include <string>
-#include <functional>
-#include <iostream>
-#include <unordered_set>
-#include "common/model/daily_log.hpp"
+#include "converter/convert/io/i_parser.hpp"
 #include "common/config/models/converter_config_models.hpp"
+#include <vector>
 
-
-class TextParser {
+class TextParser : public IParser {
 public:
-    explicit TextParser(const ConverterConfig& config);
-    void parse(std::istream& inputStream, std::function<void(DailyLog&)> onNewDay);
+    // [Fix] 类型重命名: ParserConfig -> LogParserConfig
+    explicit TextParser(const LogParserConfig& config);
+    void parse(std::istream& inputStream, std::function<void(DailyLog&)> onNewDay) override;
 
 private:
-    const ConverterConfig& config_;
+    const LogParserConfig& config_;
     
-    std::string year_prefix_; 
-    const std::vector<std::string>& wake_keywords_; // [优化] 直接引用 vector，避免拷贝 set
+    // 缓存引用
+    const std::vector<std::string>& wake_keywords_;
 
     bool isYearMarker(const std::string& line) const;
     bool isNewDayMarker(const std::string& line) const;

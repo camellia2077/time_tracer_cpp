@@ -1,6 +1,6 @@
 // core/infrastructure/reporting/export_utils.hpp
-#ifndef CORE_REPORTING_EXPORT_EXPORT_UTILS_HPP_
-#define CORE_REPORTING_EXPORT_EXPORT_UTILS_HPP_
+#ifndef CORE_INFRASTRUCTURE_REPORTING_EXPORT_UTILS_HPP_
+#define CORE_INFRASTRUCTURE_REPORTING_EXPORT_UTILS_HPP_
 
 #include <string>
 #include <filesystem>

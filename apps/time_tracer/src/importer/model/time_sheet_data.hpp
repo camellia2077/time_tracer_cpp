@@ -7,7 +7,9 @@
 #include <utility>
 #include <unordered_set>
 #include <optional>
-#include "common/model/time_data_models.hpp"
+
+// [修复] 引用路径修正：指向 Core Domain 层的新位置
+#include "core/domain/model/time_data_models.hpp"
 
 // --- Data Structures ---
 
@@ -26,7 +28,7 @@ struct DayData {
     int sleep;
     int exercise;
     
-    // [核心修改] 统计数据聚合到 stats 中
+    // 统计数据聚合到 stats 中
     ActivityStats stats;
 };
 
@@ -34,7 +36,7 @@ struct DayData {
  * @struct TimeRecordInternal
  * @brief Holds data for a single time-logged activity.
  */
-// [核心修改] 继承 BaseActivityRecord 复用字段
+// 继承 BaseActivityRecord 复用字段
 struct TimeRecordInternal : public BaseActivityRecord {
     // BaseActivityRecord 包含: 
     // logical_id, start_timestamp, end_timestamp, 

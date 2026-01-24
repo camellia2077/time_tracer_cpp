@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 #include "importer/model/import_stats.hpp"
-#include "common/model/daily_log.hpp"
+#include "core/domain/model/daily_log.hpp"
 
 class ImportService {
 public:

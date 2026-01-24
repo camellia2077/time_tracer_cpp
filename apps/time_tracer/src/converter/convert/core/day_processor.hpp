@@ -1,18 +1,17 @@
-﻿// converter/convert/core/day_processor.hpp
 #ifndef CONVERTER_CONVERT_CORE_DAY_PROCESSOR_HPP_
 #define CONVERTER_CONVERT_CORE_DAY_PROCESSOR_HPP_
 
-#include "common/model/daily_log.hpp"
-// [重构] 引用 Common 定义的配置结构体
+#include "core/domain/model/daily_log.hpp"
 #include "common/config/models/converter_config_models.hpp"
 
 class DayProcessor {
 public:
-    explicit DayProcessor(const ConverterConfig& config);
+    // [Fix] 类型重命名: MapperConfig -> LogMapperConfig
+    explicit DayProcessor(const LogMapperConfig& config);
     void process(DailyLog& previousDay, DailyLog& dayToProcess);
 
 private:
-    const ConverterConfig& config_;
+    const LogMapperConfig& config_;
 };
 
 #endif // CONVERTER_CONVERT_CORE_DAY_PROCESSOR_HPP_

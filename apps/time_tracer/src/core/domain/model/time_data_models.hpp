@@ -1,6 +1,6 @@
-// common/model/time_data_models.hpp
-#ifndef COMMON_MODEL_TIME_DATA_MODELS_HPP_
-#define COMMON_MODEL_TIME_DATA_MODELS_HPP_
+// core/domain/model/time_data_models.hpp
+#ifndef CORE_DOMAIN_MODEL_TIME_DATA_MODELS_HPP_
+#define CORE_DOMAIN_MODEL_TIME_DATA_MODELS_HPP_
 
 #include <string>
 #include <optional>
@@ -41,4 +41,4 @@ struct BaseActivityRecord {
     std::optional<std::string> remark; // 原 activityRemark
 };
 
-#endif // COMMON_MODEL_TIME_DATA_MODELS_HPP_
+#endif // CORE_DOMAIN_MODEL_TIME_DATA_MODELS_HPP_

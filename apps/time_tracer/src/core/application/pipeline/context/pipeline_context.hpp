@@ -9,11 +9,11 @@
 #include <memory> 
 
 #include "common/config/app_config.hpp"
-#include "validator/common/validator_utils.hpp"
-#include "common/model/daily_log.hpp"
+// [路径修正]
+#include "core/domain/model/daily_log.hpp"
 #include "common/config/models/converter_config_models.hpp"
 #include "core/application/interfaces/i_file_system.hpp" 
-#include "core/application/interfaces/i_user_notifier.hpp" // [新增]
+#include "core/application/interfaces/i_user_notifier.hpp"
 
 namespace fs = std::filesystem;
 
@@ -46,16 +46,15 @@ public:
     PipelineState state;
     PipelineResult result;
 
-    // 核心服务接口
     std::shared_ptr<core::interfaces::IFileSystem> file_system;
-    std::shared_ptr<core::interfaces::IUserNotifier> notifier; // [新增]
+    std::shared_ptr<core::interfaces::IUserNotifier> notifier;
 
     std::map<std::string, std::string> cached_json_outputs;
 
     PipelineContext(const AppConfig& cfg, 
                     const fs::path& out_root, 
                     std::shared_ptr<core::interfaces::IFileSystem> fs,
-                    std::shared_ptr<core::interfaces::IUserNotifier> notify_svc) // [修改]
+                    std::shared_ptr<core::interfaces::IUserNotifier> notify_svc)
         : config(cfg, out_root), 
           file_system(std::move(fs)),
           notifier(std::move(notify_svc)) {}

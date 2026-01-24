@@ -7,37 +7,39 @@
 #include <unordered_map>
 #include <map>
 
-// 持续时长映射规则
 struct DurationMappingRule {
     int less_than_minutes = 0;
     std::string value;
 };
 
-/**
- * @brief 核心转换器配置 (纯数据结构)
- * 完全解耦了 TOML 解析逻辑，仅用于数据传递。
- */
-struct ConverterConfig {
-    // 基础设置
-    std::string remark_prefix;
-    std::vector<std::string> header_order;
+// 1. 解析器专用配置 (重命名为 LogParserConfig 以避免与 CLI ParserConfig 冲突)
+struct LogParserConfig {
     std::vector<std::string> wake_keywords;
+    std::string remark_prefix;
+};
 
-    // [新增] 自动生成活动的项目路径配置
-    // 默认为 "sleep_night"，但可以通过配置文件覆盖
-    std::string generated_sleep_project_path = "sleep_night";
-    
-    // 映射表
-    std::unordered_map<std::string, std::string> top_parent_mapping;
+// 2. 映射器专用配置
+struct LogMapperConfig {
+    std::vector<std::string> wake_keywords; // 需要过滤起床事件
     std::unordered_map<std::string, std::string> text_mapping;
     std::unordered_map<std::string, std::string> text_duration_mapping;
-    
-    // 时长规则: Key = event_name (e.g., "rest"), Value = Rules list
     std::unordered_map<std::string, std::vector<DurationMappingRule>> duration_mappings;
-
-    // 运行时合并进来的额外配置 (如来自 AppConfig 的 initial_top_parents)
-    // 这部分数据通常不在 TOML 中定义，而是在 Pipeline 启动时注入
+    std::unordered_map<std::string, std::string> top_parent_mapping;
     std::unordered_map<std::string, std::string> initial_top_parents;
+};
+
+// 3. 链接器专用配置
+struct LogLinkerConfig {
+    std::string generated_sleep_project_path = "sleep_night";
+};
+
+// 总配置 (聚合，用于 Loader 填充和 AppConfig 持有)
+struct ConverterConfig {
+    // [关键] 类型名改变，但成员变量名保持不变
+    // 这样其他代码中 config.parser_config.xxx 的调用依然有效
+    LogParserConfig parser_config;
+    LogMapperConfig mapper_config;
+    LogLinkerConfig linker_config;
 };
 
 #endif // COMMON_CONFIG_MODELS_CONVERTER_CONFIG_MODELS_HPP_

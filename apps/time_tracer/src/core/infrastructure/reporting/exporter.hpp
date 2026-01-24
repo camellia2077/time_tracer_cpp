@@ -1,6 +1,6 @@
 // core/infrastructure/reporting/exporter.hpp
-#ifndef CORE_REPORTING_EXPORT_EXPORTER_HPP_
-#define CORE_REPORTING_EXPORT_EXPORTER_HPP_
+#ifndef CORE_INFRASTRUCTURE_REPORTING_EXPORTER_HPP_
+#define CORE_INFRASTRUCTURE_REPORTING_EXPORTER_HPP_
 
 #include <string>
 #include <vector>

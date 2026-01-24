@@ -2,7 +2,6 @@
 #include "config/loader/converter_config_loader.hpp"
 #include "toml_loader_utils.hpp"
 #include "common/ansi_colors.hpp"
-// [移除] #include "io/core/file_system_helper.hpp" 
 #include <iostream>
 #include <stdexcept>
 #include <algorithm>
@@ -11,7 +10,6 @@ namespace fs = std::filesystem;
 using namespace TomlLoaderUtils;
 
 void ConverterConfigLoader::merge_toml_table(toml::table& target, const toml::table& source) {
-    // ... (逻辑不变) ...
     for (const auto& [key, val] : source) {
         if (target.contains(key)) {
             if (target[key].is_table() && val.is_table()) {
@@ -30,14 +28,12 @@ toml::table ConverterConfigLoader::load_merged_toml(core::interfaces::IFileSyste
         throw std::runtime_error("Converter config file not found: " + main_config_path.string());
     }
 
-    // [修改] 传入 fs
     toml::table main_tbl = read_toml(fs, main_config_path);
     fs::path config_dir = main_config_path.parent_path();
 
     // 合并 mappings_config_path
     if (auto path_node = main_tbl["mappings_config_path"].value<std::string>()) {
         fs::path map_path = config_dir / *path_node;
-        // [修改] 使用 fs.exists
         if (fs.exists(map_path)) {
             auto mapping_tbl = read_toml(fs, map_path);
             if (mapping_tbl.contains("text_mappings")) {
@@ -54,13 +50,13 @@ toml::table ConverterConfigLoader::load_merged_toml(core::interfaces::IFileSyste
     // 合并 duration_rules_config_path
     if (auto path_node = main_tbl["duration_rules_config_path"].value<std::string>()) {
         fs::path rule_path = config_dir / *path_node;
-        // [修改] 使用 fs.exists
         if (fs.exists(rule_path)) {
             auto rules_tbl = read_toml(fs, rule_path);
             if (rules_tbl.contains("duration_mappings")) {
                 if (!main_tbl.contains("duration_mappings")) main_tbl.insert("duration_mappings", toml::table{});
                 merge_toml_table(*main_tbl["duration_mappings"].as_table(), *rules_tbl["duration_mappings"].as_table());
             }
+            // 有些配置可能把 text_duration_mappings 放在 rules 文件里
             if (rules_tbl.contains("text_duration_mappings")) {
                 if (!main_tbl.contains("text_duration_mappings")) main_tbl.insert("text_duration_mappings", toml::table{});
                 merge_toml_table(*main_tbl["text_duration_mappings"].as_table(), *rules_tbl["text_duration_mappings"].as_table());
@@ -72,32 +68,38 @@ toml::table ConverterConfigLoader::load_merged_toml(core::interfaces::IFileSyste
 }
 
 void ConverterConfigLoader::parse_toml_to_struct(const toml::table& tbl, ConverterConfig& config) {
-    // ... (纯逻辑代码，无需修改，保持原样) ...
-    // 1. 基础配置
+    // -------------------------------------------------------
+    // 1. 填充 ParserConfig
+    // -------------------------------------------------------
     if (auto val = tbl["remark_prefix"].value<std::string>()) {
-        config.remark_prefix = *val;
-    }
-
-    if (const toml::array* arr = tbl["header_order"].as_array()) {
-        for (const auto& elem : *arr) {
-            if (auto s = elem.value<std::string>()) config.header_order.push_back(*s);
-        }
+        config.parser_config.remark_prefix = *val;
     }
 
     if (const toml::array* arr = tbl["wake_keywords"].as_array()) {
         for (const auto& elem : *arr) {
-            if (auto s = elem.value<std::string>()) config.wake_keywords.push_back(*s);
+            if (auto s = elem.value<std::string>()) {
+                config.parser_config.wake_keywords.push_back(*s);
+            }
         }
     }
 
-    // 2. 自动生成活动的配置
+    // -------------------------------------------------------
+    // 2. 填充 LinkerConfig (自动生成的活动)
+    // -------------------------------------------------------
     if (const toml::table* gen_tbl = tbl["generated_activities"].as_table()) {
         if (auto val = gen_tbl->get("sleep_project_path")->value<std::string>()) {
-            config.generated_sleep_project_path = *val;
+            config.linker_config.generated_sleep_project_path = *val;
         }
     }
 
-    // 3. 映射表
+    // -------------------------------------------------------
+    // 3. 填充 MapperConfig
+    // -------------------------------------------------------
+    
+    // [注意] Mapper 也需要 wake_keywords 来过滤起床事件
+    config.mapper_config.wake_keywords = config.parser_config.wake_keywords;
+
+    // 辅助lambda：加载字符串Map
     auto load_map = [&](const std::string& key, std::unordered_map<std::string, std::string>& target) {
         if (const toml::table* map_tbl = tbl[key].as_table()) {
             for (const auto& [k, v] : *map_tbl) {
@@ -106,11 +108,11 @@ void ConverterConfigLoader::parse_toml_to_struct(const toml::table& tbl, Convert
         }
     };
 
-    load_map("top_parent_mapping", config.top_parent_mapping);
-    load_map("text_mappings", config.text_mapping);
-    load_map("text_duration_mappings", config.text_duration_mapping);
+    load_map("top_parent_mapping", config.mapper_config.top_parent_mapping);
+    load_map("text_mappings", config.mapper_config.text_mapping);
+    load_map("text_duration_mappings", config.mapper_config.text_duration_mapping);
 
-    // 4. 时长规则
+    // 加载时长规则
     if (const toml::table* duration_tbl = tbl["duration_mappings"].as_table()) {
         for (const auto& [event_key, rules_node] : *duration_tbl) {
             if (const toml::array* rules_arr = rules_node.as_array()) {
@@ -126,7 +128,7 @@ void ConverterConfigLoader::parse_toml_to_struct(const toml::table& tbl, Convert
                 std::sort(rules.begin(), rules.end(), [](const DurationMappingRule& a, const DurationMappingRule& b) {
                     return a.less_than_minutes < b.less_than_minutes;
                 });
-                config.duration_mappings[std::string(event_key.str())] = rules;
+                config.mapper_config.duration_mappings[std::string(event_key.str())] = rules;
             }
         }
     }

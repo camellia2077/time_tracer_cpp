@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include "importer/parser/parsed_data.hpp"
-#include "common/model/daily_log.hpp"
+#include "core/domain/model/daily_log.hpp"
 
 /**
  * @class MemoryParser
