@@ -4,15 +4,18 @@
 
 namespace core::pipeline {
 
+ProcessedDataWriterStep::ProcessedDataWriterStep(std::shared_ptr<core::interfaces::ILogSerializer> serializer)
+    : serializer_(std::move(serializer)) {}
+
 bool ProcessedDataWriterStep::execute(PipelineContext& context) {
     context.notifier->notify_info("Step: Saving Validated JSON...");
 
     auto new_files = ProcessedDataWriter::write(
         context.result.processed_data,
-        context.cached_json_outputs, 
         context.config.output_root,
         *context.file_system,
-        *context.notifier
+        *context.notifier,
+        *serializer_ // [修改] 传递 serializer
     );
 
     context.state.generated_files.insert(
@@ -27,7 +30,7 @@ bool ProcessedDataWriterStep::execute(PipelineContext& context) {
         context.notifier->notify_success("JSON 数据已安全落盘。");
     }
 
-    return true; // 即使写入失败，通常也不中断流程，或者根据需求返回 false
+    return true; 
 }
 
 }

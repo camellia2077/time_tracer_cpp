@@ -2,29 +2,28 @@
 #ifndef SERIALIZER_JSON_SERIALIZER_HPP_
 #define SERIALIZER_JSON_SERIALIZER_HPP_
 
+#include "core/application/interfaces/i_log_serializer.hpp" // 实现 Core 接口
 #include <vector>
 #include <string>
-#include "core/domain/model/daily_log.hpp"
 
 namespace serializer {
 
 /**
- * @brief 序列化模块的外观类 (Facade) - 基于 yyjson
- * 负责调度内部核心组件 (LogSerializer, LogDeserializer) 完成转换任务。
- * * 变更说明：
- * 原 nlohmann::json 接口已替换为 std::string。
- * 序列化方法现在返回 JSON 字符串。
- * 反序列化方法现在接收 JSON 字符串。
+ * @brief JSON 序列化实现类
+ * 实现了 Core 定义的 ILogSerializer 接口
  */
-class JsonSerializer {
+class JsonSerializer : public core::interfaces::ILogSerializer {
 public:
-    // Struct -> JSON String
-    static std::string serializeDay(const DailyLog& day);
-    static std::string serializeDays(const std::vector<DailyLog>& days);
+    // --- 实现接口方法 ---
+    std::string serialize(const std::vector<DailyLog>& logs) override;
+    std::vector<DailyLog> deserialize(const std::string& content) override;
 
-    // JSON String -> Struct
-    static DailyLog deserializeDay(const std::string& json_content);
-    static std::vector<DailyLog> deserializeDays(const std::string& json_content);
+    // --- [修复] 补全辅助方法声明 ---
+    std::string serializeDay(const DailyLog& day);
+    std::string serializeDays(const std::vector<DailyLog>& days); // 之前漏了这个
+
+    DailyLog deserializeDay(const std::string& json_content);
+    std::vector<DailyLog> deserializeDays(const std::string& json_content); // 之前漏了这个
 };
 
 } // namespace serializer

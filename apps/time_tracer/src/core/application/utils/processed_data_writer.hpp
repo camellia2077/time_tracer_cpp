@@ -7,10 +7,10 @@
 #include <vector>
 #include <string>
 #include <memory>
-// [路径修正]
 #include "core/domain/model/daily_log.hpp"
 #include "core/application/interfaces/i_file_system.hpp"
 #include "core/application/interfaces/i_user_notifier.hpp"
+#include "core/application/interfaces/i_log_serializer.hpp" // [新增]
 
 namespace core::pipeline {
 
@@ -18,10 +18,10 @@ class ProcessedDataWriter {
 public:
     static std::vector<std::filesystem::path> write(
         const std::map<std::string, std::vector<DailyLog>>& data,
-        const std::map<std::string, std::string>& cached_json_outputs,
         const std::filesystem::path& output_root,
         core::interfaces::IFileSystem& fs,
-        core::interfaces::IUserNotifier& notifier
+        core::interfaces::IUserNotifier& notifier,
+        core::interfaces::ILogSerializer& serializer // [新增]
     );
 };
 

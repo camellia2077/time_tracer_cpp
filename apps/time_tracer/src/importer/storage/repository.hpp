@@ -12,13 +12,10 @@
 #include "importer/storage/sqlite/connection.hpp"
 #include "importer/storage/sqlite/statement.hpp"
 
-/**
- * @class Repository
- * @brief Facade class that simplifies the process of importing data into the database.
- */
 class Repository {
 public:
-    explicit Repository(const std::string& db_path);
+    // [修改] 注入 Connection，解耦数据库文件的打开逻辑
+    explicit Repository(std::shared_ptr<Connection> connection);
     ~Repository() = default;
 
     bool is_db_open() const;
@@ -29,7 +26,7 @@ public:
     );
 
 private:
-    std::unique_ptr<Connection> connection_manager_;
+    std::shared_ptr<Connection> connection_manager_;
     std::unique_ptr<Statement> statement_manager_; 
     std::unique_ptr<Writer> data_inserter_;        
 };

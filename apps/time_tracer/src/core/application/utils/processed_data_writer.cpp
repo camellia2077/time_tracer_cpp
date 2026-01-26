@@ -1,6 +1,6 @@
 // core/application/utils/processed_data_writer.cpp
 #include "core/application/utils/processed_data_writer.hpp"
-#include "serializer/json_serializer.hpp"
+// [移除] #include "serializer/json_serializer.hpp"
 
 namespace fs = std::filesystem;
 
@@ -8,10 +8,10 @@ namespace core::pipeline {
 
 std::vector<fs::path> ProcessedDataWriter::write(
     const std::map<std::string, std::vector<DailyLog>>& data,
-    const std::map<std::string, std::string>& cached_json_outputs,
     const fs::path& output_root,
     core::interfaces::IFileSystem& fs,
-    core::interfaces::IUserNotifier& notifier
+    core::interfaces::IUserNotifier& notifier,
+    core::interfaces::ILogSerializer& serializer // [新增]
 ) {
     std::vector<fs::path> written_files;
 
@@ -22,13 +22,8 @@ std::vector<fs::path> ProcessedDataWriter::write(
         try {
             fs.create_directories(month_output_dir);
             
-            std::string content_to_write;
-            auto cache_it = cached_json_outputs.find(month_key);
-            if (cache_it != cached_json_outputs.end()) {
-                content_to_write = cache_it->second; 
-            } else {
-                content_to_write = serializer::JsonSerializer::serializeDays(month_days);
-            }
+            // [修改] 使用传入的接口进行序列化
+            std::string content_to_write = serializer.serialize(month_days);
             
             fs.write_content(output_file_path, content_to_write);
             written_files.push_back(output_file_path);

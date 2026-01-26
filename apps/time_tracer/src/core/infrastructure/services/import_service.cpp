@@ -1,14 +1,17 @@
 // core/infrastructure/services/import_service.cpp
 #include "core/infrastructure/services/import_service.hpp"
 #include "importer/data_importer.hpp" 
-#include "serializer/json_serializer.hpp"
 
 namespace core::service {
 
 ImportService::ImportService(std::string db_path, 
                              std::shared_ptr<core::interfaces::IFileSystem> fs,
-                             std::shared_ptr<core::interfaces::IUserNotifier> notifier)
-    : db_path_(std::move(db_path)), fs_(std::move(fs)), notifier_(std::move(notifier)) {}
+                             std::shared_ptr<core::interfaces::IUserNotifier> notifier,
+                             std::shared_ptr<core::interfaces::ILogSerializer> serializer)
+    : db_path_(std::move(db_path)), 
+      fs_(std::move(fs)), 
+      notifier_(std::move(notifier)),
+      serializer_(std::move(serializer)) {}
 
 void ImportService::import_from_files(const std::string& directory_path) {
     notifier_->notify_info("正在扫描待导入文件...");
@@ -21,7 +24,8 @@ void ImportService::import_from_files(const std::string& directory_path) {
     for(const auto& filepath : json_files) {
         try {
             std::string content = fs_->read_content(filepath);
-            std::vector<DailyLog> logs = serializer::JsonSerializer::deserializeDays(content);
+            // [修改] 使用注入的 serializer 接口
+            std::vector<DailyLog> logs = serializer_->deserialize(content);
             memory_data[filepath] = logs;
         } catch (const std::exception& e) {
             notifier_->notify_error("解析文件失败 " + filepath + ": " + e.what());
@@ -37,8 +41,7 @@ void ImportService::import_from_files(const std::string& directory_path) {
 }
 
 void ImportService::import_from_memory(const std::map<std::string, std::vector<DailyLog>>& data_map) {
-    // 调用底层 Importer 模块
-    // 注意：此处保留了对全局/静态函数的调用，这部分可以进一步通过接口解耦，但不在本次重构范围内
+    // 依然调用底层 Importer (暂未重构部分)
     handle_process_memory_data(db_path_, data_map);
 }
 

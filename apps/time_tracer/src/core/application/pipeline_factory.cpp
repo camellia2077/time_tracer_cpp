@@ -12,19 +12,18 @@
 
 namespace core::pipeline {
 
-class PipelineRunner;
-
 std::unique_ptr<PipelineRunner> PipelineFactory::create_ingest_pipeline(
     const AppOptions& options, 
-    const AppConfig& config
+    [[maybe_unused]] const AppConfig& config, // [修复] 标记为可能不使用，消除编译错误
+    std::shared_ptr<core::interfaces::ILogSerializer> serializer,
+    std::shared_ptr<core::interfaces::ILogConverter> converter
 ) {
     auto runner = std::make_unique<PipelineRunner>();
 
     // 1. 总是执行收集
     runner->add_step(std::make_unique<FileCollector>());
 
-    // [新增] 2. 加载配置 (如果后续步骤需要用到配置)
-    // 只要涉及到结构验证、转换或逻辑验证，都需要由 ConfigLoaderStep 加载 mappings
+    // 2. 加载配置
     if (options.validate_structure || options.convert || options.validate_logic) {
         runner->add_step(std::make_unique<ConfigLoaderStep>());
     }
@@ -36,7 +35,7 @@ std::unique_ptr<PipelineRunner> PipelineFactory::create_ingest_pipeline(
 
     // 4. 转换与链接
     if (options.convert) {
-        runner->add_step(std::make_unique<ConverterStep>(config));
+        runner->add_step(std::make_unique<ConverterStep>(converter));
         runner->add_step(std::make_unique<LogicLinkerStep>());
     }
 
@@ -47,7 +46,7 @@ std::unique_ptr<PipelineRunner> PipelineFactory::create_ingest_pipeline(
 
     // 6. 保存输出
     if (options.convert && options.save_processed_output) {
-        runner->add_step(std::make_unique<ProcessedDataWriterStep>());
+        runner->add_step(std::make_unique<ProcessedDataWriterStep>(serializer));
     }
 
     return runner;

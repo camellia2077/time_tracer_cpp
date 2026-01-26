@@ -13,7 +13,9 @@ void StructureRules::reset() {
 }
 
 void StructureRules::process_year_line(int line_number, const std::string& line, std::set<Error>& errors) {
-    // [规则 1] 单文件只允许一个年份头
+    // [修复] 防止编译器报未使用参数错误（即便后面使用了，某些分支返回可能导致警告）
+    (void)line; 
+
     if (has_seen_year_) {
         errors.insert({line_number, "Multiple year headers found. Only one year header is allowed per file (single month/year per file).", ErrorType::Structural});
         return;
@@ -37,9 +39,7 @@ void StructureRules::process_date_line(int line_number, const std::string& line,
         errors.insert({line_number, "Date found before a year header.", ErrorType::Structural});
     }
 
-    // [规则 2] 文件的第一个日期必须是该月的第一天 (MM01)
     if (!has_seen_any_date_) {
-        // line 格式已被 LineRules 验证为 4位数字 (MMDD)
         if (line.length() >= 4) {
             std::string day_part = line.substr(2, 2);
             if (day_part != "01") {

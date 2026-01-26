@@ -1,6 +1,6 @@
 // core/application/steps/converter_step.cpp
 #include "core/application/steps/converter_step.hpp"
-#include "converter/log_processor.hpp"
+// [移除] #include "converter/log_processor.hpp" -> 现在通过接口调用，不需要具体头文件
 #include <chrono>
 #include <iomanip>
 #include <future> 
@@ -10,28 +10,30 @@
 
 namespace core::pipeline {
 
-ConverterStep::ConverterStep(const AppConfig& /*config*/) {}
+// [修改] 注入 converter
+ConverterStep::ConverterStep(std::shared_ptr<core::interfaces::ILogConverter> converter) 
+    : converter_(std::move(converter)) {}
 
 bool ConverterStep::execute(PipelineContext& context) {
     context.notifier->notify_info("Step: Converting files (Parallel)...");
     auto start_time = std::chrono::steady_clock::now();
 
     std::mutex data_mutex;
+    using core::interfaces::LogProcessingResult; // 使用接口中定义的 Result
     std::vector<std::future<LogProcessingResult>> futures;
     
-    // 注意：在线程中调用 notifier 需要确保 notifier 实现是线程安全的，
-    // 或者我们只在主线程汇总输出。这里选择在主线程输出错误，或者简单地捕获异常信息。
-    // 为了简单起见，我们在 lambda 中只做计算，不直接调用 context.notifier (防止竞争)
-    
+    // 捕获 converter_ 指针
+    auto converter = converter_;
+    // 捕获 config 副本 (ConverterConfig 是轻量级数据结构，或者引用 context 也可以)
+    auto config = context.state.converter_config;
+
     for (const auto& file_path : context.state.source_files) {
-        futures.push_back(std::async(std::launch::async, [&context, file_path]() -> LogProcessingResult {
+        futures.push_back(std::async(std::launch::async, [context_fs = context.file_system, converter, config, file_path]() -> LogProcessingResult {
             try {
-                std::string content = context.file_system->read_content(file_path);
-                LogProcessor processor(context.state.converter_config);
-                return processor.processSourceContent(file_path.string(), content);
-            } catch (const std::exception& e) {
-                 // 线程内无法安全访问 UI，将错误通过 Result 返回或 log
-                 // 这里简单返回失败
+                std::string content = context_fs->read_content(file_path);
+                // [关键修改] 调用接口方法，传入 filename, content 和 config
+                return converter->convert(file_path.string(), content, config);
+            } catch (const std::exception&) {
                  return LogProcessingResult{false, {}}; 
             }
         }));
@@ -46,7 +48,6 @@ bool ConverterStep::execute(PipelineContext& context) {
 
         if (!result.success) {
             all_success = false;
-            // 可以在这里补充输出具体的失败文件（如果 Result 包含文件名）
             context.notifier->notify_error("转换失败: " + context.state.source_files[i].filename().string());
         } else {
             std::lock_guard<std::mutex> lock(data_mutex);
@@ -67,7 +68,6 @@ bool ConverterStep::execute(PipelineContext& context) {
     return all_success;
 }
 
-// 修改 printTiming 接收 notifier
 void ConverterStep::printTiming(double total_time_ms, const std::shared_ptr<core::interfaces::IUserNotifier>& notifier) const {
     double total_time_s = total_time_ms / 1000.0;
     std::ostringstream oss;

@@ -1,12 +1,15 @@
 // importer/data_importer.cpp
 #include "importer/data_importer.hpp"
 #include "importer/import_service.hpp" 
+#include "importer/storage/repository.hpp"
+#include "importer/storage/sqlite/connection.hpp"
+#include "importer/parser/memory_parser.hpp"
 #include "common/ansi_colors.hpp" 
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 namespace {
-// 纯 UI 逻辑：格式化打印报告
 void print_report(const ImportStats& stats, const std::string& title) {
     double total_time = stats.parsing_duration_s + stats.db_insertion_duration_s;
     std::cout << "\n--- " << title << " Report ---" << std::endl;
@@ -34,13 +37,21 @@ void print_report(const ImportStats& stats, const std::string& title) {
 }
 
 // ---------------------------------------------------------
-// Facade Implementation
+// Facade Implementation (Composition Root)
 // ---------------------------------------------------------
 
 void handle_process_memory_data(const std::string& db_name, const std::map<std::string, std::vector<DailyLog>>& data) {
     std::cout << "Task: Memory Import..." << std::endl;
     
-    ImportService service(db_name);
+    // 1. 创建组件 (Wiring Dependencies)
+    auto connection = std::make_shared<Connection>(db_name);
+    auto repository = std::make_shared<Repository>(connection);
+    auto parser = std::make_shared<MemoryParser>();
+    
+    // 2. 注入 Service
+    ImportService service(repository, parser);
+    
+    // 3. 执行业务
     ImportStats stats = service.import_from_memory(data);
     
     print_report(stats, "Memory Import");

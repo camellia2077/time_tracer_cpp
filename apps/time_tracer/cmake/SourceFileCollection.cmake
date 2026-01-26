@@ -56,10 +56,12 @@ set(VALIDATOR_SOURCES
     # common 模块
     "src/validator/common/validator_utils.cpp"
 
-    # json 模块
-    "src/validator/json/facade/json_validator.cpp"
-    "src/validator/json/rules/activity_rules.cpp"
-    "src/validator/json/rules/date_rules.cpp"
+    # logic 模块
+    "src/validator/logic/facade/logic_validator.cpp"
+    "src/validator/logic/rules/date_rules.cpp"
+    "src/validator/logic/rules/activity_rules.cpp"
+    
+
 
     # source_txt 模块
     "src/validator/txt/facade/text_validator.cpp"

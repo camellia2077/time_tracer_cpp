@@ -1,43 +1,38 @@
 // core/application/steps/logic_validator_step.cpp
 #include "core/application/steps/logic_validator_step.hpp"
-#include "validator/json/facade/json_validator.hpp"
-#include "validator/common/validator_utils.hpp" // [新增]
-#include "serializer/json_serializer.hpp" 
+#include "validator/logic/facade/logic_validator.hpp" // 引入新的 LogicValidator
+#include "validator/common/validator_utils.hpp"
+#include <set>
 
 namespace core::pipeline {
 
 bool LogicValidatorStep::execute(PipelineContext& context) {
-    context.notifier->notify_info("Step: Validating Business Logic (Dates, Continuity)...");
+    context.notifier->notify_info("Step: Validating Business Logic (Struct-based)...");
 
     if (context.result.processed_data.empty()) {
         context.notifier->notify_warning("No data to validate.");
         return true;
     }
 
-    validator::json::JsonValidator validator(context.config.date_check_mode);
+    // [修复] 变量名改为 logic_validator，避免冲突
+    validator::logic::LogicValidator logic_validator(context.config.date_check_mode);
     bool all_valid = true;
 
+    // 遍历处理后的数据 (按月分组)
     for (const auto& [month_key, days] : context.result.processed_data) {
         if (days.empty()) continue;
 
-        // 使用缓存或序列化
-        std::string json_content;
-        auto it = context.cached_json_outputs.find(month_key);
-        if (it != context.cached_json_outputs.end()) {
-            json_content = it->second;
-        } else {
-            json_content = serializer::JsonSerializer::serializeDays(days);
-            context.cached_json_outputs[month_key] = json_content;
-        }
-
-        std::string pseudo_filename = "ProcessedData[" + month_key + "]";
+        // 执行验证 (直接传入 DailyLog 列表)
         std::set<validator::Error> errors;
         
-        if (!validator.validate(pseudo_filename, json_content, errors)) {
+        // month_key 通常是 "YYYY-MM"，用作上下文名称
+        if (!logic_validator.validate(month_key, days, errors)) {
             all_valid = false;
             
-            // [关键修改] 格式化并报告
-            std::string error_report = validator::format_error_report(pseudo_filename, errors);
+            // 报告错误
+            std::string context_name = "DataGroup[" + month_key + "]";
+            // [修复] 正确调用命名空间函数
+            std::string error_report = validator::format_error_report(context_name, errors);
             context.notifier->notify_error(error_report);
         }
     }
@@ -45,7 +40,7 @@ bool LogicValidatorStep::execute(PipelineContext& context) {
     if (all_valid) {
         context.notifier->notify_success("Logic validation passed.");
     } else {
-        context.notifier->notify_error("Logic validation found issues (e.g., broken date continuity).");
+        context.notifier->notify_error("Logic validation found issues.");
     }
 
     return all_valid;

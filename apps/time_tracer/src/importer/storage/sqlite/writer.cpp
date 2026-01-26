@@ -5,22 +5,18 @@
 Writer::Writer(sqlite3* db,
                sqlite3_stmt* stmt_day,
                sqlite3_stmt* stmt_record,
-               // [Fix] Removed unused stmt_select_project argument
-               sqlite3_stmt* stmt_insert_project)
+               std::unique_ptr<ProjectResolver> project_resolver)
     : db_(db), 
       stmt_insert_day_(stmt_day),
       stmt_insert_record_(stmt_record),
-      // [Fix] Removed unused initialization
-      stmt_insert_project_(stmt_insert_project) 
+      project_resolver_(std::move(project_resolver)) 
 {
-    // [核心修改] 初始化解析器委托对象
-    project_resolver_ = std::make_unique<ProjectResolver>(db_, stmt_insert_project_);
+    // [修改] 不再在此处创建 ProjectResolver，而是通过构造函数注入
 }
 
 Writer::~Writer() = default;
 
 void Writer::insert_days(const std::vector<DayData>& days) {
-    // 这部分逻辑未变，保持原样即可
     for (const auto& day_data : days) {
         sqlite3_bind_text(stmt_insert_day_, 1, day_data.date.c_str(), -1, SQLITE_TRANSIENT); 
         sqlite3_bind_int(stmt_insert_day_, 2, day_data.year); 
@@ -61,19 +57,15 @@ void Writer::insert_days(const std::vector<DayData>& days) {
 void Writer::insert_records(const std::vector<TimeRecordInternal>& records) {
     if (records.empty()) return;
 
-    // 1. 收集需要解析的路径 (Adapter: Struct -> String)
     std::vector<std::string> paths;
     paths.reserve(records.size());
     for (const auto& record : records) {
         paths.push_back(record.project_path);
     }
 
-    // 2. 委托 Resolver 批量预处理 (建立缓存)
     project_resolver_->preload_and_resolve(paths);
 
-    // 3. 极速插入循环
     for (const auto& record_data : records) {
-        // 直接从 Resolver 获取 ID
         long long project_id = project_resolver_->get_id(record_data.project_path);
 
         sqlite3_bind_int64(stmt_insert_record_, 1, record_data.logical_id);

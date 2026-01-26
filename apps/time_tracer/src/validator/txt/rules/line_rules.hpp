@@ -1,3 +1,4 @@
+// validator/txt/rules/line_rules.hpp
 #ifndef VALIDATOR_TXT_RULES_LINE_RULES_HPP_
 #define VALIDATOR_TXT_RULES_LINE_RULES_HPP_
 
@@ -26,7 +27,6 @@ private:
     std::unordered_set<std::string> wake_keywords_;
 };
 
-} // namespace txt
-} // namespace validator
-
-#endif // VALIDATOR_TXT_RULES_LINE_RULES_HPP_
+} 
+} 
+#endif

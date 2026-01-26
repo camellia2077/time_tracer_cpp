@@ -39,14 +39,11 @@
 
 ### 1.5 幂等性与中间层设计 (Idempotency & Intermediate Layer)
 
-系统采用 `TXT (Source) -> Struct -> JSON (Staging) -> Struct -> DB (Persistence)` 的“回旋镖”式数据流，虽然看似增加了步骤，但实则构建了极高的系统鲁棒性。
+系统采用 `TXT (Source) -> Struct -> DB (Persistence)` 的高效数据流，同时保留可选的 `Struct -> JSON (Archiving)` 分支。
 
-* **JSON 作为这一流程的“防腐层”与“检查点”**：
-    * **可观测性 (Observability)**：通过将内存中的 `Struct` 落地为 JSON 文件，开发者和用户可以直观地检查解析逻辑是否符合预期，排查诸如“跨天计算错误”或“分类映射偏差”等问题。
-    * **互操作性 (Interoperability)**：标准化的 JSON 中间产物使得数据可以轻松被第三方工具（如 Python 分析脚本或 Web 前端）直接消费，而无需耦合底层的 C++ 数据结构或 SQL 模式。
-
-* **全量重放能力 (Replayability)**：
-    * 系统的导入逻辑设计为**幂等 (Idempotent)** 的。这意味着用户可以随时修改原始 TXT 文件中的任何一行，然后重新运行导入命令。系统会覆盖数据库中的旧记录，确保数据库状态始终是文本文件的精确投影。
+* **JSON 作为可选的“防腐层”与“检查点”**：
+    * **验证前置**：业务逻辑验证直接在 `Struct` 层面完成，不再依赖 JSON 中间态，显著提升了处理性能。
+    * **可观测性 (Observability)**：虽然入库不再强制依赖 JSON，但系统仍支持将内存中的 `Struct` 落地为 JSON 文件（通过 `--save-processed`），供开发者和用户直观地检查解析逻辑是否符合预期。
 
 
 

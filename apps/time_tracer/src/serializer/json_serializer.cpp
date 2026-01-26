@@ -11,32 +11,34 @@ namespace serializer {
 using core::LogSerializer;
 using core::LogDeserializer;
 
-// --- Serialization Facade ---
+// --- Interface Implementations ---
+
+std::string JsonSerializer::serialize(const std::vector<DailyLog>& days) {
+    return serializeDays(days);
+}
+
+std::vector<DailyLog> JsonSerializer::deserialize(const std::string& content) {
+    return deserializeDays(content);
+}
+
+// --- Internal Logic (Moved from static to member functions) ---
 
 std::string JsonSerializer::serializeDay(const DailyLog& day) {
-    // 1. 创建文档
     yyjson_mut_doc* doc = yyjson_mut_doc_new(NULL);
-    
-    // 2. 构建根对象
     yyjson_mut_val* root = LogSerializer::serialize(doc, day);
     yyjson_mut_doc_set_root(doc, root);
     
-    // 3. 导出为字符串
     char* json_c_str = yyjson_mut_write(doc, 0, NULL);
     std::string result = json_c_str ? std::string(json_c_str) : "{}";
     
-    // 4. 清理内存
     if (json_c_str) free(json_c_str);
     yyjson_mut_doc_free(doc);
-    
     return result;
 }
 
+// 这里复用了原来的逻辑，只是改为了成员函数调用的形式（虽然 LogSerializer 还是 helper）
 std::string JsonSerializer::serializeDays(const std::vector<DailyLog>& days) {
-    // 1. 创建文档
     yyjson_mut_doc* doc = yyjson_mut_doc_new(NULL);
-    
-    // 2. 构建根数组
     yyjson_mut_val* root_arr = yyjson_mut_arr(doc);
     yyjson_mut_doc_set_root(doc, root_arr);
 
@@ -47,25 +49,17 @@ std::string JsonSerializer::serializeDays(const std::vector<DailyLog>& days) {
         }
     }
 
-    // 3. 导出为字符串
     char* json_c_str = yyjson_mut_write(doc, 0, NULL);
     std::string result = json_c_str ? std::string(json_c_str) : "[]";
     
-    // 4. 清理内存
     if (json_c_str) free(json_c_str);
     yyjson_mut_doc_free(doc);
-    
     return result;
 }
 
-// --- Deserialization Facade ---
-
 DailyLog JsonSerializer::deserializeDay(const std::string& json_content) {
-    // 1. 读取文档 (Immutable)
     yyjson_doc* doc = yyjson_read(json_content.c_str(), json_content.length(), 0);
-    if (!doc) {
-        throw std::runtime_error("Failed to parse JSON string");
-    }
+    if (!doc) throw std::runtime_error("Failed to parse JSON string");
 
     try {
         yyjson_val* root = yyjson_doc_get_root(doc);
@@ -80,13 +74,8 @@ DailyLog JsonSerializer::deserializeDay(const std::string& json_content) {
 
 std::vector<DailyLog> JsonSerializer::deserializeDays(const std::string& json_content) {
     std::vector<DailyLog> days;
-    
-    // 1. 读取文档
     yyjson_doc* doc = yyjson_read(json_content.c_str(), json_content.length(), 0);
-    if (!doc) {
-         // 解析失败返回空列表或抛出异常，这里维持原逻辑返回空
-        return days;
-    }
+    if (!doc) return days;
 
     yyjson_val* root = yyjson_doc_get_root(doc);
     if (yyjson_is_arr(root)) {
@@ -100,7 +89,6 @@ std::vector<DailyLog> JsonSerializer::deserializeDays(const std::string& json_co
             }
         }
     }
-    
     yyjson_doc_free(doc);
     return days;
 }

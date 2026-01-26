@@ -188,17 +188,13 @@ Checks if the raw text files adhere to the syntax rules defined in the configura
 Checks the logical integrity of the data *after* it has been parsed into domain models. This ensures data consistency (e.g., date continuity, minimum activity counts) before storage.
 
 **Data Flow (Memory Mode):**
-`Memory (Structs)` -> **[Serializer]** -> `JSON Object` -> **[Validator: JsonValidator]** -> `Console Report`
+`Memory (Structs)` -> **[Validator: LogicValidator]** -> `Console Report`
 
 **Key Steps:**
 
-1. **Serialization**: `OutputValidatorStep` uses `JsonSerializer` to convert internal `DailyLog` structs into a JSON object representation.
-* *Reasoning*: The Validator layer operates on standard JSON objects to allow rule reuse for both in-memory data and physical JSON files.
-
-
-2. **Validation**: `JsonValidator` applies logic rules:
-* `DateRules`: Checks for missing dates (Continuity vs Completeness modes).
-* `ActivityRules`: Checks for logical constraints (e.g., missing sleep records).
+1. **Validation**: `LogicValidator` applies logic rules directly on internal `DailyLog` structs:
+* `DateRules`: Checks for missing dates (Continuity vs Completeness modes) by iterating through the date list.
+* `ActivityRules`: Checks specific logic within `DailyLog` objects (e.g., minimum activity counts).
 
 
 

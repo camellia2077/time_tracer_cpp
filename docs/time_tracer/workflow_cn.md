@@ -190,17 +190,14 @@ flowchart LR
 
 ### 输出验证 (`validate-output`)
 
-在数据解析为领域模型*之后*检查数据的逻辑完整性。这确保了在存储之前数据的一致性（例如：日期连续性、最小活动计数）。
+在数据成功被 Converter 转换为内存对象*之后*，LogicValidator 接手进行处理。这确保了在存储之前数据的一致性（例如：日期连续性、最小活动计数）。
 
 **数据流向 (内存模式):**
-`内存 (Structs)` -> **[Serializer]** -> `JSON 对象` -> **[Validator: JsonValidator]** -> `控制台报告`
+`内存 (Structs)` -> **[Validator: LogicValidator]** -> `控制台报告`
 
 **关键步骤:**
 
-1. **序列化**: `OutputValidatorStep` 使用 `JsonSerializer` 将内部 `DailyLog` 结构体转换为 JSON 对象表示。
-* *原因*: Validator 层操作标准 JSON 对象，以便规则可以复用于“内存数据验证”和“物理 JSON 文件验证”。
-
-
-2. **验证**: `JsonValidator` 应用逻辑规则：
-* `DateRules`: 检查日期缺失（连续性模式 vs 完整性模式）。
-* `ActivityRules`: 检查逻辑约束（例如：缺少睡眠记录）。
+1. **验证**: `LogicValidator` 直接对内部 `DailyLog` 结构体应用逻辑规则：
+* **日期规则**: 通过遍历日期列表检查日期缺失（连续性 vs 完整性模式）。
+* **活动规则**: 检查对象内部的具体逻辑（如最少活动数量限制）。
+* *优势*: 避免了验证阶段不必要的序列化开销，直接利用 C++ 强类型特性进行检查。

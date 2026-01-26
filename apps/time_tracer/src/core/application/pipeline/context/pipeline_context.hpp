@@ -9,7 +9,6 @@
 #include <memory> 
 
 #include "common/config/app_config.hpp"
-// [路径修正]
 #include "core/domain/model/daily_log.hpp"
 #include "common/config/models/converter_config_models.hpp"
 #include "core/application/interfaces/i_file_system.hpp" 
@@ -49,7 +48,8 @@ public:
     std::shared_ptr<core::interfaces::IFileSystem> file_system;
     std::shared_ptr<core::interfaces::IUserNotifier> notifier;
 
-    std::map<std::string, std::string> cached_json_outputs;
+    // [修改] 移除了 cached_json_outputs
+    // 验证阶段不再负责序列化，序列化工作完全由 Writer 步骤负责，职责更清晰。
 
     PipelineContext(const AppConfig& cfg, 
                     const fs::path& out_root, 

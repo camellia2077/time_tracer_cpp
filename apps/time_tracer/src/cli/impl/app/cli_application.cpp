@@ -3,21 +3,18 @@
 #include "cli/impl/utils/help_formatter.hpp"
 #include "io/disk_file_system.hpp"
 #include "cli/impl/ui/console_notifier.hpp" 
-#include "core/infrastructure/persistence/sqlite_report_repository.hpp" // [新增] 具体实现
+#include "core/infrastructure/persistence/sqlite_report_repository.hpp"
 
-#include "cli/framework/interfaces/i_command.hpp"
-#include <iostream>
-#include <stdexcept>
-#include <memory>
-#include <filesystem>
-
-#include "cli/framework/core/command_registry.hpp"
-#include "config/config_loader.hpp"
+// Implementation Includes
+#include "serializer/json_serializer.hpp"
+#include "converter/log_processor.hpp" // [新增] 仅在此处引入具体实现类
 #include "core/application/service/workflow_handler.hpp"
 #include "core/application/service/report_handler.hpp"
 #include "core/infrastructure/persistence/db_manager.hpp"
 #include "core/infrastructure/reporting/exporter.hpp"
 #include "core/application/service/report_generator.hpp"
+#include "cli/framework/core/command_registry.hpp"
+#include "config/config_loader.hpp"
 
 namespace fs = std::filesystem;
 const std::string DATABASE_FILENAME = "time_data.sqlite3";
@@ -60,12 +57,21 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
     auto notifier = std::make_shared<ConsoleNotifier>();
     app_context_->user_notifier = notifier;
 
-    // 3. 加载配置
+    // 3. 插件初始化 (Serializer & Converter)
+    auto serializer = std::make_shared<serializer::JsonSerializer>();
+    app_context_->serializer = serializer;
+
+    // [新增] 实例化具体的 Converter 并注入 Context
+    // LogProcessor 现在的构造函数是无参的（无状态），配置在运行时传入
+    auto converter = std::make_shared<LogProcessor>(); 
+    app_context_->log_converter = converter;
+
+    // 4. 加载配置
     ConfigLoader config_loader(parser_.get_raw_arg(0), disk_fs);
     app_config_ = config_loader.load_configuration(); 
     app_context_->config = app_config_;
 
-    // 4. 初始化目录
+    // 5. 初始化目录
     try {
         disk_fs->create_directories(output_root_path_);
         disk_fs->create_directories(exported_files_path_);
@@ -74,28 +80,29 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
         throw; 
     }
     
-    // 5. 初始化数据库管理器
+    // 6. 初始化数据库管理器
     db_manager_ = std::make_unique<DBManager>(db_path.string());
 
-    // 6. 初始化并注入 Core 服务
+    // 7. 初始化 Core Service (WorkflowHandler)
+    // [修改] 将 converter 注入到 WorkflowHandler
     auto workflow_impl = std::make_shared<WorkflowHandler>(
         db_path.string(), 
         app_config_, 
         output_root_path_,
         disk_fs,
-        notifier 
+        notifier,
+        serializer, 
+        converter // [新增注入]
     );
     app_context_->workflow_handler = workflow_impl;
 
-    // 7. [重构] 准备报表相关的依赖
+    // 8. 准备报表相关的依赖
     const std::string command = parser_.get_command();
     
-    // 按需打开数据库
     if (command == "query" || command == "export") {
         try {
             if (!db_manager_->check_and_open()) {
                  notifier->notify_error("错误: 数据库文件不存在: " + db_path.string());
-                 // 这里可以选择 throw 终止，或者让后续命令处理
                  throw std::runtime_error("Database missing");
             }
         } catch (const std::exception& e) {
@@ -106,16 +113,12 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
     
     sqlite3* db_connection = db_manager_->get_db_connection();
     
-    // [重构] 创建 Repository 实现 (Infrastructure Layer)
-    // 注意：Repository 在这里持有 db_connection 指针，需确保 DBManager 生命周期长于 Repository
     auto report_repo = std::make_shared<infrastructure::persistence::SqliteReportRepository>(
         db_connection, 
         app_config_
     );
 
-    // [重构] 创建 Generator (Domain Layer)，注入 Repository
     auto report_generator = std::make_unique<ReportGenerator>(report_repo);
-    
     auto exporter = std::make_unique<Exporter>(exported_files_path_, disk_fs, notifier);
     
     auto report_impl = std::make_shared<ReportHandler>(
@@ -151,7 +154,6 @@ void CliApplication::execute() {
             if (app_context_->user_notifier) {
                 app_context_->user_notifier->notify_error("Error executing command '" + command_name + "': " + e.what());
             } else {
-                // Fallback if notifier somehow failed
                 std::cerr << "Error: " << e.what() << std::endl;
             }
         }

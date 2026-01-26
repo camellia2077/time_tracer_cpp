@@ -4,8 +4,6 @@
 #include <vector>
 #include <map>
 
-// [移除] iostream, fstream, ansi_colors.hpp
-
 namespace validator {
 
 static std::string getErrorTypeHeader(ErrorType type) {
@@ -59,7 +57,6 @@ std::string format_error_report(const std::string& filename, const std::set<Erro
         }
     }
     
-    // 提示用户修正
     oss << "\nPlease fix the errors above manually.\n";
     
     return oss.str();

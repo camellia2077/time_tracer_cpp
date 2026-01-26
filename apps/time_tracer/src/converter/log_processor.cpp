@@ -9,22 +9,17 @@
 #include <sstream>
 #include <memory>
 
-LogProcessor::LogProcessor(const ConverterConfig& config) : config_(config) {}
+using core::interfaces::LogProcessingResult;
 
-void LogProcessor::convertStreamToData(std::istream& combined_stream, std::function<void(DailyLog&&)> data_consumer) {
+void LogProcessor::convertStreamToData(std::istream& combined_stream, 
+                                     std::function<void(DailyLog&&)> data_consumer,
+                                     const ConverterConfig& config) {
     try {
-        // [Composition Root] 在这里组装所有依赖
-        
-        // 1. 创建具体的 Parser，注入 ParserConfig
-        auto parser = std::make_shared<TextParser>(config_.parser_config);
-        
-        // 2. 创建 Processor，注入 MapperConfig
-        auto processor = std::make_shared<DayProcessor>(config_.mapper_config);
+        // [Composition Root] 每次调用时组装依赖，使用传入的 config
+        auto parser = std::make_shared<TextParser>(config.parser_config);
+        auto processor = std::make_shared<DayProcessor>(config.mapper_config);
 
-        // 3. 创建 Service，注入 Parser 接口和 Processor
         ConverterService service(parser, processor);
-
-        // 4. 执行
         service.executeConversion(combined_stream, data_consumer);
 
     } catch (const std::exception& e) {
@@ -32,20 +27,22 @@ void LogProcessor::convertStreamToData(std::istream& combined_stream, std::funct
     }
 }
 
-LogProcessingResult LogProcessor::processSourceContent(const std::string& /*filename*/, const std::string& content) {
+LogProcessingResult LogProcessor::convert(const std::string& /*filename*/, 
+                                        const std::string& content,
+                                        const ConverterConfig& config) {
     LogProcessingResult result;
     result.success = true;
     
     try {
         std::stringstream ss(content);
+        // [修改] 传递 config
         convertStreamToData(ss, [&](DailyLog&& log) {
              std::string key = log.date.substr(0, 7);
              result.processed_data[key].push_back(std::move(log));
-        });
+        }, config);
         
-        // [Linker] 处理跨月连接
-        // Linker 是独立步骤，注入 LinkerConfig
-        LogLinker linker(config_.linker_config);
+        // [Linker] 处理跨月连接，注入 LinkerConfig
+        LogLinker linker(config.linker_config);
         linker.link_logs(result.processed_data);
         
     } catch (...) {

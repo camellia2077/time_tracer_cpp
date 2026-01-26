@@ -1,3 +1,4 @@
+// validator/txt/facade/text_validator.hpp
 #ifndef VALIDATOR_TXT_FACADE_TEXT_VALIDATOR_HPP_
 #define VALIDATOR_TXT_FACADE_TEXT_VALIDATOR_HPP_
 
@@ -13,7 +14,7 @@ namespace txt {
 
 class TextValidator {
 public:
-    // 保持接收完整的 ConverterConfig，内部再分发
+    // 构造函数接收配置，用于校验关键字是否合法
     explicit TextValidator(const ConverterConfig& config);
     ~TextValidator();
 
