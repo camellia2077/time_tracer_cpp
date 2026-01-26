@@ -4,9 +4,16 @@
 
 #include "config/validator/reports/strategies/base_strategy.hpp"
 
-class DailyTex : public BaseStrategy {
+namespace ConfigValidator {
+
+/**
+ * @brief LaTeX 日报配置验证策略
+ */
+class DailyTexStrategy : public BaseStrategy {
 protected:
     bool validate_specific_keys(const toml::table& query_config, const std::string& file_name) const override;
 };
+
+} // namespace ConfigValidator
 
 #endif // CONFIG_VALIDATOR_REPORTS_STRATEGIES_DAILY_DAILY_TEX_HPP_

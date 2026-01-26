@@ -4,9 +4,12 @@
 
 #include "config/validator/reports/strategies/base_strategy.hpp"
 
-class DailyTyp : public BaseStrategy {
+namespace ConfigValidator {
+// [修复] 类名改为 DailyTypStrategy 以匹配工厂
+class DailyTypStrategy : public BaseStrategy {
 protected:
     bool validate_specific_keys(const toml::table& query_config, const std::string& file_name) const override;
 };
+} // namespace ConfigValidator
 
-#endif // CONFIG_VALIDATOR_REPORTS_STRATEGIES_DAILY_DAILY_TYP_HPP_
+#endif

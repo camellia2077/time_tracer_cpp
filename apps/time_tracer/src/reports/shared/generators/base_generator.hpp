@@ -4,44 +4,37 @@
 
 #include <memory>
 #include <string>
-// [修复] 更新包含路径
 #include "common/config/app_config.hpp"
 #include "reports/shared/factories/generic_formatter_factory.hpp"
 #include "reports/shared/types/report_format.hpp"
+// [修改] 引入 Repository 接口
+#include "reports/data/repositories/i_report_repository.hpp"
 
 /**
  * @class BaseGenerator
  * @brief (模板基类) 为所有报告生成器提供通用的报告生成流程。
  *
- * 使用了模板方法模式，将 "查询 -> 格式化" 的固定流程封装起来。
- * 子类通过指定模板参数来定义具体使用的数据类型、查询器和查询参数。
- *
- * @tparam ReportDataType 报告所依赖的数据结构 (例如 DailyReportData)。
- * @tparam QuerierType 用于获取数据的具体查询器类 (例如 DayQuerier)。
- * @tparam QueryParamType 查询器所接受的参数类型 (例如 const std::string& 或 int)。
+ * @tparam ReportDataType 报告数据类型
+ * @tparam QuerierType 查询器类型 (必须接受 IReportRepository& 和 QueryParamType)
+ * @tparam QueryParamType 查询参数类型
  */
 template <typename ReportDataType, typename QuerierType, typename QueryParamType>
 class BaseGenerator {
 public:
     /**
      * @brief 构造函数。
-     * @param db 指向 SQLite 数据库连接的指针。
-     * @param config 应用程序配置对象的常量引用。
+     * @param repo 数据仓储接口的引用。
+     * @param config 应用程序配置。
      */
-    BaseGenerator(sqlite3* db, const AppConfig& config)
-        : db_(db), app_config_(config) {}
+    // [修改] 接收 IReportRepository& 替代 sqlite3*
+    BaseGenerator(IReportRepository& repo, const AppConfig& config)
+        : repo_(repo), app_config_(config) {}
 
     virtual ~BaseGenerator() = default;
 
-    /**
-     * @brief 生成格式化的报告。
-     * @param param 用于查询的参数 (例如日期字符串或天数)。
-     * @param format 需要生成的报告格式。
-     * @return 包含格式化报告的字符串。
-     */
     std::string generate_report(QueryParamType param, ReportFormat format) const {
-        // 1. 创建具体的查询器并获取数据
-        QuerierType querier(db_, param);
+        // 1. 创建具体的查询器并获取数据 (传入 Repository)
+        QuerierType querier(repo_, param);
         ReportDataType report_data = querier.fetch_data();
 
         // 2. 使用通用工厂创建格式化器
@@ -52,7 +45,8 @@ public:
     }
 
 protected:
-    sqlite3* db_;
+    // [修改] 持有 Repository 引用
+    IReportRepository& repo_;
     const AppConfig& app_config_;
 };
 

@@ -1,11 +1,10 @@
-# --- START OF FILE CMakeLists.txt ---
 # src/CMakeLists.txt
-# [修改] 升级最低版本以更好地支持 C++23 和现代 CMake 特性
+# 升级最低版本以更好地支持 C++23 和现代 CMake 特性
 cmake_minimum_required(VERSION 3.25)
 
-project(TimeTracer VERSION "0.4.3" LANGUAGES CXX)
+project(TimeTracer VERSION "0.5.0" LANGUAGES CXX)
 
-# [新增] 强制 CMake 的命令行输出使用 UTF-8 编码
+# 强制 CMake 的命令行输出使用 UTF-8 编码
 set(CMAKE_CLI_FORCE_UTF8 ON)
 
 # 所有源文件都必须明确写出它们的扩展名
@@ -38,7 +37,8 @@ FetchContent_Declare(
 FetchContent_Declare(
   tomlplusplus
   GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-  GIT_TAG        v3.4.0 # 建议使用稳定版本
+  GIT_TAG        v3.4.0 
+  # 建议使用稳定版本
 )
 
 # 一次性使两者可用
@@ -108,21 +108,16 @@ add_subdirectory(src/reports/daily/formatters/markdown)
 add_subdirectory(src/reports/daily/formatters/typst)
 add_subdirectory(src/reports/daily/formatters/latex)
 
-add_subdirectory(src/reports/monthly/formatters/markdown)
-add_subdirectory(src/reports/monthly/formatters/typst)
-add_subdirectory(src/reports/monthly/formatters/latex)
+# [修改] 删除了 month 和 period 的 add_subdirectory
+# [修改] 新增 range 模块 (注意加上 src/ 前缀)
+add_subdirectory(src/reports/range/formatters/markdown)
+add_subdirectory(src/reports/range/formatters/typst)
+add_subdirectory(src/reports/range/formatters/latex)
 
-add_subdirectory(src/reports/period/formatters/markdown)
-add_subdirectory(src/reports/period/formatters/typst)
-add_subdirectory(src/reports/period/formatters/latex)
-
-
-# ==================== [新增配置] ====================
 # 定义所有插件目标的列表
 set(FORMATTER_PLUGINS
     DayMdFormatter DayTypFormatter DayTexFormatter
-    MonthMdFormatter MonthTypFormatter MonthTexFormatter
-    PeriodMdFormatter PeriodTypFormatter PeriodTexFormatter
+    RangeMdFormatter RangeTypFormatter RangeTexFormatter
 )
 
 # 统一修改插件属性
@@ -145,8 +140,6 @@ set(ALL_TARGETS time_tracker_cli)
 foreach(TARGET_NAME ${ALL_TARGETS})
   setup_project_target(${TARGET_NAME})
 endforeach()
-
-# [已移除] 之前底部的 if(NOT TARGET yyjson) 块已删除，因为我们在顶部显式添加了它。
 
 # 在每次构建后，无论是否为安装包，都将配置文件复制到输出目录
 # 这样可以直接从 build/bin 目录运行程序

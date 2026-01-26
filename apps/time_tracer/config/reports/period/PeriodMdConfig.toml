@@ -1,8 +1,19 @@
-report_title_prefix = "Period Report: Last"
-report_title_days = "days"
+# [修改] 字段名变更: report_title_prefix -> report_title_label
+# 建议改为通用的 "Report:"，因为现在月报也会用这个配置
+report_title_label = "Report:"
+
+# [删除] report_title_days 已不再需要
+
+# [保留]
 project_breakdown_label = "Project Breakdown"
-report_title_date_separator = "to"
+
+# [修改] 字段名变更: report_title_date_separator -> date_range_separator
+date_range_separator = "to"
+
+# [保留]
 total_time_label = "Total Time Recorded"
 actual_days_label = "Actual Days with Records"
 no_records_message = "No time records found in this period."
-invalid_days_message = "Number of days to query must be positive."
+
+# [修改] 字段名变更: invalid_days_message -> invalid_data_message
+invalid_data_message = "Invalid data range provided."

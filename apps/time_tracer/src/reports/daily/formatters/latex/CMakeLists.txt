@@ -4,7 +4,7 @@
 # 源文件列表只包含此模块特有的文件。
 add_library(DayTexFormatter SHARED
     day_tex_formatter.cpp
-     day_tex_config.cpp
+    day_tex_config.cpp
     day_tex_utils.cpp
 )
 

@@ -1,3 +1,4 @@
+# --- 样式配置 (保留原样) ---
 base_font = "MiSans VF"
 title_font = "MiSans VF"
 category_title_font = "MiSans VF"
@@ -9,8 +10,18 @@ margin_top_cm = 2.5
 margin_bottom_cm = 2.5
 margin_left_cm = 2.0
 margin_right_cm = 2.0
-report_title = "Monthly Summary for"
+
+# --- 文本配置 (Keys Updated) ---
+# [修改] report_title -> report_title_label
+report_title_label = "Monthly Summary for"
+
+# [新增]
+date_range_separator = "to"
+
 actual_days_label = "Actual Days with Records"
-total_time_label = "Total Hours"
-invalid_format_message = "Invalid year_month format. Expected YYYYMM."
+
+total_time_label = "Total Hours" 
 no_records_message = "No time records found for this month."
+
+# [修改] invalid_format_message -> invalid_data_message
+invalid_data_message = "Invalid year_month format or data range."

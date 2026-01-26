@@ -7,7 +7,7 @@
 
 // Implementation Includes
 #include "serializer/json_serializer.hpp"
-#include "converter/log_processor.hpp" // [新增] 仅在此处引入具体实现类
+#include "converter/log_processor.hpp"
 #include "core/application/service/workflow_handler.hpp"
 #include "core/application/service/report_handler.hpp"
 #include "core/infrastructure/persistence/db_manager.hpp"
@@ -61,8 +61,7 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
     auto serializer = std::make_shared<serializer::JsonSerializer>();
     app_context_->serializer = serializer;
 
-    // [新增] 实例化具体的 Converter 并注入 Context
-    // LogProcessor 现在的构造函数是无参的（无状态），配置在运行时传入
+    // 实例化具体的 Converter 并注入 Context
     auto converter = std::make_shared<LogProcessor>(); 
     app_context_->log_converter = converter;
 
@@ -84,7 +83,7 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
     db_manager_ = std::make_unique<DBManager>(db_path.string());
 
     // 7. 初始化 Core Service (WorkflowHandler)
-    // [修改] 将 converter 注入到 WorkflowHandler
+    // WorkflowHandler 负责写入路径，它通过 ImportService 自行管理 DB 连接（或路径），不需要 db_manager 已打开
     auto workflow_impl = std::make_shared<WorkflowHandler>(
         db_path.string(), 
         app_config_, 
@@ -92,40 +91,48 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
         disk_fs,
         notifier,
         serializer, 
-        converter // [新增注入]
+        converter 
     );
     app_context_->workflow_handler = workflow_impl;
 
     // 8. 准备报表相关的依赖
+    // [核心修复] 仅当命令需要查询/导出时，才打开数据库并初始化 ReportRepository
     const std::string command = parser_.get_command();
     
     if (command == "query" || command == "export") {
         try {
+            // 尝试打开数据库
             if (!db_manager_->check_and_open()) {
                  notifier->notify_error("错误: 数据库文件不存在: " + db_path.string());
                  throw std::runtime_error("Database missing");
             }
+            
+            // 获取连接（此时非空）
+            sqlite3* db_connection = db_manager_->get_db_connection();
+            
+            // 初始化 Repository (它会检查 db_connection != nullptr)
+            auto report_repo = std::make_shared<infrastructure::persistence::SqliteReportRepository>(
+                db_connection, 
+                app_config_
+            );
+
+            auto report_generator = std::make_unique<ReportGenerator>(report_repo);
+            auto exporter = std::make_unique<Exporter>(exported_files_path_, disk_fs, notifier);
+            
+            auto report_impl = std::make_shared<ReportHandler>(
+                std::move(report_generator), 
+                std::move(exporter)
+            );
+            app_context_->report_handler = report_impl;
+
         } catch (const std::exception& e) {
             notifier->notify_error("Database Error: " + std::string(e.what()));
+            // 如果是查询命令但无法连接数据库，抛出异常终止程序是合理的
             throw;
         }
     }
-    
-    sqlite3* db_connection = db_manager_->get_db_connection();
-    
-    auto report_repo = std::make_shared<infrastructure::persistence::SqliteReportRepository>(
-        db_connection, 
-        app_config_
-    );
-
-    auto report_generator = std::make_unique<ReportGenerator>(report_repo);
-    auto exporter = std::make_unique<Exporter>(exported_files_path_, disk_fs, notifier);
-    
-    auto report_impl = std::make_shared<ReportHandler>(
-        std::move(report_generator), 
-        std::move(exporter)
-    );
-    app_context_->report_handler = report_impl;
+    // 对于其他命令（如 ingest），app_context_->report_handler 保持为 nullptr。
+    // 这没问题，因为这些命令的 Handler（如 IngestCommand）不会使用 report_handler。
 }
 
 CliApplication::~CliApplication() = default;

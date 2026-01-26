@@ -5,6 +5,8 @@
 #include <regex>
 #include <string>
 
+namespace ConfigValidator {
+
 static bool validate_stats_recursive(const toml::array& items_array, const std::string& file_name, const std::string& context = "root") {
     for (size_t i = 0; i < items_array.size(); ++i) {
         const auto& item_node = items_array[i];
@@ -129,3 +131,4 @@ bool BaseStrategy::is_valid_hex_color(const std::string& color_string) const {
     static const std::regex hex_color_regex(R"(^#[0-9a-fA-F]{6}$)");
     return std::regex_match(color_string, hex_color_regex);
 }
+} // namespace ConfigValidator

@@ -78,10 +78,12 @@ set(REPORTS_SHARED_SOURCES
     # 外部依赖或通用工具
     "src/common/utils/string_utils.cpp"
     
-    # 基础配置 (原有的)
+    # 基础配置
     "src/reports/daily/common/day_base_config.cpp"
-    "src/reports/monthly/common/month_base_config.cpp"
-    "src/reports/period/common/period_base_config.cpp"
+    # [新增] Range 基础配置 (替代 Month/Period)
+    "src/reports/range/common/range_base_config.cpp"
+    # [删除] Month/Period Base Config (已移除)
+
     "src/reports/daily/formatters/statistics/stat_formatter.cpp"
 
     # Shared - 内部工具与配置
@@ -105,20 +107,17 @@ set(REPORTS_SHARED_SOURCES
 # REPORTS_DATA_SOURCES (数据获取、查询逻辑、树构建)
 # ==========================================
 set(REPORTS_DATA_SOURCES
-    # 工具类 (根据目录结构 project_tree_builder 在这里)
+    # 工具类
     "src/reports/data/utils/project_tree_builder.cpp"
 
-    # Daily Queriers
+    "src/reports/data/repositories/sqlite_report_repository.cpp"
+
+    # Daily Queriers (保留)
     "src/reports/data/queriers/daily/day_querier.cpp"
     "src/reports/data/queriers/daily/batch_day_data_fetcher.cpp"
 
-    # Monthly Queriers
-    "src/reports/data/queriers/monthly/month_querier.cpp"
-    "src/reports/data/queriers/monthly/batch_month_data_fetcher.cpp"
-
-    # Period Queriers
-    "src/reports/data/queriers/period/period_querier.cpp"
-    "src/reports/data/queriers/period/batch_period_data_fetcher.cpp"
+    # Range (Unified Monthly & Period)
+    "src/config/validator/reports/strategies/range/range_strategy.cpp"
 )
 
 set(REPORTS_SOURCES
@@ -126,8 +125,8 @@ set(REPORTS_SOURCES
     "src/reports/report_service.cpp"
     # Export
     "src/reports/services/daily_report_service.cpp"
-    "src/reports/services/monthly_report_service.cpp"
-    "src/reports/services/period_report_service.cpp"
+    # [新增] 统一的 Range Service (替代 Monthly/Period Service)
+    "src/reports/services/range_report_service.cpp"
 )
 
 
@@ -225,8 +224,6 @@ set(CONFIG_SOURCES
     "src/config/validator/reports/strategies/daily/daily_md.cpp"
     "src/config/validator/reports/strategies/daily/daily_tex.cpp"
     "src/config/validator/reports/strategies/daily/daily_typ.cpp"
-    "src/config/validator/reports/strategies/monthly/monthly.cpp"
-    "src/config/validator/reports/strategies/periodic/periodic.cpp"
 )
 
 

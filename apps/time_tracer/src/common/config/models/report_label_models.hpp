@@ -22,21 +22,15 @@ struct DailyReportLabels {
     std::string activity_connector;
 };
 
-struct MonthlyReportLabels {
-    std::string report_title;
+// [新增] 统一的 Range 标签模型 (替代 Monthly 和 Period)
+struct RangeReportLabels {
+    std::string report_title_label;      // [New] Replaces report_title & report_title_prefix
+    std::string date_range_separator;    // [New] Replaces report_title_date_separator
     std::string total_time_label;
     std::string actual_days_label;
     std::string no_records_message;
-};
-
-struct PeriodReportLabels {
-    std::string report_title_prefix;
-    std::string report_title_days;
-    std::string report_title_date_separator;
-    std::string total_time_label;
-    std::string actual_days_label;
-    std::string no_records_message;
-    std::string invalid_days_message;
+    std::string invalid_data_message;    // [New] Replaces invalid_days/format_message
+    std::string project_breakdown_label; // [New] Common field
 };
 
 #endif // COMMON_CONFIG_MODELS_REPORT_LABEL_MODELS_HPP_

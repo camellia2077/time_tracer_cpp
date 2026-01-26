@@ -13,30 +13,27 @@ namespace fs = std::filesystem;
 
 namespace {
     void load_detailed_reports(core::interfaces::IFileSystem& fs, AppConfig& config) {
-        // ... (保持不变) ...
-        // --- Typst ---
+// --- Typst ---
         if (!config.reports.day_typ_config_path.empty())
             config.loaded_reports.typst.day = ReportConfigLoader::loadDailyTypConfig(fs, config.reports.day_typ_config_path);
-        if (!config.reports.month_typ_config_path.empty())
-            config.loaded_reports.typst.month = ReportConfigLoader::loadMonthlyTypConfig(fs, config.reports.month_typ_config_path);
+        
+        // Unified Range (Use period config path for generic range reports)
         if (!config.reports.period_typ_config_path.empty())
-            config.loaded_reports.typst.period = ReportConfigLoader::loadPeriodTypConfig(fs, config.reports.period_typ_config_path);
+            config.loaded_reports.typst.range = ReportConfigLoader::loadRangeTypConfig(fs, config.reports.period_typ_config_path);
 
         // --- LaTeX ---
         if (!config.reports.day_tex_config_path.empty())
             config.loaded_reports.latex.day = ReportConfigLoader::loadDailyTexConfig(fs, config.reports.day_tex_config_path);
-        if (!config.reports.month_tex_config_path.empty())
-            config.loaded_reports.latex.month = ReportConfigLoader::loadMonthlyTexConfig(fs, config.reports.month_tex_config_path);
+        
         if (!config.reports.period_tex_config_path.empty())
-            config.loaded_reports.latex.period = ReportConfigLoader::loadPeriodTexConfig(fs, config.reports.period_tex_config_path);
+            config.loaded_reports.latex.range = ReportConfigLoader::loadRangeTexConfig(fs, config.reports.period_tex_config_path);
 
         // --- Markdown ---
         if (!config.reports.day_md_config_path.empty())
             config.loaded_reports.markdown.day = ReportConfigLoader::loadDailyMdConfig(fs, config.reports.day_md_config_path);
-        if (!config.reports.month_md_config_path.empty())
-            config.loaded_reports.markdown.month = ReportConfigLoader::loadMonthlyMdConfig(fs, config.reports.month_md_config_path);
+        
         if (!config.reports.period_md_config_path.empty())
-            config.loaded_reports.markdown.period = ReportConfigLoader::loadPeriodMdConfig(fs, config.reports.period_md_config_path);
+            config.loaded_reports.markdown.range = ReportConfigLoader::loadRangeMdConfig(fs, config.reports.period_md_config_path);
     }
 }
 

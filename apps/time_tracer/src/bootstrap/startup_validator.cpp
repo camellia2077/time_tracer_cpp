@@ -17,8 +17,7 @@ bool StartupValidator::validate_environment(const AppConfig& config) {
     // 1. 定义需要检查的插件列表
     const std::vector<std::string> expected_plugins = {
         "DayMdFormatter", "DayTexFormatter", "DayTypFormatter",
-        "MonthMdFormatter", "MonthTexFormatter", "MonthTypFormatter",
-        "PeriodMdFormatter", "PeriodTexFormatter", "PeriodTypFormatter"
+        "RangeMdFormatter", "RangeTexFormatter", "RangeTypFormatter"
     };
 
     // 2. 准备路径

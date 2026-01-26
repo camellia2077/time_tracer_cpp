@@ -43,27 +43,23 @@ public:
         register_creator(format, [dll_base_name, format](const AppConfig& config) {
             fs::path config_path;
 
+            // [修改] 只保留 Daily 和 Range 两种逻辑
             if constexpr (std::is_same_v<ReportDataType, DailyReportData>) {
                 switch(format) {
                     case ReportFormat::Markdown: config_path = config.reports.day_md_config_path; break;
                     case ReportFormat::LaTeX:    config_path = config.reports.day_tex_config_path; break;
                     case ReportFormat::Typ:      config_path = config.reports.day_typ_config_path; break;
                 }
-            } else if constexpr (std::is_same_v<ReportDataType, MonthlyReportData>) {
-                switch(format) {
-                    case ReportFormat::Markdown: config_path = config.reports.month_md_config_path; break;
-                    case ReportFormat::LaTeX:    config_path = config.reports.month_tex_config_path; break;
-                    case ReportFormat::Typ:      config_path = config.reports.month_typ_config_path; break;
-                }
-            } else if constexpr (std::is_same_v<ReportDataType, PeriodReportData>) {
+            } else if constexpr (std::is_same_v<ReportDataType, RangeReportData>) {
+                // Range 报告复用原有的 period 配置文件路径
                 switch(format) {
                     case ReportFormat::Markdown: config_path = config.reports.period_md_config_path; break;
                     case ReportFormat::LaTeX:    config_path = config.reports.period_tex_config_path; break;
                     case ReportFormat::Typ:      config_path = config.reports.period_typ_config_path; break;
                 }
             }
+            // [已删除] Monthly 和 Period 的分支
 
-            // [修改] 默认为空字符串，不再是 "{}"
             std::string config_content = "";
             if (!config_path.empty() && fs::exists(config_path)) {
                 try {
@@ -78,7 +74,6 @@ public:
                 }
             }
 
-            // [修改] 传递 config_content
             return load_from_dll(dll_base_name, config, config_content);
         });
     }

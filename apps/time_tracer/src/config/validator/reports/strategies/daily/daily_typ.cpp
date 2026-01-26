@@ -3,7 +3,9 @@
 #include <iostream>
 #include <set>
 
-bool DailyTyp::validate_specific_keys(const toml::table& query_config, const std::string& file_name) const {
+namespace ConfigValidator {
+// [修复] 类名改为 DailyTypStrategy
+bool DailyTypStrategy::validate_specific_keys(const toml::table& query_config, const std::string& file_name) const {
     const std::set<std::string> daily_typ_keys = {
         "title_prefix", "date_label", "total_time_label", "status_label", "sleep_label",
         "getup_time_label", "remark_label", "exercise_label", "no_records_message", "statistics_label",
@@ -19,3 +21,4 @@ bool DailyTyp::validate_specific_keys(const toml::table& query_config, const std
     }
     return true;
 }
+} // namespace ConfigValidator

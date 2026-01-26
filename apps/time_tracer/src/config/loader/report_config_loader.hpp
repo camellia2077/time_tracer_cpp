@@ -10,20 +10,15 @@
 
 class ReportConfigLoader {
 public:
-    // --- 日报加载器 ---
+    // --- Daily Loaders ---
     static DailyTexConfig loadDailyTexConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
     static DailyTypConfig loadDailyTypConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
     static DailyMdConfig  loadDailyMdConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
 
-    // --- 月报加载器 ---
-    static MonthlyTexConfig loadMonthlyTexConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
-    static MonthlyTypConfig loadMonthlyTypConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
-    static MonthlyMdConfig  loadMonthlyMdConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
-
-    // --- 周期报告加载器 ---
-    static PeriodTexConfig loadPeriodTexConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
-    static PeriodTypConfig loadPeriodTypConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
-    static PeriodMdConfig  loadPeriodMdConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
+    // --- Unified Range Loaders (Month & Period) ---
+    static RangeTexConfig loadRangeTexConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
+    static RangeTypConfig loadRangeTypConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
+    static RangeMdConfig  loadRangeMdConfig(core::interfaces::IFileSystem& fs, const std::filesystem::path& path);
 };
 
 #endif

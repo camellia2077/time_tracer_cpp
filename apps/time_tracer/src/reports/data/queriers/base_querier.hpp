@@ -2,7 +2,7 @@
 #ifndef REPORTS_DATA_QUERIERS_BASE_QUERIER_HPP_
 #define REPORTS_DATA_QUERIERS_BASE_QUERIER_HPP_
 
-#include <sqlite3.h>
+#include "reports/data/repositories/i_report_repository.hpp"
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -10,12 +10,9 @@
 template<typename ReportDataType, typename QueryParamType>
 class BaseQuerier {
 public:
-    explicit BaseQuerier(sqlite3* db, QueryParamType param)
-        : db_(db), param_(param) {
-        if (db_ == nullptr) {
-            throw std::invalid_argument("Database connection cannot be null.");
-        }
-    }
+    // [修改] 注入 Repository 接口
+    explicit BaseQuerier(IReportRepository& repo, QueryParamType param)
+        : repo_(repo), param_(param) {}
 
     virtual ~BaseQuerier() = default;
 
@@ -27,72 +24,33 @@ public:
         }
         
         _prepare_data(data);
-        // [FIX] Moved _fetch_actual_days to subclasses that actually need it.
-        _fetch_records_and_duration(data);
+        
+        // [修改] 直接调用 Repository 方法
+        // 这里需要子类提供具体的日期范围，或者我们在 BaseQuerier 中计算好 range
+        auto [start, end] = get_date_range();
+        data.project_stats = repo_.get_aggregated_project_stats(start, end);
+
+        // 计算总时长
+        long long total = 0;
+        for(auto& p : data.project_stats) total += p.second;
+        data.total_duration = total;
 
         return data;
     }
 
 protected:
-    sqlite3* db_;
+    IReportRepository& repo_;
     QueryParamType param_;
 
-    virtual std::string get_date_condition_sql() const = 0;
-    virtual void bind_sql_parameters(sqlite3_stmt* stmt) const = 0;
+    // [新增] 纯虚函数：获取查询的日期范围
+    virtual std::pair<std::string, std::string> get_date_range() const = 0;
 
-    virtual bool _validate_input() const {
-        return true;
-    }
-
-    // [FIX] Silenced unused parameter warning which was treated as an error.
-    virtual void _handle_invalid_input(ReportDataType& /*data*/) const {
-        // Default implementation does nothing.
-    }
+    virtual bool _validate_input() const { return true; }
+    virtual void _handle_invalid_input(ReportDataType& /*data*/) const {}
+    virtual void _prepare_data(ReportDataType& /*data*/) const {}
     
-    // [FIX] Silenced unused parameter warning.
-    virtual void _prepare_data(ReportDataType& /*data*/) const {
-        // Default implementation does nothing.
-    }
-
-    void _fetch_records_and_duration(ReportDataType& data) {
-        sqlite3_stmt* stmt;
-        
-        // [核心优化]：
-        // 1. 移除 WITH RECURSIVE (CTE)
-        // 2. 使用 GROUP BY project_id 进行数据库级聚合
-        std::string sql = "SELECT project_id, SUM(duration) FROM time_records WHERE " 
-                          + get_date_condition_sql() 
-                          + " GROUP BY project_id;";
-
-        if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
-            bind_sql_parameters(stmt);
-            while (sqlite3_step(stmt) == SQLITE_ROW) {
-                long long project_id = sqlite3_column_int64(stmt, 0);
-                long long total_duration = sqlite3_column_int64(stmt, 1);
-                
-                // 假设你在 ReportDataType (如 DailyReportData) 中加了一个新字段：
-                // std::vector<std::pair<long long, long long>> project_stats;
-                data.project_stats.push_back({project_id, total_duration});
-
-                data.total_duration += total_duration;
-            }
-        }
-        sqlite3_finalize(stmt);
-    }
-
-    // [FIX] This is now a helper for subclasses, not part of the main fetch_data flow.
-    void _fetch_actual_days(ReportDataType& data) {
-        sqlite3_stmt* stmt;
-        std::string sql = "SELECT COUNT(DISTINCT date) FROM time_records WHERE " + get_date_condition_sql() + ";";
-        
-        if (sqlite3_prepare_v2(this->db_, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
-            bind_sql_parameters(stmt);
-            if (sqlite3_step(stmt) == SQLITE_ROW) {
-                data.actual_days = sqlite3_column_int(stmt, 0);
-            }
-        }
-        sqlite3_finalize(stmt);
-    }
+    // 移除 SQL 相关的虚函数: get_date_condition_sql, bind_sql_parameters
+    // 移除 _fetch_records_and_duration
 };
 
-#endif // REPORTS_DATA_QUERIERS_BASE_QUERIER_HPP_
+#endif
