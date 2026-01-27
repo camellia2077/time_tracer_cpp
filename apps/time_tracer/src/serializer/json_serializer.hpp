@@ -2,7 +2,7 @@
 #ifndef SERIALIZER_JSON_SERIALIZER_HPP_
 #define SERIALIZER_JSON_SERIALIZER_HPP_
 
-#include "core/application/interfaces/i_log_serializer.hpp" // 实现 Core 接口
+#include "application/interfaces/i_log_serializer.hpp" // 实现 Core 接口
 #include <vector>
 #include <string>
 
@@ -10,7 +10,7 @@ namespace serializer {
 
 /**
  * @brief JSON 序列化实现类
- * 实现了 Core 定义的 ILogSerializer 接口
+ * 实现�?Core 定义�?ILogSerializer 接口
  */
 class JsonSerializer : public core::interfaces::ILogSerializer {
 public:

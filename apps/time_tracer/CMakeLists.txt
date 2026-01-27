@@ -93,6 +93,7 @@ add_executable(time_tracker_cli src/main_cli.cpp
     ${REPORTS_SOURCES}
     ${CONVERTER_SOURCES}
     ${IO_SOURCES}
+    ${APPLICATION_SOURCES}
     ${CORE_SOURCES}
     ${CLI_SOURCES}
 )

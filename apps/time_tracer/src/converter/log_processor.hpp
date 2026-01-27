@@ -2,7 +2,7 @@
 #ifndef CONVERTER_LOG_PROCESSOR_HPP_
 #define CONVERTER_LOG_PROCESSOR_HPP_
 
-#include "core/application/interfaces/i_log_converter.hpp" // [新增] 实现接口
+#include "application/interfaces/i_log_converter.hpp" // [新增] 实现接口
 #include <istream> 
 #include <functional>
 
@@ -18,7 +18,7 @@ public:
                                                 const ConverterConfig& config) override;
 
 private:
-    // 内部辅助方法，也需要传递 config
+    // 内部辅助方法，也需要传�?config
     void convertStreamToData(std::istream& combined_stream, 
                              std::function<void(DailyLog&&)> data_consumer,
                              const ConverterConfig& config);

@@ -6,10 +6,10 @@
 #include <vector>
 #include <filesystem>
 #include <memory>
-#include "reports/shared/types/report_format.hpp"
+#include "reports/core/types/report_format.hpp"
 #include "reports/data/model/query_data_structs.hpp"
-#include "core/application/interfaces/i_file_system.hpp"
-#include "core/application/interfaces/i_user_notifier.hpp" // [新增]
+#include "application/interfaces/i_file_system.hpp"
+#include "application/interfaces/i_user_notifier.hpp" // [新增]
 #include "core/domain/repositories/i_report_repository.hpp" // 引入 FormattedWeeklyReports 定义
 namespace fs = std::filesystem;
 class ReportFileManager;

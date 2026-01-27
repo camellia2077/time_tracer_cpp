@@ -12,21 +12,60 @@ TimeTracer 采用**模块化单体 (Modular Monolith)** 架构，以 **Core Orch
     * **配置文件加载**: 读取物理配置文件，但不进行深入的业务规则校验。
     * **生命周期控制**: 如果环境不满足运行条件，直接终止程序启动，防止核心业务在不稳定环境中运行。
 
-### 0.2 配置校验层 (Validation Layer)
-* **核心组件**: `config_validator/facade/ConfigFacade`
-* **职责**: 纯粹的规则验证引擎。
-    * **业务规则检查**: 验证加载的 JSON 配置是否符合业务规范（如必填字段、数值范围、颜色格式）。
+### 0.2 配置校验层 (Config Layer)
+* **核心组件**: `config/` 模块
+* **目录结构**:
+    ```
+    config/
+    ├── config_loader.hpp/.cpp      # 顶层入口，加载 config.toml
+    ├── parser_utils.hpp/.cpp       # TOML 解析工具
+    ├── loaders/                    # 加载器
+    │   ├── converter_loader.*      # Converter 配置加载
+    │   └── report_loader.*         # Report 配置加载
+    └── validators/                 # 验证器
+        ├── validator_facade.*      # 验证入口 (ConfigFacade, ConverterFacade, QueryFacade)
+        ├── converter_validator.*   # Converter 规则验证
+        ├── report_validator.*      # Report 策略验证
+        └── plugin_validator.*      # 插件验证
+    ```
+* **职责**: 配置加载与规则验证引擎。
+    * **配置加载**: 从 TOML 文件加载配置到 `AppConfig` 结构体。
+    * **业务规则检查**: 验证配置是否符合业务规范（如必填字段、数值范围、颜色格式）。
     * **无状态性**: 只接收数据对象进行判断，不负责 I/O 操作。
 
-### 0.3 核心业务编排层 (Core Orchestration Layer)
-* **核心组件**: `core` 
-* **组件示例**: `WorkflowHandler`, `PipelineManager`
-* **职责**: 
-    * **信任原则**: 该层**假设**环境是健康的、配置是合法的（由上层保证）。
-    * **流程编排**: 专注于调度预处理、数据库转换、报表生成等核心业务逻辑。
-    * **数据校验**: 仅关注**用户数据**（如日志内容）的合法性，不关注**系统配置**的合法性。
+### 0.3 应用编排层 (Application Layer)
+*   **核心组件**: `application/` 模块 (原 `core/application`)
+*   **目录结构**:
+    ```
+    application/
+    ├── ports/                  # 技术端口 (IFileSystem, IUserNotifier)
+    ├── commands/               # 命令对象 (IngestCommand, ExportCommand)
+    ├── handlers/               # 命令处理器 (IngestHandler, ExportHandler)
+    └── steps/                  # Pipeline 步骤
+    ```
+*   **职责**:
+    *   **业务编排**: 系统的“大脑”，负责协调 Core 层完成具体的业务用例（如“导入日志”、“导出报表”）。
+    *   **流程控制**: 管理 Pipeline 的执行顺序，处理命令的分发。
+    *   **隔离性**: 不依赖具体的数据库或文件系统实现，而是依赖 `ports` 接口。
 
-### 0.4 跨平台核心引擎设计 (Cross-Platform Core Engine)
+### 0.4 核心支撑层 (Core Layer)
+*   **核心组件**: `core/` 模块
+*   **目录结构**:
+    ```
+    core/
+    ├── domain/                 # 领域层 (业务核心)
+    │   ├── model/              # 领域实体 (DailyLog)
+    │   └── interfaces/         # 业务接口 (ILogRepository)
+    │
+    └── infrastructure/         # 基础设施层 (技术实现)
+        ├── persistence/        # 数据库实现 (SQLite)
+        └── services/           # 外部服务适配
+    ```
+*   **职责**:
+    *   **Domain**: 定义业务的核心概念和规则（如“一天不能超过24小时”），纯净且无依赖。
+    *   **Infrastructure**: 提供具体的底层实现（如 SQLite 读写、文件 I/O），实现 Domain 和 Application 定义的接口。
+
+### 0.5 跨平台核心引擎设计 (Cross-Platform Core Engine)
 * **设计理念**: 类似于现代工业软件（如 Photoshop, VS Code）的 "Stub Executable" 模式。
 * **Core 的角色**: 
     * **无头模式 (Headless)**: Core 编译为动态库 (DLL/SO)，不包含任何 UI 代码，也不直接依赖具体的渲染引擎（如 LaTeX/Typst 具体实现）。

@@ -4,30 +4,37 @@
 
 # ----------------------------------------------------
 # 显式列出所有源文件以确保构建系统的稳定性和可预测性。
-# --- Core Sources ---
-set(CORE_SOURCES
+# --- Application Sources ---
+set(APPLICATION_SOURCES
     # Application - Root
-    src/core/application/pipeline_factory.cpp
-    src/core/application/pipeline_runner.cpp
+    src/application/pipeline_factory.cpp
+    src/application/pipeline_runner.cpp
+
+    # Application - Handlers (NEW - Command/Handler Pattern)
+    src/application/handlers/ingest_handler.cpp
+    src/application/handlers/export_handler.cpp
 
     # Application - Service
-    src/core/application/service/report_generator.cpp
-    src/core/application/service/report_handler.cpp
-    src/core/application/service/workflow_handler.cpp
+    src/application/service/report_generator.cpp
+    src/application/service/report_handler.cpp
+    src/application/service/workflow_handler.cpp
 
     # Application - Steps
-    src/core/application/steps/config_loader_step.cpp
-    src/core/application/steps/converter_step.cpp
-    src/core/application/steps/file_collector.cpp
-    src/core/application/steps/logic_linker_step.cpp
-    src/core/application/steps/logic_validator_step.cpp
-    src/core/application/steps/processed_data_writer_step.cpp
-    src/core/application/steps/structure_validator_step.cpp
+    src/application/steps/config_loader_step.cpp
+    src/application/steps/converter_step.cpp
+    src/application/steps/file_collector.cpp
+    src/application/steps/logic_linker_step.cpp
+    src/application/steps/logic_validator_step.cpp
+    src/application/steps/processed_data_writer_step.cpp
+    src/application/steps/structure_validator_step.cpp
 
     # Application - Utils
-    src/core/application/utils/converter_config_factory.cpp
-    src/core/application/utils/processed_data_writer.cpp
+    src/application/utils/converter_config_factory.cpp
+    src/application/utils/processed_data_writer.cpp
+)
 
+# --- Core Sources (Infrastructure & Domain) ---
+set(CORE_SOURCES
     # Infrastructure - Persistence
     src/core/infrastructure/persistence/db_manager.cpp
     src/core/infrastructure/persistence/sqlite_report_repository_adapter.cpp
@@ -87,20 +94,17 @@ set(REPORTS_SHARED_SOURCES
     "src/reports/daily/formatters/statistics/stat_formatter.cpp"
 
     # Shared - 内部工具与配置
-    "src/reports/shared/utils/format/bool_to_string.cpp"
-    "src/reports/shared/utils/format/report_string_utils.cpp"
-    "src/reports/shared/utils/format/time_format.cpp"
+    "src/reports/core/utils/report_string_utils.cpp"
+    "src/reports/core/utils/report_time_format.cpp"
     
     # Shared - 样式配置
-    "src/reports/shared/config/tex_style_config.cpp"
-    "src/reports/shared/config/typst_style_config.cpp"
+    "src/reports/core/config/export_style_config.cpp"
 
     # Shared - 格式化器实现
-    "src/reports/shared/formatters/base/project_tree_formatter.cpp"
-    "src/reports/shared/formatters/markdown/markdown_formatter.cpp" 
-    "src/reports/shared/formatters/typst/typ_utils.cpp"
-    "src/reports/shared/formatters/latex/tex_utils.cpp"
-    "src/reports/shared/formatters/latex/tex_common_utils.cpp"
+    "src/reports/core/formatters/base/project_tree_formatter.cpp"
+    "src/reports/core/formatters/markdown/markdown_formatter.cpp" 
+    "src/reports/core/formatters/typst/typ_utils.cpp"
+    "src/reports/core/formatters/latex/tex_utils.cpp"
 )
 
 # ==========================================
@@ -115,9 +119,6 @@ set(REPORTS_DATA_SOURCES
     # Daily Queriers (保留)
     "src/reports/data/queriers/daily/day_querier.cpp"
     "src/reports/data/queriers/daily/batch_day_data_fetcher.cpp"
-
-    # Range (Unified Monthly & Period)
-    "src/config/validator/reports/strategies/range/range_strategy.cpp"
 )
 
 set(REPORTS_SOURCES
@@ -129,24 +130,14 @@ set(REPORTS_SOURCES
 
 # --- Time Master CLI Sources ---
 set(CLI_SOURCES
-    # --- Framework (Core Logic) ---
-    "src/cli/framework/core/command_parser.cpp"
-    "src/cli/framework/core/arg_definitions.cpp"
-    "src/cli/framework/io/console_input.cpp"
+    # --- Framework (合并后的文件) ---
+    "src/cli/framework/command.cpp"
+    "src/cli/framework/console_io.cpp"
 
+    # --- Impl ---
     "src/cli/impl/app/cli_application.cpp"
     "src/cli/impl/utils/help_formatter.cpp"
-    "src/cli/impl/ui/console_notifier.cpp"
-
-    "src/cli/impl/commands/export/export_command.cpp"
-
-    "src/cli/impl/commands/query/query_command.cpp"
-
-    "src/cli/impl/commands/pipeline/convert_command.cpp"
-    "src/cli/impl/commands/pipeline/import_command.cpp"
-    "src/cli/impl/commands/pipeline/ingest_command.cpp"
-    "src/cli/impl/commands/pipeline/validate_logic_command.cpp"
-    "src/cli/impl/commands/pipeline/validate_structure_command.cpp"
+    "src/cli/impl/commands/all_commands.cpp"
 )
 # --- DB Inserter Sources ---
 set(BOOTSTRAP_SOURCES
@@ -191,36 +182,18 @@ set(IO_SOURCES
 set(CONFIG_SOURCES
     "src/config/config_loader.cpp"
 
-    "src/config/internal/config_parser_utils.cpp"
-    "src/config/loader/report_config_loader.cpp"
-    "src/config/loader/converter_config_loader.cpp"
-    "src/config/loader/toml_converter_config_loader.cpp"
-    
-    "src/config/loader/toml_loader_utils.cpp"
+    # 合并后的解析工具
+    "src/config/parser_utils.cpp"
 
+    # Loaders (合并后)
+    "src/config/loaders/converter_loader.cpp"
+    "src/config/loaders/report_loader.cpp"
 
-    # 顶层外观
-    "src/config/validator/facade/config_facade.cpp"
-
-    # converter 领域的 Facade 和 Pipelines
-    "src/config/validator/converter/facade/converter_facade.cpp"
-    "src/config/validator/converter/rules/duration_rule.cpp"
-    "src/config/validator/converter/rules/main_rule.cpp"
-    "src/config/validator/converter/rules/mapping_rule.cpp"
-
-    "src/config/validator/plugins/facade/plugin_validator.cpp"
-
-    # reports 领域的 Facade
-    "src/config/validator/reports/facade/query_facade.cpp"
-
-    # reports 领域的 Strategies
-    "src/config/validator/reports/strategies/base_strategy.cpp"
-    "src/config/validator/reports/strategies/strategy_factory.cpp"
-
-    # reports 领域的 Strategies
-    "src/config/validator/reports/strategies/daily/daily_md.cpp"
-    "src/config/validator/reports/strategies/daily/daily_tex.cpp"
-    "src/config/validator/reports/strategies/daily/daily_typ.cpp"
+    # Validators (合并后)
+    "src/config/validators/validator_facade.cpp"
+    "src/config/validators/converter_validator.cpp"
+    "src/config/validators/report_validator.cpp"
+    "src/config/validators/plugin_validator.cpp"
 )
 
 

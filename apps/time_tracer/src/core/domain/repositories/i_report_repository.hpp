@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "reports/shared/types/report_format.hpp"
+#include "reports/core/types/report_format.hpp"
 #include "reports/data/model/query_data_structs.hpp"
 
 namespace core::domain::repositories {

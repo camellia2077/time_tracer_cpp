@@ -1,6 +1,6 @@
 // core/infrastructure/persistence/sqlite_report_repository_adapter.cpp
 #include "core/infrastructure/persistence/sqlite_report_repository_adapter.hpp"
-#include "reports/shared/utils/format/time_format.hpp" 
+#include "reports/core/utils/report_time_format.hpp" 
 #include <stdexcept>
 #include <format> 
 #include <iostream>

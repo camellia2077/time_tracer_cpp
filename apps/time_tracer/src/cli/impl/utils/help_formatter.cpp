@@ -1,7 +1,6 @@
 // cli/impl/utils/help_formatter.cpp
 #include "cli/impl/utils/help_formatter.hpp"
-#include "cli/framework/interfaces/i_command.hpp"
-#include "cli/framework/core/arg_definitions.hpp"
+#include "cli/framework/command.hpp"
 #include "common/ansi_colors.hpp"
 #include <iostream>
 #include <iomanip>
@@ -40,8 +39,7 @@ void print_full_usage(const char* app_name, const std::vector<std::pair<std::str
             return a.position_index < b.position_index;
         });
 
-        // 打印简短描述 (如果有)
-        // 注意：建议在 ICommand 子类中覆盖 get_help() 返回单行描述
+        // 打印简短描述
         std::string description = cmd->get_help();
         if (description == "Auto generated help...") description = ""; 
         std::cout << usage_ss.str() << " " << description << "\n";

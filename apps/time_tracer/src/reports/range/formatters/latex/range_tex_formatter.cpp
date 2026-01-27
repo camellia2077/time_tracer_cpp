@@ -1,9 +1,12 @@
 // reports/range/formatters/latex/range_tex_formatter.cpp
 #include "reports/range/formatters/latex/range_tex_formatter.hpp"
-#include "reports/range/formatters/latex/range_tex_utils.hpp"
+#include "reports/core/formatters/latex/tex_utils.hpp"
+#include "reports/core/utils/report_time_format.hpp"
 #include <toml++/toml.hpp>
+#include <vector>
+#include <algorithm>
 
-RangeTexFormatter::RangeTexFormatter(std::shared_ptr<RangeTexConfig> config) 
+RangeTexFormatter::RangeTexFormatter(std::shared_ptr<RangeTexFormatterConfig> config) 
     : BaseTexFormatter(config) {}
 
 std::string RangeTexFormatter::validate_data(const RangeReportData& data) const {
@@ -26,15 +29,48 @@ std::string RangeTexFormatter::get_no_records_msg() const {
 }
 
 void RangeTexFormatter::format_header_content(std::stringstream& ss, const RangeReportData& data) const {
-    RangeTexUtils::display_summary(ss, data, config_);
+    display_summary(ss, data);
 }
 
-// --- DLL Exports ---
+void RangeTexFormatter::display_summary(std::stringstream& ss, const RangeReportData& data) const {
+    // 1. 标题渲染
+    std::string full_title = TexUtils::escape_latex(data.report_name);
+    if (!config_->get_report_title_label().empty()) {
+        full_title = TexUtils::escape_latex(config_->get_report_title_label()) + " " + full_title;
+    }
+    TexUtils::render_title(ss, full_title, config_->get_report_title_font_size());
+
+    // 2. 副标题 (日期范围)
+    std::string date_info = TexUtils::escape_latex(data.start_date) + 
+                            " " + TexUtils::escape_latex(config_->get_date_range_separator()) + " " + 
+                            TexUtils::escape_latex(data.end_date);
+    
+    ss << "\\textit{" << date_info << "}\n\n";
+    ss << "\\vspace{1em}\n";
+
+    // 3. 统计概览
+    if (data.total_duration > 0) {
+        int avg_denominator = get_avg_days(data);
+
+        std::vector<TexUtils::SummaryItem> items = {
+            {config_->get_total_time_label(), TexUtils::escape_latex(time_format_duration(data.total_duration, avg_denominator))},
+            {config_->get_actual_days_label(), std::to_string(data.actual_active_days)}
+        };
+
+        TexUtils::render_summary_list(
+            ss, items, 
+            config_->get_list_top_sep_pt(), 
+            config_->get_list_item_sep_ex()
+        );
+    }
+}
+
+// --- DLL 导出接口 ---
 extern "C" {
     __declspec(dllexport) FormatterHandle create_formatter(const char* config_toml) {
         try {
             auto config_tbl = toml::parse(config_toml);
-            auto tex_config = std::make_shared<RangeTexConfig>(config_tbl);
+            auto tex_config = std::make_shared<RangeTexFormatterConfig>(config_tbl);
             auto formatter = new RangeTexFormatter(tex_config);
             return static_cast<FormatterHandle>(formatter);
         } catch (...) { return nullptr; }

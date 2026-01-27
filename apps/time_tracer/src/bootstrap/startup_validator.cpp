@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <vector>
 
-#include "config/validator/plugins/facade/plugin_validator.hpp"
+#include "config/validators/plugin_validator.hpp"
 #include "common/ansi_colors.hpp"
 
 // [新增] 引入磁盘文件系统

@@ -2,9 +2,9 @@
 #include "reports/range/formatters/typst/range_typ_formatter.hpp"
 #include <format>
 #include <toml++/toml.hpp>
-#include "reports/shared/utils/format/time_format.hpp"
+#include "reports/core/utils/report_time_format.hpp"
 
-RangeTypFormatter::RangeTypFormatter(std::shared_ptr<RangeTypConfig> config) 
+RangeTypFormatter::RangeTypFormatter(std::shared_ptr<RangeTypFormatterConfig> config) 
     : BaseTypFormatter(config) {}
 
 std::string RangeTypFormatter::validate_data(const RangeReportData& data) const {
@@ -77,7 +77,8 @@ extern "C" {
     __declspec(dllexport) FormatterHandle create_formatter(const char* config_toml) {
         try {
             auto config_tbl = toml::parse(config_toml);
-            auto typ_config = std::make_shared<RangeTypConfig>(config_tbl);
+            // 修改实例化时的类名
+            auto typ_config = std::make_shared<RangeTypFormatterConfig>(config_tbl);
             auto formatter = new RangeTypFormatter(typ_config);
             return static_cast<FormatterHandle>(formatter);
         } catch (...) { return nullptr; }

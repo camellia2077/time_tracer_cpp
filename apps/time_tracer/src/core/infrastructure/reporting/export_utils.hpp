@@ -6,8 +6,8 @@
 #include <filesystem>
 #include <functional>
 #include <optional>
-#include "reports/shared/types/report_format.hpp"  
-#include "core/application/interfaces/i_user_notifier.hpp"
+#include "reports/core/types/report_format.hpp"  
+#include "application/interfaces/i_user_notifier.hpp"
 
 namespace ExportUtils {
 
@@ -16,7 +16,7 @@ struct ReportFormatDetails {
     std::string extension;
 };
 
-// [修改] 增加 notifier 参数 (或者 get_report_format_details 不需要，但 execute_export_task 需要)
+// [修改] 增加 notifier 参数 (或�?get_report_format_details 不需要，�?execute_export_task 需�?
 std::optional<ReportFormatDetails> get_report_format_details(ReportFormat format, core::interfaces::IUserNotifier* notifier = nullptr);
 
 // [修改] 增加 notifier 参数

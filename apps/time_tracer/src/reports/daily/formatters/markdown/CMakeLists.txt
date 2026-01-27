@@ -4,7 +4,6 @@
 # [核心修改] 源文件列表现在只包含此模块特有的文件。
 add_library(DayMdFormatter SHARED
     day_md_formatter.cpp
-    day_md_config.cpp
 )
 
 # --- 2. 设置目标属性 ---

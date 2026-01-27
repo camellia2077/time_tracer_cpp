@@ -1,13 +1,14 @@
 // reports/daily/formatters/markdown/day_md_formatter.cpp
 #include "reports/daily/formatters/markdown/day_md_formatter.hpp"
+// [删除] #include "reports/daily/formatters/markdown/day_md_config.hpp"
+
 #include <iomanip>
 #include <format>
 #include <memory>
 #include <toml++/toml.hpp>
 
-#include "reports/shared/utils/format/bool_to_string.hpp"
-#include "reports/shared/utils/format/time_format.hpp"
-#include "reports/shared/utils/format/report_string_utils.hpp"
+#include "reports/core/utils/report_string_utils.hpp"
+#include "reports/core/utils/report_time_format.hpp"
 
 #include "reports/daily/formatters/statistics/stat_formatter.hpp"
 #include "reports/daily/formatters/statistics/markdown_stat_strategy.hpp"
@@ -30,7 +31,6 @@ std::string DayMdFormatter::get_no_records_msg() const {
 void DayMdFormatter::format_header_content(std::stringstream& ss, const DailyReportData& data) const {
     ss << std::format("## {0} {1}\n\n", config_->get_title_prefix(), data.date);
     ss << std::format("- **{0}**: {1}\n", config_->get_date_label(), data.date);
-    // [修复] 添加第二个参数 1
     ss << std::format("- **{0}**: {1}\n", config_->get_total_time_label(), time_format_duration(data.total_duration, 1));
     ss << std::format("- **{0}**: {1}\n", config_->get_status_label(), bool_to_string(data.metadata.status));
     ss << std::format("- **{0}**: {1}\n", config_->get_sleep_label(), bool_to_string(data.metadata.sleep));
@@ -44,7 +44,8 @@ void DayMdFormatter::format_header_content(std::stringstream& ss, const DailyRep
 void DayMdFormatter::format_extra_content(std::stringstream& ss, const DailyReportData& data) const {
     auto strategy = std::make_unique<MarkdownStatStrategy>();
     StatFormatter stats_formatter(std::move(strategy));
-    ss << stats_formatter.format(data, config_);
+    // [修改] 解引用 shared_ptr
+    ss << stats_formatter.format(data, *config_);
     _display_detailed_activities(ss, data);
 }
 
@@ -56,7 +57,6 @@ void DayMdFormatter::_display_detailed_activities(std::stringstream& ss, const D
             ss << std::format("- {0} - {1} ({2}): {3}\n",
                 record.start_time,
                 record.end_time,
-                // [修复] 添加第二个参数 1
                 time_format_duration(record.duration_seconds, 1),
                 project_path
             );

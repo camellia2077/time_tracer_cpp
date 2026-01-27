@@ -21,7 +21,7 @@
 #include "io/disk_file_system.hpp"
 
 // --- 工具与信息 ---
-#include "cli/framework/interfaces/i_command.hpp"
+#include "cli/framework/command.hpp"
 #include "common/ansi_colors.hpp"
 #include "common/version.hpp"
 

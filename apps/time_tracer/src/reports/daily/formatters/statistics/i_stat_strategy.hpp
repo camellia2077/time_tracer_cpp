@@ -2,7 +2,7 @@
 #ifndef REPORTS_DAILY_FORMATTERS_STATISTICS_I_STAT_STRATEGY_HPP_
 #define REPORTS_DAILY_FORMATTERS_STATISTICS_I_STAT_STRATEGY_HPP_
 
-#include "reports/shared/api/shared_api.hpp"
+#include "reports/core/api/shared_api.hpp"
 #include <string>
 #include <vector>
 

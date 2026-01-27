@@ -2,7 +2,7 @@
 #include "reports/services/range_report_service.hpp"
 #include "reports/data/cache/project_name_cache.hpp"
 #include "reports/data/utils/project_tree_builder.hpp"
-#include "reports/shared/factories/generic_formatter_factory.hpp"
+#include "reports/core/factories/generic_formatter_factory.hpp"
 #include <stdexcept>
 
 

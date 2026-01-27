@@ -1,6 +1,5 @@
 add_library(RangeTypFormatter SHARED
     range_typ_formatter.cpp
-    range_typ_config.cpp
 )
 
 setup_project_target(RangeTypFormatter)

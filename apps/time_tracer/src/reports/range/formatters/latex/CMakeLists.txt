@@ -1,7 +1,5 @@
 add_library(RangeTexFormatter SHARED
     range_tex_formatter.cpp
-    range_tex_config.cpp
-    range_tex_utils.cpp
 )
 
 setup_project_target(RangeTexFormatter)

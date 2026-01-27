@@ -7,9 +7,9 @@
 #include <map>
 #include <memory>
 #include "core/domain/model/daily_log.hpp"
-#include "core/application/interfaces/i_file_system.hpp"
-#include "core/application/interfaces/i_user_notifier.hpp"
-#include "core/application/interfaces/i_log_serializer.hpp" // [新增] 依赖接口
+#include "application/interfaces/i_file_system.hpp"
+#include "application/interfaces/i_user_notifier.hpp"
+#include "application/interfaces/i_log_serializer.hpp" // [新增] 依赖接口
 
 namespace core::service {
 

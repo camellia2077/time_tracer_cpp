@@ -3,22 +3,25 @@
 #define REPORTS_DAILY_FORMATTERS_STATISTICS_TYPST_STRATEGY_HPP_
 
 #include "i_stat_strategy.hpp"
-#include "reports/daily/formatters/typst/day_typ_config.hpp"
 #include <format>
 #include <vector>
+#include <string>
 
+/**
+ * @brief 使用模板化配置，支持合并后的 Formatter 或独立 Config 类
+ */
+template <typename TConfig>
 class TypstStrategy : public IStatStrategy {
 public:
-    explicit TypstStrategy(const std::shared_ptr<DayTypConfig>& config) : config_(config) {}
+    // 渲染期间生命周期短于 Formatter，使用原始指针即可
+    explicit TypstStrategy(const TConfig* config) : config_(config) {}
 
     std::string format_header(const std::string& title) const override {
         std::string header;
         header += std::format("#let statistic_font_size = {}pt\n", config_->get_statistic_font_size());
         header += std::format("#let statistic_title_font_size = {}pt\n", config_->get_statistic_title_font_size());
         header += "#set text(size: statistic_font_size)\n";
-        // 注意必须是 = {0}而不是={0}，不然会没法正确渲染标题
         header += std::format("#text(size: statistic_title_font_size)[= {0}]\n\n", title);
-        
         return header;
     }
 
@@ -39,6 +42,7 @@ public:
     }
 
 private:
-    std::shared_ptr<DayTypConfig> config_;
+    const TConfig* config_;
 };
-#endif // REPORTS_DAILY_FORMATTERS_STATISTICS_TYPST_STRATEGY_HPP_
+
+#endif

@@ -2,7 +2,7 @@
 #ifndef REPORTS_DAILY_COMMON_DAY_BASE_CONFIG_HPP_
 #define REPORTS_DAILY_COMMON_DAY_BASE_CONFIG_HPP_
 
-#include "reports/shared/api/shared_api.hpp"
+#include "reports/core/api/shared_api.hpp"
 #include <string>
 #include <map>
 #include <vector> 

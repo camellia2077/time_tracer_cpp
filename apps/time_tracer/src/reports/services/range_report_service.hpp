@@ -8,7 +8,7 @@
 #include "reports/data/repositories/i_report_repository.hpp"
 #include "reports/data/model/range_report_data.hpp"
 #include "common/config/global_report_config.hpp"
-#include "reports/shared/types/report_format.hpp"
+#include "reports/core/types/report_format.hpp"
 
 // [新增] 定义范围类型，用于选择对应的配置 (Week/Month/Period)
 enum class RangeType {

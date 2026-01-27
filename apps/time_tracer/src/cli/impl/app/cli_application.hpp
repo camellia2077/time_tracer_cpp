@@ -7,7 +7,7 @@
 #include <memory>
 #include <filesystem>
 
-#include "cli/framework/core/command_parser.hpp"
+#include "cli/framework/command.hpp"
 #include "common/config/app_config.hpp"
 
 // 前向声明

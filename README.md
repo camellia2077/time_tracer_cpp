@@ -132,3 +132,8 @@ docs/
 * **[yyjson](https://github.com/ibireme/yyjson)**: 用于高性能 JSON 解析与生成 (MIT License)。
 * **[Matplotlib](https://matplotlib.org/)**: 用于数据可视化 (BSD-style License)。
 
+### 字体声明 (Fonts)
+本程序生成的排版文件（如 Typst/LaTeX）默认引用了以下字体：
+* **[MiSans](https://hyperos.xiaomi.com/font-download)**: 由小米公司设计并拥有的知识产权，根据其《MiSans 字体知识产权许可协议》免费商用。
+* **[Noto Serif SC](https://fonts.google.com/noto/specimen/Noto+Serif+SC)**: 由 Google 与 Adobe 合作开发的开源衬线字体，采用 [SIL Open Font License 1.1](https://scripts.sil.org/OFL) 协议。
+

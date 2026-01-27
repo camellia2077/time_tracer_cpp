@@ -2,17 +2,14 @@
 # [修改] report_title -> report_title_label
 report_title_label = "Monthly Summary for"
 
-# [新增]
 date_range_separator = "to"
 
 actual_days_label = "Actual Days with Records"
 total_time_label = "Total Time Recorded"
 no_records_message = "No time records found for this month."
 
-# [修改] invalid_format_message -> invalid_data_message
 invalid_data_message = "Invalid year_month format or data range."
 
-# --- 样式配置 (保留原样) ---
 main_font = "Noto Serif SC"
 cjk_main_font = "Noto Serif SC"
 base_font_size = 12

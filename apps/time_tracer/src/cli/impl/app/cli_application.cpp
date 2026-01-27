@@ -1,19 +1,20 @@
 // cli/impl/app/cli_application.cpp
 #include "cli/impl/app/cli_application.hpp"
+#include "cli/impl/app/app_context.hpp"
 #include "cli/impl/utils/help_formatter.hpp"
 #include "io/disk_file_system.hpp"
-#include "cli/impl/ui/console_notifier.hpp" 
+#include "cli/framework/console_io.hpp"
 #include "core/infrastructure/persistence/sqlite_report_repository_adapter.hpp"
 
 // Implementation Includes
 #include "serializer/json_serializer.hpp"
 #include "converter/log_processor.hpp"
-#include "core/application/service/workflow_handler.hpp"
-#include "core/application/service/report_handler.hpp"
+#include "application/service/workflow_handler.hpp"
+#include "application/service/report_handler.hpp"
 #include "core/infrastructure/persistence/db_manager.hpp"
 #include "core/infrastructure/reporting/exporter.hpp"
-#include "core/application/service/report_generator.hpp"
-#include "cli/framework/core/command_registry.hpp"
+#include "application/service/report_generator.hpp"
+#include "cli/framework/command_registry.hpp"
 #include "config/config_loader.hpp"
 
 namespace fs = std::filesystem;
@@ -57,11 +58,11 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
     auto notifier = std::make_shared<ConsoleNotifier>();
     app_context_->user_notifier = notifier;
 
-    // 3. 插件初始化 (Serializer & Converter)
+    // 3. 插件初始(Serializer & Converter)
     auto serializer = std::make_shared<serializer::JsonSerializer>();
     app_context_->serializer = serializer;
 
-    // 实例化具体的 Converter 并注入 Context
+    // 实例化具体的 Converter 
     auto converter = std::make_shared<LogProcessor>(); 
     app_context_->log_converter = converter;
 
@@ -82,7 +83,7 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
     // 6. 初始化数据库管理器
     db_manager_ = std::make_unique<DBManager>(db_path.string());
 
-    // 7. 初始化 Core Service (WorkflowHandler)
+    // 7. 初始Core Service (WorkflowHandler)
     auto workflow_impl = std::make_shared<WorkflowHandler>(
         db_path.string(), 
         app_config_, 
@@ -94,8 +95,7 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
     );
     app_context_->workflow_handler = workflow_impl;
 
-    // 8. 准备报表相关的依赖
-    // [核心修复] 仅当命令需要查询/导出时，才打开数据库并初始化 ReportRepository
+    // 8. 准备报表相关的依    // [核心修复] 仅当命令需要查导出时，才打开数据库并初始ReportRepository
     const std::string command = parser_.get_command();
     
     if (command == "query" || command == "export") {
@@ -109,8 +109,7 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
             // 获取连接（此时非空）
             sqlite3* db_connection = db_manager_->get_db_connection();
             
-            // 初始化 Repository
-            // 初始化 Repository
+            // 初始Repository
             auto report_repo = std::make_shared<infrastructure::persistence::SqliteReportRepositoryAdapter>(
                 db_connection, 
                 app_config_.loaded_reports 

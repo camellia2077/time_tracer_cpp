@@ -6,13 +6,13 @@
 #include <filesystem>
 #include <memory>
 #include "common/config/app_config.hpp"
-#include "core/application/interfaces/i_file_system.hpp"
+#include "application/interfaces/i_file_system.hpp"
 
 class ConfigLoader {
 public:
     /**
-     * @brief 构造函数
-     * @param exe_path_str 可执行文件路径
+     * @brief 构造函�?
+     * @param exe_path_str 可执行文件路�?
      * @param fs 文件系统接口 (依赖注入)
      */
     ConfigLoader(const std::string& exe_path_str, std::shared_ptr<core::interfaces::IFileSystem> fs);

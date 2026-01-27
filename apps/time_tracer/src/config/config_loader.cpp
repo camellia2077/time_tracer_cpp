@@ -4,10 +4,10 @@
 #include <stdexcept>
 #include <toml++/toml.hpp>
 
-#include "config/loader/report_config_loader.hpp"
-#include "config/internal/config_parser_utils.hpp"
-#include "config/loader/converter_config_loader.hpp" 
-#include "config/loader/toml_loader_utils.hpp" 
+#include "config/loaders/report_loader.hpp"
+#include "config/parser_utils.hpp"
+#include "config/loaders/converter_loader.hpp"
+
 
 namespace fs = std::filesystem;
 

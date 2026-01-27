@@ -2,7 +2,7 @@
 #ifndef REPORTS_RANGE_COMMON_RANGE_BASE_CONFIG_HPP_
 #define REPORTS_RANGE_COMMON_RANGE_BASE_CONFIG_HPP_
 
-#include "reports/shared/api/shared_api.hpp"
+#include "reports/core/api/shared_api.hpp"
 #include <string>
 #include <toml++/toml.hpp>
 

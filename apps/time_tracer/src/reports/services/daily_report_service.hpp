@@ -4,7 +4,7 @@
 
 #include "reports/data/model/daily_report_data.hpp"
 #include "reports/data/model/query_data_structs.hpp"
-#include "reports/shared/types/report_format.hpp" 
+#include "reports/core/types/report_format.hpp" 
 #include "common/config/global_report_config.hpp" // [修改] 替换 app_config.hpp
 #include "reports/data/repositories/i_report_repository.hpp"
 

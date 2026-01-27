@@ -3,7 +3,6 @@
 # --- 1. 定义共享库（DLL）目标 ---
 add_library(RangeMdFormatter SHARED
     range_md_formatter.cpp
-    range_md_config.cpp
 )
 
 # --- 2. 设置目标属性 ---

@@ -4,8 +4,6 @@
 # [核心修改] 源文件列表现在只包含此模块特有的文件。
 add_library(DayTypFormatter SHARED
     day_typ_formatter.cpp
-    day_typ_config.cpp
-    day_typ_utils.cpp
 )
 
 # --- 2. 设置目标属性 ---
