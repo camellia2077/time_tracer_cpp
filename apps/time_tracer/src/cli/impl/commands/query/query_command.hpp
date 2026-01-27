@@ -4,18 +4,20 @@
 
 #include "cli/framework/interfaces/i_command.hpp"
 #include "core/application/interfaces/i_report_handler.hpp"
+#include <memory> // [新增]
 
 class QueryCommand : public ICommand {
 public:
-    explicit QueryCommand(IReportHandler& report_handler);
+    // [修改] 接收 shared_ptr 而不是引用
+    explicit QueryCommand(std::shared_ptr<IReportHandler> report_handler);
     
-    // [新增] 实现参数定义接口
     std::vector<ArgDef> get_definitions() const override;
     std::string get_help() const override;
     void execute(const CommandParser& parser) override;
 
 private:
-    IReportHandler& report_handler_;
+    // [修改] 存储 shared_ptr
+    std::shared_ptr<IReportHandler> report_handler_;
 };
 
 #endif // CLI_IMPL_COMMANDS_QUERY_QUERY_COMMAND_HPP_

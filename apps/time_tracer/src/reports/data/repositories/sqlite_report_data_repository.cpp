@@ -1,16 +1,21 @@
-// reports/data/repositories/sqlite_report_repository.cpp
-#include "reports/data/repositories/sqlite_report_repository.hpp"
+// reports/data/repositories/sqlite_report_data_repository.cpp
+#include "reports/data/repositories/sqlite_report_data_repository.hpp"
 #include <stdexcept>
 #include <iostream>
 #include <vector>
 
-SqliteReportRepository::SqliteReportRepository(sqlite3* db) : db_(db) {
+#include "reports/data/cache/project_name_cache.hpp"
+
+SqliteReportDataRepository::SqliteReportDataRepository(sqlite3* db) : db_(db) {
     if (!db_) throw std::invalid_argument("Database connection cannot be null.");
+    
+    // 核心修复：确保项目名称缓存已加载
+    ProjectNameCache::instance().ensure_loaded(db_);
 }
 
 // --- Single Query Methods ---
 
-DayMetadata SqliteReportRepository::get_day_metadata(const std::string& date) {
+DayMetadata SqliteReportDataRepository::get_day_metadata(const std::string& date) {
     DayMetadata metadata;
     sqlite3_stmt* stmt;
     std::string sql = "SELECT status, sleep, remark, getup_time, exercise FROM days WHERE date = ?;";
@@ -31,11 +36,10 @@ DayMetadata SqliteReportRepository::get_day_metadata(const std::string& date) {
     return metadata;
 }
 
-std::vector<TimeRecord> SqliteReportRepository::get_time_records(const std::string& date) {
+std::vector<TimeRecord> SqliteReportDataRepository::get_time_records(const std::string& date) {
     std::vector<TimeRecord> records;
     sqlite3_stmt* stmt;
     
-    // 注意：Repository 只负责取数据(ID)，路径解析由 Service/Querier 处理
     std::string sql = "SELECT start, end, project_id, duration, activity_remark FROM time_records WHERE date = ? ORDER BY logical_id ASC;";
     
     if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
@@ -45,7 +49,6 @@ std::vector<TimeRecord> SqliteReportRepository::get_time_records(const std::stri
             record.start_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
             record.end_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             
-            // 将 project_id 存入 project_path，供上层解析
             long long pid = sqlite3_column_int64(stmt, 2);
             record.project_path = std::to_string(pid); 
             
@@ -60,7 +63,7 @@ std::vector<TimeRecord> SqliteReportRepository::get_time_records(const std::stri
     return records;
 }
 
-std::vector<std::pair<long long, long long>> SqliteReportRepository::get_aggregated_project_stats(
+std::vector<std::pair<long long, long long>> SqliteReportDataRepository::get_aggregated_project_stats(
     const std::string& start_date, const std::string& end_date) 
 {
     std::vector<std::pair<long long, long long>> result;
@@ -81,10 +84,9 @@ std::vector<std::pair<long long, long long>> SqliteReportRepository::get_aggrega
     return result;
 }
 
-std::map<std::string, long long> SqliteReportRepository::get_day_generated_stats(const std::string& date) {
+std::map<std::string, long long> SqliteReportDataRepository::get_day_generated_stats(const std::string& date) {
     std::map<std::string, long long> stats;
     sqlite3_stmt* stmt;
-    // 获取日报特有的统计列
     std::string sql = "SELECT "
                       "sleep_total_time, "
                       "total_exercise_time, anaerobic_time, cardio_time, "
@@ -113,7 +115,7 @@ std::map<std::string, long long> SqliteReportRepository::get_day_generated_stats
     return stats;
 }
 
-int SqliteReportRepository::get_actual_active_days(const std::string& start_date, const std::string& end_date) {
+int SqliteReportDataRepository::get_actual_active_days(const std::string& start_date, const std::string& end_date) {
     int actual_days = 0;
     sqlite3_stmt* stmt;
     std::string sql = "SELECT COUNT(DISTINCT date) FROM time_records WHERE date >= ? AND date <= ?;";
@@ -132,7 +134,7 @@ int SqliteReportRepository::get_actual_active_days(const std::string& start_date
 
 // --- Bulk Methods Implementation ---
 
-std::map<std::string, DailyReportData> SqliteReportRepository::get_all_days_metadata() {
+std::map<std::string, DailyReportData> SqliteReportDataRepository::get_all_days_metadata() {
     std::map<std::string, DailyReportData> results;
     sqlite3_stmt* stmt;
     
@@ -176,7 +178,7 @@ std::map<std::string, DailyReportData> SqliteReportRepository::get_all_days_meta
     return results;
 }
 
-std::vector<std::pair<std::string, TimeRecord>> SqliteReportRepository::get_all_time_records_with_date() {
+std::vector<std::pair<std::string, TimeRecord>> SqliteReportDataRepository::get_all_time_records_with_date() {
     std::vector<std::pair<std::string, TimeRecord>> results;
     sqlite3_stmt* stmt;
     
@@ -193,7 +195,6 @@ std::vector<std::pair<std::string, TimeRecord>> SqliteReportRepository::get_all_
             record.start_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
             record.end_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
             
-            // 存 ID 到 project_path
             long long pid = sqlite3_column_int64(stmt, 3);
             record.project_path = std::to_string(pid); 
             
@@ -208,7 +209,7 @@ std::vector<std::pair<std::string, TimeRecord>> SqliteReportRepository::get_all_
     return results;
 }
 
-std::map<std::string, std::vector<std::pair<long long, long long>>> SqliteReportRepository::get_all_months_project_stats() {
+std::map<std::string, std::vector<std::pair<long long, long long>>> SqliteReportDataRepository::get_all_months_project_stats() {
     std::map<std::string, std::vector<std::pair<long long, long long>>> results;
     sqlite3_stmt* stmt;
     
@@ -231,7 +232,7 @@ std::map<std::string, std::vector<std::pair<long long, long long>>> SqliteReport
     return results;
 }
 
-std::map<std::string, int> SqliteReportRepository::get_all_months_active_days() {
+std::map<std::string, int> SqliteReportDataRepository::get_all_months_active_days() {
     std::map<std::string, int> results;
     sqlite3_stmt* stmt;
     
@@ -244,6 +245,66 @@ std::map<std::string, int> SqliteReportRepository::get_all_months_active_days() 
             const char* ym_ptr = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
             if (!ym_ptr) continue;
             results[std::string(ym_ptr)] = sqlite3_column_int(stmt, 1);
+        }
+    }
+    sqlite3_finalize(stmt);
+    return results;
+}
+
+// [新增] Weekly Bulk Implementation
+
+std::map<std::string, std::vector<std::pair<long long, long long>>> SqliteReportDataRepository::get_all_weeks_project_stats() {
+    std::map<std::string, std::vector<std::pair<long long, long long>>> results;
+    sqlite3_stmt* stmt;
+    
+    // [修复] 使用 ISO 8601 逻辑的 SQL
+    // 逻辑说明：
+    // 1. date(date, 'weekday 0', '-3 days') 找到该周的“周四”
+    // 2. strftime('%Y', ...) 获取周四所在的年份 (ISO Year)
+    // 3. (strftime('%j', ...) - 1) / 7 + 1 计算 ISO Week Number
+    const char* sql = 
+        "SELECT "
+        "  strftime('%Y', date(date, '-3 days', 'weekday 4')) || '-W' || "
+        "  printf('%02d', (strftime('%j', date(date, '-3 days', 'weekday 4')) - 1) / 7 + 1) as iso_week, "
+        "  project_id, "
+        "  SUM(duration) "
+        "FROM time_records "
+        "GROUP BY iso_week, project_id "
+        "ORDER BY iso_week ASC;";
+
+    if (sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const char* yw_ptr = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+            if (!yw_ptr) continue;
+            std::string yw(yw_ptr);
+            long long pid = sqlite3_column_int64(stmt, 1);
+            long long duration = sqlite3_column_int64(stmt, 2);
+            
+            results[yw].emplace_back(pid, duration);
+        }
+    }
+    sqlite3_finalize(stmt);
+    return results;
+}
+
+std::map<std::string, int> SqliteReportDataRepository::get_all_weeks_active_days() {
+    std::map<std::string, int> results;
+    sqlite3_stmt* stmt;
+    
+    // [修复] 同样的 ISO 8601 逻辑
+    const char* sql = 
+        "SELECT "
+        "  strftime('%Y', date(date, '-3 days', 'weekday 4')) || '-W' || "
+        "  printf('%02d', (strftime('%j', date(date, '-3 days', 'weekday 4')) - 1) / 7 + 1) as iso_week, "
+        "  COUNT(DISTINCT date) "
+        "FROM time_records "
+        "GROUP BY iso_week;";
+
+    if (sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const char* yw_ptr = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+            if (!yw_ptr) continue;
+            results[std::string(yw_ptr)] = sqlite3_column_int(stmt, 1);
         }
     }
     sqlite3_finalize(stmt);

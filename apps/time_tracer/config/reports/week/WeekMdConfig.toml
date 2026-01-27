@@ -1,0 +1,16 @@
+# week/WeekMdConfig.toml
+
+# 报告标题前缀，例如: "Weekly Summary for 2025-W04"
+report_title_label = "Weekly Summary for"
+
+# 范围连接符，例如: "2025-01-20 to 2025-01-26"
+date_range_separator = "to"
+
+# 统计项标签
+project_breakdown_label = "Project Breakdown"
+actual_days_label = "Active Days"
+total_time_label = "Total Time"
+no_records_message = "No records found for this week."
+
+# 错误信息
+invalid_data_message = "Invalid week data range."

@@ -8,28 +8,10 @@
 #include <optional>
 #include <unordered_map>
 #include "common/types/date_check_mode.hpp"
-#include "common/config/report_config_models.hpp" // 注意路径修正
 #include "common/config/models/converter_config_models.hpp"
+#include "common/config/global_report_config.hpp" // [新增] 引入上面的文件
 
 namespace fs = std::filesystem;
-
-// [修改] 统一使用 DailyReportConfig 和 RangeReportConfig
-struct LoadedReportConfigs {
-    struct {
-        DailyReportConfig day;
-        RangeReportConfig range; // 统一处理 Month 和 Period 报告
-    } latex;
-
-    struct {
-        DailyReportConfig day;
-        RangeReportConfig range;
-    } typst;
-
-    struct {
-        DailyReportConfig day;
-        RangeReportConfig range;
-    } markdown;
-};
 
 struct PipelineConfig {
     fs::path interval_processor_config_path;
@@ -40,17 +22,20 @@ struct PipelineConfig {
 struct ReportConfigPaths {
     // Typst
     fs::path day_typ_config_path;
-    fs::path month_typ_config_path; // 即使被视为 Range，路径配置通常还保留
+    fs::path month_typ_config_path;
+    fs::path week_typ_config_path; // [新增]
     fs::path period_typ_config_path;
 
     // LaTeX
     fs::path day_tex_config_path;
     fs::path month_tex_config_path;
+    fs::path week_tex_config_path; // [新增]
     fs::path period_tex_config_path;
 
     // Markdown
     fs::path day_md_config_path;
     fs::path month_md_config_path;
+    fs::path week_md_config_path; // [新增]
     fs::path period_md_config_path;
 };
 
@@ -65,7 +50,7 @@ struct AppConfig {
     PipelineConfig pipeline;
     ReportConfigPaths reports; 
     
-    LoadedReportConfigs loaded_reports; 
+    GlobalReportConfig loaded_reports;
 };
 
 #endif // COMMON_CONFIG_APP_CONFIG_HPP_

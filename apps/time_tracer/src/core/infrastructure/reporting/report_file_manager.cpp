@@ -11,6 +11,12 @@ fs::path ReportFileManager::get_single_day_report_path(const std::string& date, 
     return export_root_path_ / details.dir_name / "daily" / (date + details.extension);
 }
 
+fs::path ReportFileManager::get_single_week_report_path(const std::string& week_name, ReportFormat format) const {
+    auto details = ExportUtils::get_report_format_details(format).value();
+    // 路径: export_root/[FormatType]/weekly/2025-W04.md
+    return export_root_path_ / details.dir_name / "weekly" / (week_name + details.extension);
+}
+
 fs::path ReportFileManager::get_single_month_report_path(const std::string& month, ReportFormat format) const {
     auto details = ExportUtils::get_report_format_details(format).value();
     return export_root_path_ / details.dir_name / "monthly" / (month + details.extension);
@@ -26,6 +32,11 @@ fs::path ReportFileManager::get_all_daily_reports_base_dir(ReportFormat format) 
     return export_root_path_ / details.dir_name / "days";
 }
 
+fs::path ReportFileManager::get_all_weekly_reports_base_dir(ReportFormat format) const {
+    auto details = ExportUtils::get_report_format_details(format).value();
+    return export_root_path_ / details.dir_name / "weekly";
+}
+
 fs::path ReportFileManager::get_all_monthly_reports_base_dir(ReportFormat format) const {
     auto details = ExportUtils::get_report_format_details(format).value();
     return export_root_path_ / details.dir_name / "monthly";
@@ -35,3 +46,4 @@ fs::path ReportFileManager::get_all_period_reports_base_dir(ReportFormat format)
     auto details = ExportUtils::get_report_format_details(format).value();
     return export_root_path_ / details.dir_name / "periods";
 }
+

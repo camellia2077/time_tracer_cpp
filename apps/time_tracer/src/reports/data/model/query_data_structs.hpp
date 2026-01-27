@@ -8,8 +8,14 @@
 
 //  用于导出所有报告的数据结构
 using FormattedGroupedReports = std::map<int, std::map<int, std::vector<std::pair<std::string, std::string>>>>;
+
 //  用于导出所有月报的数据结构
 using FormattedMonthlyReports = std::map<int, std::map<int, std::string>>;
+
+// [新增] 用于导出所有周报的数据结构
+// Map<Year, Map<Week, Content>>
+using FormattedWeeklyReports = std::map<int, std::map<int, std::string>>;
+
 // 用于导出所有周期报告的数据结构
 using FormattedPeriodReports = std::map<int, std::string>;
 

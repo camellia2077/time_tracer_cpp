@@ -14,34 +14,40 @@
 #include <dlfcn.h> 
 #endif
 
+// 辅助宏：用于消除 -Wcast-function-type 警告
+template<typename Target, typename Source>
+Target cast_func_ptr(Source src) {
+    return reinterpret_cast<Target>(reinterpret_cast<void(*)()>(src));
+}
+
 template<typename ReportDataType>
 class DllFormatterWrapper : public IReportFormatter<ReportDataType> {
 public:
-    DllFormatterWrapper(const std::string& dll_path, const std::string& config_json) {
-        // ... (加载库和 create/destroy 函数的逻辑不变) ...
+    // [重命名] 参数名改为 serialized_config_content，表明这是传输用的序列化数据
+    DllFormatterWrapper(const std::string& dll_path, const std::string& serialized_config_content) {
 #ifdef _WIN32
         dll_handle_ = LoadLibraryA(dll_path.c_str());
         if (!dll_handle_) throw std::runtime_error("Failed to load DLL: " + dll_path);
         
-        create_func_ = (CreateFormatterFunc)GetProcAddress(dll_handle_, "create_formatter");
-        destroy_func_ = (DestroyFormatterFunc)GetProcAddress(dll_handle_, "destroy_formatter");
+        create_func_ = cast_func_ptr<CreateFormatterFunc>(GetProcAddress(dll_handle_, "create_formatter"));
+        destroy_func_ = cast_func_ptr<DestroyFormatterFunc>(GetProcAddress(dll_handle_, "destroy_formatter"));
 
         if constexpr (std::is_same_v<ReportDataType, DailyReportData>) {
-            format_func_day_ = (FormatReportFunc_Day)GetProcAddress(dll_handle_, "format_report");
+            format_func_day_ = cast_func_ptr<FormatReportFunc_Day>(GetProcAddress(dll_handle_, "format_report"));
         } else if constexpr (std::is_same_v<ReportDataType, RangeReportData>) {
-            format_func_range_ = (FormatReportFunc_Range)GetProcAddress(dll_handle_, "format_report");
+            format_func_range_ = cast_func_ptr<FormatReportFunc_Range>(GetProcAddress(dll_handle_, "format_report"));
         }
 #else
         dll_handle_ = dlopen(dll_path.c_str(), RTLD_LAZY);
         if (!dll_handle_) throw std::runtime_error("Failed to load library: " + dll_path);
         
-        create_func_ = (CreateFormatterFunc)dlsym(dll_handle_, "create_formatter");
-        destroy_func_ = (DestroyFormatterFunc)dlsym(dll_handle_, "destroy_formatter");
+        create_func_ = reinterpret_cast<CreateFormatterFunc>(dlsym(dll_handle_, "create_formatter"));
+        destroy_func_ = reinterpret_cast<DestroyFormatterFunc>(dlsym(dll_handle_, "destroy_formatter"));
 
         if constexpr (std::is_same_v<ReportDataType, DailyReportData>) {
-            format_func_day_ = (FormatReportFunc_Day)dlsym(dll_handle_, "format_report");
+            format_func_day_ = reinterpret_cast<FormatReportFunc_Day>(dlsym(dll_handle_, "format_report"));
         } else if constexpr (std::is_same_v<ReportDataType, RangeReportData>) {
-            format_func_range_ = (FormatReportFunc_Range)dlsym(dll_handle_, "format_report");
+            format_func_range_ = reinterpret_cast<FormatReportFunc_Range>(dlsym(dll_handle_, "format_report"));
         }
 #endif
 
@@ -51,13 +57,13 @@ public:
         } else if constexpr (std::is_same_v<ReportDataType, RangeReportData>) {
             format_func_loaded = (format_func_range_ != nullptr);
         }
-        // [已删除] Monthly 和 Period 的检查逻辑
 
         if (!create_func_ || !destroy_func_ || !format_func_loaded) {
             throw std::runtime_error("Failed to get function pointers from DLL: " + dll_path);
         }
 
-        formatter_handle_ = create_func_(config_json.c_str());
+        // 传递序列化后的配置字符串
+        formatter_handle_ = create_func_(serialized_config_content.c_str());
         if (!formatter_handle_) {
             throw std::runtime_error("create_formatter from DLL returned null.");
         }
@@ -103,7 +109,6 @@ private:
     
     FormatReportFunc_Day format_func_day_ = nullptr;
     FormatReportFunc_Range format_func_range_ = nullptr;
-    // [已删除] Month 和 Period 的函数指针
 };
 
 #endif // REPORTS_SHARED_FACTORIES_DLL_FORMATTER_WRAPPER_HPP_

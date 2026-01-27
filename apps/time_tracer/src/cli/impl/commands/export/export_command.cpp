@@ -13,18 +13,19 @@
 #include <memory>
 
 static CommandRegistrar<AppContext> registrar("export", [](AppContext& ctx) {
-    if (!ctx.report_handler) throw std::runtime_error("ReportHandler not initialized");
-    return std::make_unique<ExportCommand>(*ctx.report_handler);
+    // [修改] 移除依赖检查，直接传递指针
+    return std::make_unique<ExportCommand>(ctx.report_handler);
 });
 
-ExportCommand::ExportCommand(IReportHandler& report_handler)
-    : report_handler_(report_handler) {}
+// [修改] 构造函数
+ExportCommand::ExportCommand(std::shared_ptr<IReportHandler> report_handler)
+    : report_handler_(std::move(report_handler)) {}
 
 std::vector<ArgDef> ExportCommand::get_definitions() const {
     return {
-        {"type", ArgType::Positional, {}, "Export type (daily, monthly, period, all-daily...)", true, "", 0},
-        // argument 设为非必填，因为 all-daily 等不需要参数
-        {"argument", ArgType::Positional, {}, "Date or Period", false, "", 1},
+        {"type", ArgType::Positional, {}, "Export type (daily, monthly, week, period, all-daily...)", true, "", 0},
+        {"argument", ArgType::Positional, {}, "Date, Year, or Period", false, "", 1},
+        {"week_num", ArgType::Positional, {}, "Week number (for 'week' type)", false, "", 2},
         {"format", ArgType::Option, {"-f", "--format"}, "Output format", false, "md"},
         {"output", ArgType::Option, {"-o", "--output"}, "Output directory", false, ""},
         {"db", ArgType::Option, {"--db", "--database"}, "Database path", false, ""}
@@ -32,15 +33,21 @@ std::vector<ArgDef> ExportCommand::get_definitions() const {
 }
 
 std::string ExportCommand::get_help() const {
-    return "Exports reports (daily, monthly, period, etc.) to specified formats (md, tex, typ).";
+    return "Exports reports (daily, weekly, monthly, period, etc.) to files.";
 }
 
 void ExportCommand::execute(const CommandParser& parser) {
+    // [新增] 运行时检查
+    if (!report_handler_) {
+        throw std::runtime_error("ReportHandler not initialized. (Database might be missing)");
+    }
+
     // 1. 统一验证
     ParsedArgs args = CommandValidator::validate(parser, get_definitions());
 
     std::string sub_command = args.get("type");
-    std::string export_arg = args.get("argument"); // 可能为空
+    std::string export_arg = args.get("argument"); 
+    std::string week_arg = args.get("week_num");
     
     std::vector<ReportFormat> formats;
     if (args.has("format")) {
@@ -51,23 +58,34 @@ void ExportCommand::execute(const CommandParser& parser) {
 
     // 2. 遍历所有请求的格式进行导出
     for (const auto& format : formats) {
-        if (sub_command == "daily" || sub_command == "monthly" || sub_command == "period" || sub_command == "all-period") {
-            // 这些命令必须要有 argument
+        if (sub_command == "daily" || sub_command == "monthly" || sub_command == "period" || sub_command == "all-period" || sub_command == "week") {
             if (export_arg.empty()) {
                 throw std::runtime_error("Argument required for export type '" + sub_command + "'.");
             }
 
+            // [修改] 使用 -> 调用
             if (sub_command == "daily") {
-                // [Fix] 添加 TimeUtils:: 命名空间
                 std::string date_str = TimeUtils::normalize_to_date_format(export_arg);
-                report_handler_.run_export_single_day_report(date_str, format);
+                report_handler_->run_export_single_day_report(date_str, format);
             } else if (sub_command == "monthly") {
-                // [Fix] 添加 TimeUtils:: 命名空间
                 std::string month_str = TimeUtils::normalize_to_month_format(export_arg);
-                report_handler_.run_export_single_month_report(month_str, format);
-            } else if (sub_command == "period") {
+                report_handler_->run_export_single_month_report(month_str, format);
+            } 
+            else if (sub_command == "week") {
+                if (week_arg.empty()) {
+                     throw std::runtime_error("Week number required for export type 'week'.");
+                }
                 try {
-                    report_handler_.run_export_single_period_report(std::stoi(export_arg), format);
+                    int year = std::stoi(export_arg);
+                    int week = std::stoi(week_arg);
+                    report_handler_->run_export_single_week_report(year, week, format);
+                } catch (const std::exception&) {
+                    throw std::runtime_error("Invalid year or week number.");
+                }
+            }
+            else if (sub_command == "period") {
+                try {
+                    report_handler_->run_export_single_period_report(std::stoi(export_arg), format);
                 } catch (const std::exception&) {
                     throw std::runtime_error("Invalid number provided for 'export period': " + export_arg);
                 }
@@ -82,14 +100,18 @@ void ExportCommand::execute(const CommandParser& parser) {
                         throw std::runtime_error("Invalid number in days list for 'export all-period': " + token);
                     }
                 }
-                report_handler_.run_export_all_period_reports_query(days_list, format);
+                report_handler_->run_export_all_period_reports_query(days_list, format);
             }
         }
         else if (sub_command == "all-daily") {
-            report_handler_.run_export_all_daily_reports_query(format);
+            report_handler_->run_export_all_daily_reports_query(format);
         } else if (sub_command == "all-monthly") {
-            report_handler_.run_export_all_monthly_reports_query(format);
-        } else {
+            report_handler_->run_export_all_monthly_reports_query(format);
+        } 
+        else if (sub_command == "all-week" || sub_command == "all-weekly") {
+            report_handler_->run_export_all_weekly_reports_query(format);
+        }
+        else {
             throw std::runtime_error("Unknown export type '" + sub_command + "'.");
         }
     }

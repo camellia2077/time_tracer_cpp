@@ -30,7 +30,8 @@ std::string DayMdFormatter::get_no_records_msg() const {
 void DayMdFormatter::format_header_content(std::stringstream& ss, const DailyReportData& data) const {
     ss << std::format("## {0} {1}\n\n", config_->get_title_prefix(), data.date);
     ss << std::format("- **{0}**: {1}\n", config_->get_date_label(), data.date);
-    ss << std::format("- **{0}**: {1}\n", config_->get_total_time_label(), time_format_duration(data.total_duration));
+    // [修复] 添加第二个参数 1
+    ss << std::format("- **{0}**: {1}\n", config_->get_total_time_label(), time_format_duration(data.total_duration, 1));
     ss << std::format("- **{0}**: {1}\n", config_->get_status_label(), bool_to_string(data.metadata.status));
     ss << std::format("- **{0}**: {1}\n", config_->get_sleep_label(), bool_to_string(data.metadata.sleep));
     ss << std::format("- **{0}**: {1}\n", config_->get_exercise_label(), bool_to_string(data.metadata.exercise));
@@ -55,7 +56,8 @@ void DayMdFormatter::_display_detailed_activities(std::stringstream& ss, const D
             ss << std::format("- {0} - {1} ({2}): {3}\n",
                 record.start_time,
                 record.end_time,
-                time_format_duration(record.duration_seconds),
+                // [修复] 添加第二个参数 1
+                time_format_duration(record.duration_seconds, 1),
                 project_path
             );
             if (record.activityRemark.has_value()) {
@@ -67,7 +69,6 @@ void DayMdFormatter::_display_detailed_activities(std::stringstream& ss, const D
 }
 
 extern "C" {
-    // [核心修改] 解析 TOML 字符串
     __declspec(dllexport) FormatterHandle create_formatter(const char* config_content) {
         try {
             auto config_tbl = toml::parse(config_content);

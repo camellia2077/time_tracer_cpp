@@ -30,7 +30,7 @@ set(CORE_SOURCES
 
     # Infrastructure - Persistence
     src/core/infrastructure/persistence/db_manager.cpp
-    src/core/infrastructure/persistence/sqlite_report_repository.cpp
+    src/core/infrastructure/persistence/sqlite_report_repository_adapter.cpp
 
     # Infrastructure - Reporting
     src/core/infrastructure/reporting/export_utils.cpp
@@ -110,7 +110,7 @@ set(REPORTS_DATA_SOURCES
     # 工具类
     "src/reports/data/utils/project_tree_builder.cpp"
 
-    "src/reports/data/repositories/sqlite_report_repository.cpp"
+    "src/reports/data/repositories/sqlite_report_data_repository.cpp"
 
     # Daily Queriers (保留)
     "src/reports/data/queriers/daily/day_querier.cpp"
@@ -121,11 +121,8 @@ set(REPORTS_DATA_SOURCES
 )
 
 set(REPORTS_SOURCES
-    # Root
-    "src/reports/report_service.cpp"
-    # Export
-    "src/reports/services/daily_report_service.cpp"
     # [新增] 统一的 Range Service (替代 Monthly/Period Service)
+    "src/reports/services/daily_report_service.cpp"
     "src/reports/services/range_report_service.cpp"
 )
 

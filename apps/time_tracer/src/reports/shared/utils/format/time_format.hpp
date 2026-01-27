@@ -3,31 +3,30 @@
 #define REPORTS_SHARED_UTILS_FORMAT_TIME_FORMAT_HPP_
 
 #include <string>
+#include <utility>
+#include <tuple> // 必须包含，用于 std::tuple
 #include "reports/shared/api/shared_api.hpp"
 
-/**
- * @brief 将总秒数格式化为 "XhYYm" 或 "YYm" 的字符串，并可选择计算平均值。
- * @param total_seconds 总秒数。
- * @param avg_days 用于计算平均值的天数，默认为1。
- * @return 格式化后的时长字符串。
- */
-REPORTS_SHARED_API std::string time_format_duration(long long total_seconds, int avg_days = 1);
+// 获取当前日期的字符串 (YYYY-MM-DD)
+REPORTS_SHARED_API std::string get_current_date();
 
-/**
- * @brief 为指定的日期字符串增加或减少天数。
- * @param date_str 格式为 "YYYYMMDD" 的日期字符串。
- * @param days 要增加（正数）或减少（负数）的天数。
- * @return 计算后的新日期字符串。
- */
-REPORTS_SHARED_API std::string add_days_to_date_str(std::string date_str, int days);
+// 获取当前时间的字符串 (HH:MM:SS)
+REPORTS_SHARED_API std::string get_current_time();
 
-/**
- * @brief 获取当前系统的日期。
- * @return 格式为 "YYYYMMDD" 的当前日期字符串。
- */
-REPORTS_SHARED_API std::string get_current_date_str();
+// 获取 ISO 周的起始和结束日期 (周一到周日)
+// 返回: {start_date, end_date}
+REPORTS_SHARED_API std::pair<std::string, std::string> get_week_date_range(int year, int week);
+
+// 获取过去 N 天的日期范围 (包含今天)
+// 例如 days=7, 今天是 2026-01-26，则返回 {2026-01-20, 2026-01-26}
+REPORTS_SHARED_API std::pair<std::string, std::string> get_period_dates(int days);
+
+// [修复] 添加缺失的声明，供 Formatter 调用
+// 格式化时长 (例如 "2h 30m")
+REPORTS_SHARED_API std::string time_format_duration(long long total_seconds, int avg_days);
+
+// [修复] 添加缺失的声明
+// 获取月份日期范围, 返回 {start_date, end_date, days_in_month}
+REPORTS_SHARED_API std::tuple<std::string, std::string, int> get_month_date_range(const std::string& ym);
 
 #endif // REPORTS_SHARED_UTILS_FORMAT_TIME_FORMAT_HPP_
-
-
-

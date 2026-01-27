@@ -9,7 +9,7 @@
 
 namespace ConfigValidator {
 
-enum class ReportType { Daily, Monthly, Periodic };
+enum class ReportType { Daily, Monthly, Weekly,Periodic };
 
 class StrategyFactory {
 public:

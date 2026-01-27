@@ -13,27 +13,44 @@ namespace fs = std::filesystem;
 
 namespace {
     void load_detailed_reports(core::interfaces::IFileSystem& fs, AppConfig& config) {
-// --- Typst ---
+        // --- Typst ---
         if (!config.reports.day_typ_config_path.empty())
             config.loaded_reports.typst.day = ReportConfigLoader::loadDailyTypConfig(fs, config.reports.day_typ_config_path);
         
-        // Unified Range (Use period config path for generic range reports)
+        if (!config.reports.month_typ_config_path.empty())
+            config.loaded_reports.typst.month = ReportConfigLoader::loadRangeTypConfig(fs, config.reports.month_typ_config_path);
+
+        if (!config.reports.week_typ_config_path.empty()) // [新增]
+            config.loaded_reports.typst.week = ReportConfigLoader::loadRangeTypConfig(fs, config.reports.week_typ_config_path);
+
         if (!config.reports.period_typ_config_path.empty())
-            config.loaded_reports.typst.range = ReportConfigLoader::loadRangeTypConfig(fs, config.reports.period_typ_config_path);
+            config.loaded_reports.typst.period = ReportConfigLoader::loadRangeTypConfig(fs, config.reports.period_typ_config_path);
 
         // --- LaTeX ---
         if (!config.reports.day_tex_config_path.empty())
             config.loaded_reports.latex.day = ReportConfigLoader::loadDailyTexConfig(fs, config.reports.day_tex_config_path);
         
+        if (!config.reports.month_tex_config_path.empty())
+            config.loaded_reports.latex.month = ReportConfigLoader::loadRangeTexConfig(fs, config.reports.month_tex_config_path);
+
+        if (!config.reports.week_tex_config_path.empty()) // [新增]
+            config.loaded_reports.latex.week = ReportConfigLoader::loadRangeTexConfig(fs, config.reports.week_tex_config_path);
+
         if (!config.reports.period_tex_config_path.empty())
-            config.loaded_reports.latex.range = ReportConfigLoader::loadRangeTexConfig(fs, config.reports.period_tex_config_path);
+            config.loaded_reports.latex.period = ReportConfigLoader::loadRangeTexConfig(fs, config.reports.period_tex_config_path);
 
         // --- Markdown ---
         if (!config.reports.day_md_config_path.empty())
             config.loaded_reports.markdown.day = ReportConfigLoader::loadDailyMdConfig(fs, config.reports.day_md_config_path);
         
+        if (!config.reports.month_md_config_path.empty())
+            config.loaded_reports.markdown.month = ReportConfigLoader::loadRangeMdConfig(fs, config.reports.month_md_config_path);
+
+        if (!config.reports.week_md_config_path.empty()) // [新增]
+            config.loaded_reports.markdown.week = ReportConfigLoader::loadRangeMdConfig(fs, config.reports.week_md_config_path);
+        
         if (!config.reports.period_md_config_path.empty())
-            config.loaded_reports.markdown.range = ReportConfigLoader::loadRangeMdConfig(fs, config.reports.period_md_config_path);
+            config.loaded_reports.markdown.period = ReportConfigLoader::loadRangeMdConfig(fs, config.reports.period_md_config_path);
     }
 }
 

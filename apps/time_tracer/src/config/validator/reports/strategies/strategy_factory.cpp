@@ -18,6 +18,7 @@ std::unique_ptr<IQueryStrategy> StrategyFactory::create(ReportType type, ReportF
                 default: throw std::invalid_argument("Unsupported format for Daily report");
             }
         case ReportType::Monthly:
+        case ReportType::Weekly:
         case ReportType::Periodic:
             return std::make_unique<RangeStrategy>();
         default:
@@ -29,6 +30,7 @@ std::unique_ptr<IQueryStrategy> StrategyFactory::create(ReportType type, ReportF
 std::unique_ptr<IQueryStrategy> StrategyFactory::create_from_filename(const std::string& file_name) {
     ReportType type = ReportType::Daily;
     if (file_name.find("Month") != std::string::npos) type = ReportType::Monthly;
+    else if (file_name.find("Week") != std::string::npos) type = ReportType::Weekly; // [新增] 识别 Week
     else if (file_name.find("Period") != std::string::npos) type = ReportType::Periodic;
 
     ReportFormat format = ReportFormat::Markdown;

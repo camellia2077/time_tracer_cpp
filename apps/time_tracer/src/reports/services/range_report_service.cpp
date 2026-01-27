@@ -3,9 +3,80 @@
 #include "reports/data/cache/project_name_cache.hpp"
 #include "reports/data/utils/project_tree_builder.hpp"
 #include "reports/shared/factories/generic_formatter_factory.hpp"
-#include <iostream>
+#include <stdexcept>
 
-// 辅助函数：解析 "YYYY-MM"
+
+// [新增辅助函数] (如果项目中没有现成的日期工具)
+// 解析 YYYY-Www 并计算起止日期 (ISO 8601 简化版)
+static std::pair<std::string, std::string> calculate_week_range(const std::string& week_str) {
+    int year = 0, week = 0;
+    if (sscanf(week_str.c_str(), "%d-W%d", &year, &week) != 2) return {"", ""};
+
+    std::tm tm = {};
+    tm.tm_year = year - 1900;
+    tm.tm_mon = 0; // Jan
+    tm.tm_mday = 4;
+    mktime(&tm);
+
+    // ISO周以周一为第一天
+    int wday = (tm.tm_wday == 0) ? 7 : tm.tm_wday;
+    int days_shift = 1 - wday; 
+    
+    tm.tm_mday += days_shift + (week - 1) * 7;
+    std::time_t start_time = mktime(&tm);
+    
+    std::tm end_tm = tm;
+    end_tm.tm_mday += 6;
+    std::time_t end_time = mktime(&end_tm);
+
+    char buf[16];
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d", std::localtime(&start_time));
+    std::string s_date = buf;
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d", std::localtime(&end_time));
+    std::string e_date = buf;
+
+    return {s_date, e_date};
+}
+
+// [新增方法实现]
+std::map<int, std::map<int, std::string>> RangeReportService::generate_all_weekly_history(ReportFormat format) {
+    std::map<int, std::map<int, std::string>> reports;
+    
+    // 1. 强制获取 Week 配置 (这修复了之前的配置加载 Bug 导致的空白问题)
+    const auto& cfg = get_config_by_format(format, RangeType::Week);
+
+    // 2. 获取底层数据 (YYYY-Www -> Stats)
+    auto all_project_stats = repo_.get_all_weeks_project_stats(); 
+    auto all_active_days = repo_.get_all_weeks_active_days();
+
+    auto formatter = GenericFormatterFactory<RangeReportData>::create(format, cfg);
+
+    for (auto& [week_str, stats] : all_project_stats) {
+        RangeReportData data;
+        data.report_name = week_str;
+        
+        // 计算日期范围
+        auto [start, end] = calculate_week_range(week_str);
+        data.start_date = start;
+        data.end_date = end;
+        data.covered_days = 7;
+        
+        data.project_stats = stats;
+        data.actual_active_days = all_active_days.count(week_str) ? all_active_days[week_str] : 0;
+        
+        for(auto& p : stats) data.total_duration += p.second;
+        
+        build_project_tree_from_ids(data.project_tree, data.project_stats, ProjectNameCache::instance());
+
+        // 解析 Year 和 Week 用于 Map 键
+        int year = 0, week = 0;
+        if (sscanf(week_str.c_str(), "%d-W%d", &year, &week) == 2) {
+            reports[year][week] = formatter->format_report(data);
+        }
+    }
+    return reports;
+}
+
 static std::pair<int, int> parse_year_month(const std::string& ym) {
     if (ym.size() >= 7 && ym[4] == '-') {
         try {
@@ -17,8 +88,86 @@ static std::pair<int, int> parse_year_month(const std::string& ym) {
     return {0, 0};
 }
 
-RangeReportService::RangeReportService(IReportRepository& repo, const AppConfig& config)
-    : repo_(repo), app_config_(config) {}
+RangeReportService::RangeReportService(IReportRepository& repo, const GlobalReportConfig& config)
+    : repo_(repo), config_(config) {}
+
+// [关键修改] 根据 type 选择 config.week / config.month / config.period
+const RangeReportConfig& RangeReportService::get_config_by_format(ReportFormat format, RangeType type) const {
+    const FormatReportConfig* fmt_config = nullptr;
+
+    switch (format) {
+        case ReportFormat::Markdown: fmt_config = &config_.markdown; break;
+        case ReportFormat::LaTeX:    fmt_config = &config_.latex; break;
+        case ReportFormat::Typ:      fmt_config = &config_.typst; break;
+        default: throw std::runtime_error("Unsupported format in RangeReportService");
+    }
+
+    switch (type) {
+        case RangeType::Week:   return fmt_config->week;
+        case RangeType::Month:  return fmt_config->month;
+        case RangeType::Period: return fmt_config->period;
+        default:                return fmt_config->period;
+    }
+}
+
+std::string RangeReportService::generate_report(const RangeRequest& request, ReportFormat format) {
+    // 1. 获取对应类型的配置
+    const auto& cfg = get_config_by_format(format, request.type);
+
+    // 2. 获取数据
+    RangeReportData data = build_data_for_range(request);
+
+    // 3. 格式化
+    auto formatter = GenericFormatterFactory<RangeReportData>::create(format, cfg);
+    return formatter->format_report(data);
+}
+
+// ... generate_batch 保持不变 ...
+std::map<std::string, std::string> RangeReportService::generate_batch(
+    const std::vector<RangeRequest>& requests, 
+    ReportFormat format
+) {
+    std::map<std::string, std::string> results;
+    // 简单优化：假设批量的类型都一致，或者每次都取配置
+    for (const auto& req : requests) {
+        // 复用 generate_report 即可
+        results[req.name] = generate_report(req, format);
+    }
+    return results;
+}
+
+std::map<int, std::map<int, std::string>> RangeReportService::generate_all_monthly_history(ReportFormat format) {
+    std::map<int, std::map<int, std::string>> reports;
+    
+    // 强制使用 Month 配置
+    const auto& cfg = get_config_by_format(format, RangeType::Month);
+
+    auto all_project_stats = repo_.get_all_months_project_stats();
+    auto all_active_days = repo_.get_all_months_active_days();
+
+    auto formatter = GenericFormatterFactory<RangeReportData>::create(format, cfg);
+
+    for (auto& [ym, stats] : all_project_stats) {
+        RangeReportData data;
+        data.report_name = ym;
+        data.start_date = ym + "-01";
+        data.end_date = ym + "-31"; 
+        data.covered_days = 30;    
+        data.project_stats = stats;
+        data.actual_active_days = all_active_days[ym];
+        
+        for(auto& p : stats) data.total_duration += p.second;
+        
+        // 构建树
+        build_project_tree_from_ids(data.project_tree, data.project_stats, ProjectNameCache::instance());
+
+        auto [y, m] = parse_year_month(ym);
+        if (y > 0) {
+            reports[y][m] = formatter->format_report(data);
+        }
+    }
+    return reports;
+}
 
 RangeReportData RangeReportService::build_data_for_range(const RangeRequest& request) {
     RangeReportData data;
@@ -27,81 +176,14 @@ RangeReportData RangeReportService::build_data_for_range(const RangeRequest& req
     data.end_date = request.end_date;
     data.covered_days = request.covered_days;
 
-    // 1. 获取聚合数据
     data.project_stats = repo_.get_aggregated_project_stats(request.start_date, request.end_date);
-
-    // 2. 获取实际活跃天数
     data.actual_active_days = repo_.get_actual_active_days(request.start_date, request.end_date);
 
-    // 3. 计算总时长
-    for (const auto& p : data.project_stats) {
-        data.total_duration += p.second;
+    for (const auto& [id, duration] : data.project_stats) {
+        data.total_duration += duration;
     }
 
-    // 4. 构建树 (仅当有数据时)
-    if (data.total_duration > 0) {
-        auto& name_cache = ProjectNameCache::instance();
-        build_project_tree_from_ids(data.project_tree, data.project_stats, name_cache);
-    }
-
-    return data;
-}
-
-std::string RangeReportService::generate_report(const RangeRequest& request, ReportFormat format) {
-    RangeReportData data = build_data_for_range(request);
+    build_project_tree_from_ids(data.project_tree, data.project_stats, ProjectNameCache::instance());
     
-    auto formatter = GenericFormatterFactory<RangeReportData>::create(format, app_config_);
-    return formatter->format_report(data);
-}
-
-std::map<std::string, std::string> RangeReportService::generate_batch(
-    const std::vector<RangeRequest>& requests, 
-    ReportFormat format) 
-{
-    std::map<std::string, std::string> results;
-    // 这里如果 formatter 初始化开销大，可以复用 formatter 实例，
-    // 但 GenericFormatterFactory 目前设计是 create 返回 unique_ptr。
-    // 考虑到 DLL 加载可能有缓存，直接循环调用 generate_report 简单可靠。
-    for (const auto& req : requests) {
-        results[req.name] = generate_report(req, format);
-    }
-    return results;
-}
-
-std::map<int, std::map<int, std::string>> RangeReportService::generate_all_monthly_history(ReportFormat format) {
-    std::map<int, std::map<int, std::string>> reports;
-    auto& name_cache = ProjectNameCache::instance();
-
-    // 1. 批量获取数据 (复用 MonthlyReportService 的优化逻辑)
-    auto all_project_stats = repo_.get_all_months_project_stats();
-    auto all_active_days = repo_.get_all_months_active_days();
-
-    auto formatter = GenericFormatterFactory<RangeReportData>::create(format, app_config_);
-
-    // 2. 内存处理
-    for (auto& [ym, stats] : all_project_stats) {
-        RangeReportData data;
-        data.report_name = ym;
-        // 构造粗略的起止日期用于显示，虽然核心统计已经查出来了
-        data.start_date = ym + "-01";
-        data.end_date = ym + "-31"; // 只是展示用，不影响统计
-        data.covered_days = 30;     // 估算值，或者可以通过日期库计算准确天数
-        data.project_stats = stats;
-        data.actual_active_days = all_active_days[ym];
-
-        for(auto& p : stats) data.total_duration += p.second;
-
-        if (data.total_duration > 0) {
-            build_project_tree_from_ids(data.project_tree, data.project_stats, name_cache);
-            
-            std::string content = formatter->format_report(data);
-
-            auto [year, month] = parse_year_month(ym);
-            if (year > 0 && month > 0) {
-                reports[year][month] = content;
-            }
-        }
-    }
-
-    return reports;
+    return data;
 }

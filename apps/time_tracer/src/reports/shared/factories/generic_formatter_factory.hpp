@@ -2,116 +2,86 @@
 #ifndef REPORTS_SHARED_FACTORIES_GENERIC_FORMATTER_FACTORY_HPP_
 #define REPORTS_SHARED_FACTORIES_GENERIC_FORMATTER_FACTORY_HPP_
 
+#include <memory>
 #include <functional>
 #include <map>
-#include <memory>
-#include <stdexcept>
-#include <filesystem>
-#include <iostream>
 #include <string>
-#include <fstream>
+#include <stdexcept>
+#include <iostream>
 #include <sstream>
 
+// 引入 toml++ 用于序列化
+#include <toml++/toml.hpp>
+// 引入独立的序列化器头文件
+#include "reports/shared/serialization/report_config_serializer.hpp"
+
 #include "reports/shared/types/report_format.hpp"
-#include "common/config/app_config.hpp"
 #include "reports/shared/interfaces/i_report_formatter.hpp"
+#include "reports/shared/traits/report_traits.hpp"
 #include "reports/shared/factories/dll_formatter_wrapper.hpp"
 
-namespace fs = std::filesystem;
 
-template<typename ReportDataType>
+
+
+// --- Factory ---
+
+template <typename ReportDataType>
 class GenericFormatterFactory {
 public:
-    using Creator = std::function<std::unique_ptr<IReportFormatter<ReportDataType>>(const AppConfig&)>;
-
-    static std::unique_ptr<IReportFormatter<ReportDataType>> create(ReportFormat format, const AppConfig& config) {
-        auto& creators = get_creators();
-        auto it = creators.find(format);
-        
-        if (it == creators.end()) {
-            throw std::invalid_argument("Unsupported report format or formatter not registered for this data type.");
-        }
-        
-        return it->second(config);
-    }
-
-    static void register_creator(ReportFormat format, Creator creator) {
-        get_creators()[format] = std::move(creator);
-    }
-
-    static void register_dll_formatter(ReportFormat format, std::string dll_base_name) {
-        register_creator(format, [dll_base_name, format](const AppConfig& config) {
-            fs::path config_path;
-
-            // [修改] 只保留 Daily 和 Range 两种逻辑
-            if constexpr (std::is_same_v<ReportDataType, DailyReportData>) {
-                switch(format) {
-                    case ReportFormat::Markdown: config_path = config.reports.day_md_config_path; break;
-                    case ReportFormat::LaTeX:    config_path = config.reports.day_tex_config_path; break;
-                    case ReportFormat::Typ:      config_path = config.reports.day_typ_config_path; break;
-                }
-            } else if constexpr (std::is_same_v<ReportDataType, RangeReportData>) {
-                // Range 报告复用原有的 period 配置文件路径
-                switch(format) {
-                    case ReportFormat::Markdown: config_path = config.reports.period_md_config_path; break;
-                    case ReportFormat::LaTeX:    config_path = config.reports.period_tex_config_path; break;
-                    case ReportFormat::Typ:      config_path = config.reports.period_typ_config_path; break;
-                }
-            }
-            // [已删除] Monthly 和 Period 的分支
-
-            std::string config_content = "";
-            if (!config_path.empty() && fs::exists(config_path)) {
-                try {
-                    std::ifstream file(config_path);
-                    if (file) {
-                        std::stringstream buffer;
-                        buffer << file.rdbuf();
-                        config_content = buffer.str();
-                    }
-                } catch (const std::exception& e) {
-                    std::cerr << "Error reading config file: " << config_path << " - " << e.what() << std::endl;
-                }
-            }
-
-            return load_from_dll(dll_base_name, config, config_content);
-        });
-    }
+    using ConfigType = typename ReportTraits<ReportDataType>::ConfigType;
+    using FormatterType = IReportFormatter<ReportDataType>;
+    using Creator = std::function<std::unique_ptr<FormatterType>(const ConfigType&)>;
 
 private:
-    static std::map<ReportFormat, Creator>& get_creators() {
-        static std::map<ReportFormat, Creator> creators;
-        return creators;
+    static std::map<ReportFormat, Creator>& get_registry() {
+        static std::map<ReportFormat, Creator> registry;
+        return registry;
     }
 
-    static std::unique_ptr<IReportFormatter<ReportDataType>> load_from_dll(
-        const std::string& base_name, 
-        const AppConfig& config,
-        const std::string& config_content) 
-    {
-        try {
-            fs::path exe_dir(config.exe_dir_path);
-            fs::path plugin_dir = exe_dir / "plugins";
-            fs::path dll_path;
+public:
+    static void register_formatter(ReportFormat format, Creator creator) {
+        get_registry()[format] = std::move(creator);
+    }
 
-#ifdef _WIN32
-            dll_path = plugin_dir / ("lib" + base_name + ".dll");
-            if (!fs::exists(dll_path)) {
-                dll_path = plugin_dir / (base_name + ".dll");
+    // 注册 DLL 格式化器
+    static void register_dll_formatter(ReportFormat format, const std::string& dll_base_name) {
+        
+        auto creator_lambda = [dll_base_name](const ConfigType& config) -> std::unique_ptr<FormatterType> {
+            // 1. 自动补全 DLL 后缀
+            std::string dll_path = dll_base_name;
+            #ifdef _WIN32
+                if (dll_path.find(".dll") == std::string::npos) dll_path += ".dll";
+            #else
+                if (dll_path.find("lib") != 0 && dll_path.find("/") == std::string::npos) dll_path = "lib" + dll_path;
+                if (dll_path.find(".so") == std::string::npos) dll_path += ".so";
+            #endif
+
+            // 2. [核心重构] 使用 ConfigTomlSerializer 生成 TOML 字符串
+            // 变量名改为 serialized_toml_config 以消除歧义
+            std::string serialized_toml_config = ConfigTomlSerializer::to_toml_string(config);
+
+            // 3. 创建 Wrapper
+            try {
+                auto wrapper = std::make_unique<DllFormatterWrapper<ReportDataType>>(dll_path, serialized_toml_config);
+                if (!wrapper) {
+                     throw std::runtime_error("Unknown error creating DLL wrapper");
+                }
+                return wrapper;
+            } catch (const std::exception& e) {
+                std::cerr << "[Factory] Failed to load DLL formatter '" << dll_path << "': " << e.what() << std::endl;
+                throw; 
             }
-#else
-            dll_path = plugin_dir / ("lib" + base_name + ".so");
-#endif
-            if (!fs::exists(dll_path)) {
-                 throw std::runtime_error("Formatter plugin not found at: " + dll_path.string());
-            }
+        };
+        
+        register_formatter(format, creator_lambda);
+    }
 
-            return std::make_unique<DllFormatterWrapper<ReportDataType>>(dll_path.string(), config_content);
-
-        } catch (const std::exception& e) {
-            std::cerr << "Error loading dynamic formatter: " << e.what() << std::endl;
-            throw;
+    static std::unique_ptr<FormatterType> create(ReportFormat format, const ConfigType& config) {
+        auto& registry = get_registry();
+        if (registry.find(format) == registry.end()) {
+            throw std::runtime_error("No formatter registered for format: " + std::to_string(static_cast<int>(format)));
         }
+        return registry[format](config);
     }
 };
 

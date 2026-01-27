@@ -23,7 +23,8 @@ void display_header(std::stringstream& ss, const DailyReportData& data, const st
 
     std::vector<TexCommonUtils::SummaryItem> items = {
         {config->get_date_label(),       TexUtils::escape_latex(data.date)},
-        {config->get_total_time_label(), TexUtils::escape_latex(time_format_duration(data.total_duration))},
+        // [修复] 添加第二个参数 1
+        {config->get_total_time_label(), TexUtils::escape_latex(time_format_duration(data.total_duration, 1))},
         {config->get_status_label(),     TexUtils::escape_latex(bool_to_string(data.metadata.status))},
         {config->get_sleep_label(),      TexUtils::escape_latex(bool_to_string(data.metadata.sleep))},
         {config->get_exercise_label(),   TexUtils::escape_latex(bool_to_string(data.metadata.exercise))},
@@ -58,7 +59,8 @@ void display_detailed_activities(std::stringstream& ss, const DailyReportData& d
         std::string project_path = replace_all(record.project_path, "_", config->get_activity_connector());
         std::string base_string = TexUtils::escape_latex(record.start_time) + " - " +
                                   TexUtils::escape_latex(record.end_time) + " (" +
-                                  TexUtils::escape_latex(time_format_duration(record.duration_seconds)) +
+                                  // [修复] 添加第二个参数 1
+                                  TexUtils::escape_latex(time_format_duration(record.duration_seconds, 1)) +
                                   "): " + TexUtils::escape_latex(project_path);
 
         std::string colorized_string = base_string;

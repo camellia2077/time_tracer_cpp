@@ -14,10 +14,14 @@ public:
     explicit ReportFileManager(const fs::path& export_root);
 
     fs::path get_single_day_report_path(const std::string& date, ReportFormat format) const;
+    fs::path get_single_week_report_path(const std::string& week_name, ReportFormat format) const;
     fs::path get_single_month_report_path(const std::string& month, ReportFormat format) const;
     fs::path get_single_period_report_path(int days, ReportFormat format) const;
+    
+
 
     fs::path get_all_daily_reports_base_dir(ReportFormat format) const;
+    fs::path get_all_weekly_reports_base_dir(ReportFormat format) const;
     fs::path get_all_monthly_reports_base_dir(ReportFormat format) const;
     fs::path get_all_period_reports_base_dir(ReportFormat format) const;
 

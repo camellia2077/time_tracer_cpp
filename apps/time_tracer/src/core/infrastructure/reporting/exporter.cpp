@@ -39,6 +39,11 @@ void Exporter::export_single_day_report(const std::string& date, const std::stri
     // [修改] 使用 notifier 提示成功
     notifier_->notify_success("Success: Report exported to " + fs::absolute(path).string());
 }
+void Exporter::export_single_week_report(const std::string& week_name, const std::string& content, ReportFormat format) const {
+    fs::path path = file_manager_->get_single_week_report_path(week_name, format);
+    write_report_to_file(content, path);
+    notifier_->notify_success("Success: Weekly report exported to " + fs::absolute(path).string());
+}
 
 void Exporter::export_single_month_report(const std::string& month, const std::string& content, ReportFormat format) const {
     fs::path path = file_manager_->get_single_month_report_path(month, format);
@@ -69,6 +74,38 @@ void Exporter::export_all_daily_reports(const FormattedGroupedReports& reports, 
                     write_report_to_file(content, report_path);
                     if (!content.empty()) files_created++;
                 }
+            }
+        }
+        return files_created;
+    });
+}
+
+
+
+// [修复] 实现 export_all_weekly_reports 方法
+void Exporter::export_all_weekly_reports(const FormattedWeeklyReports& reports, ReportFormat format) const {
+    fs::path base_dir = file_manager_->get_all_weekly_reports_base_dir(format);
+
+    ExportUtils::execute_export_task("周报", base_dir, *notifier_, [&]() {
+        int files_created = 0;
+        for (const auto& year_pair : reports) {
+            int year = year_pair.first;
+            // 建议按年份分文件夹: weekly/2025/
+            fs::path year_dir = base_dir / std::to_string(year);
+            
+            for (const auto& week_pair : year_pair.second) {
+                int week = week_pair.first;
+                const std::string& content = week_pair.second;
+                
+                // 文件名: 2025-W01.md
+                std::string filename = std::format("{}-W{:02d}", year, week);
+                
+                // 获取后缀并构造完整路径
+                auto details = ExportUtils::get_report_format_details(format).value();
+                fs::path report_path = year_dir / (filename + details.extension);
+
+                write_report_to_file(content, report_path);
+                if (!content.empty()) files_created++;
             }
         }
         return files_created;

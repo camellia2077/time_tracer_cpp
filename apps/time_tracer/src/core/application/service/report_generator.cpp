@@ -10,6 +10,10 @@ std::string ReportGenerator::generate_daily_report(const std::string& date, Repo
     return repository_->get_daily_report(date, format);
 }
 
+std::string ReportGenerator::generate_weekly_report(int year, int week, ReportFormat format) {
+    return repository_->get_weekly_report(year, week, format);
+}
+
 std::string ReportGenerator::generate_monthly_report(const std::string& month, ReportFormat format) {
     return repository_->get_monthly_report(month, format);
 }
@@ -24,6 +28,10 @@ FormattedGroupedReports ReportGenerator::generate_all_daily_reports(ReportFormat
 
 FormattedMonthlyReports ReportGenerator::generate_all_monthly_reports(ReportFormat format) {
     return repository_->get_all_monthly_reports(format);
+}
+
+FormattedWeeklyReports ReportGenerator::generate_all_weekly_reports(ReportFormat format) {
+    return repository_->get_all_weekly_reports(format);
 }
 
 FormattedPeriodReports ReportGenerator::generate_all_period_reports(const std::vector<int>& days_list, ReportFormat format) {

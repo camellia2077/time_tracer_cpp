@@ -19,10 +19,12 @@ extern "C" {
 #endif
 
 typedef void* FormatterHandle;
-typedef void* (*CreateFormatterFunc)(const char* config_content);
+
+// [重命名] 显式指明参数是 TOML 格式的配置字符串
+typedef void* (*CreateFormatterFunc)(const char* toml_config_str);
+
 typedef void (*DestroyFormatterFunc)(FormatterHandle);
 
-// [修改] 只保留 Daily 和 Range 两种函数签名
 typedef const char* (*FormatReportFunc_Day)(FormatterHandle, const DailyReportData&);
 typedef const char* (*FormatReportFunc_Range)(FormatterHandle, const RangeReportData&);
 

@@ -1,5 +1,8 @@
 // reports/daily/formatters/typst/day_typ_utils.cpp
 #include "reports/daily/formatters/typst/day_typ_utils.hpp"
+// [核心修复] 必须包含 Config 的定义，否则无法调用 config->get_...()
+#include "reports/daily/formatters/typst/day_typ_config.hpp" 
+
 #include <iomanip>
 #include <format>
 #include <string>
@@ -10,12 +13,13 @@
 #include "reports/shared/utils/format/report_string_utils.hpp"
 
 namespace {
+    // 辅助函数放入匿名空间，仅本文件可见
     std::string format_activity_line(const TimeRecord& record, const std::shared_ptr<DayTypConfig>& config) {
         std::string project_path = replace_all(record.project_path, "_", config->get_activity_connector());
         std::string base_string = std::format("{} - {} ({}): {}",
             record.start_time,
             record.end_time,
-            time_format_duration(record.duration_seconds),
+            time_format_duration(record.duration_seconds, 1),
             project_path
         );
 
@@ -27,11 +31,10 @@ namespace {
                 std::string final_output = std::format("+ #text({})[{}]", typst_color_format, base_string);
                 
                 if (record.activityRemark.has_value()) {
-                    // [核心修改] 传入 " \\" 作为后缀，强制 Typst 换行
                     std::string formatted_activity_remark = format_multiline_for_list(
                         record.activityRemark.value(), 
-                        4,     // 缩进 4 个空格
-                        " \\"  // 行尾追加 " \"
+                        4,     
+                        " \\"  
                     );
                     final_output += std::format("\n  + *{}:* {}", config->get_activity_remark_label(), formatted_activity_remark);
                 }
@@ -42,11 +45,10 @@ namespace {
         // 2. 默认格式（无颜色）
         std::string final_output = "+ " + base_string;
         if (record.activityRemark.has_value()) {
-            // [核心修改] 传入 " \\" 作为后缀，强制 Typst 换行
             std::string formatted_activity_remark = format_multiline_for_list(
                 record.activityRemark.value(), 
-                4,     // 缩进 4 个空格
-                " \\"  // 行尾追加 " \"
+                4,    
+                " \\" 
             );
             final_output += std::format("\n  + *{}:* {}", config->get_activity_remark_label(), formatted_activity_remark);
         }
@@ -68,14 +70,14 @@ namespace DayTypUtils {
         );
         ss << title << "\n\n";
         ss << std::format("+ *{}:* {}\n", config->get_date_label(), data.date);
-        ss << std::format("+ *{}:* {}\n", config->get_total_time_label(), time_format_duration(data.total_duration));
+        
+        ss << std::format("+ *{}:* {}\n", config->get_total_time_label(), time_format_duration(data.total_duration, 1));
+        
         ss << std::format("+ *{}:* {}\n", config->get_status_label(), bool_to_string(data.metadata.status));
         ss << std::format("+ *{}:* {}\n", config->get_sleep_label(), bool_to_string(data.metadata.sleep));
         ss << std::format("+ *{}:* {}\n", config->get_exercise_label(), bool_to_string(data.metadata.exercise));
         ss << std::format("+ *{}:* {}\n", config->get_getup_time_label(), data.metadata.getup_time);
 
-        // [核心修改] 传入 " \\" 作为后缀，强制 Typst 换行
-        // 缩进 2 个空格以适配一级列表
         std::string formatted_remark = format_multiline_for_list(
             data.metadata.remark, 
             2, 

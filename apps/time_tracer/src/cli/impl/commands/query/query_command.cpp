@@ -13,47 +13,52 @@
 #include <vector>
 
 static CommandRegistrar<AppContext> registrar("query", [](AppContext& ctx) {
-    if (!ctx.report_handler) throw std::runtime_error("ReportHandler not initialized");
-    return std::make_unique<QueryCommand>(*ctx.report_handler);
+    // [修改] 移除 if (!ctx.report_handler) check，直接传入指针
+    // 即使 handler 为空，也允许创建 Command 对象以提供 Help 信息
+    return std::make_unique<QueryCommand>(ctx.report_handler);
 });
 
-QueryCommand::QueryCommand(IReportHandler& report_handler)
-    : report_handler_(report_handler) {}
+// [修改] 构造函数适配 shared_ptr
+QueryCommand::QueryCommand(std::shared_ptr<IReportHandler> report_handler)
+    : report_handler_(std::move(report_handler)) {}
 
 std::vector<ArgDef> QueryCommand::get_definitions() const {
     return {
-        {"type", ArgType::Positional, {}, "Query type (daily, monthly, period)", true, "", 0},
-        {"argument", ArgType::Positional, {}, "Date (YYYYMMDD) or Period (days)", true, "", 1},
+        {"type", ArgType::Positional, {}, "Query type (daily, monthly, week, period)", true, "", 0},
+        {"argument", ArgType::Positional, {}, "Date (YYYY-MM-DD), Month (YYYY-MM), Year (YYYY), or Period (days)", true, "", 1},
+        {"week_num", ArgType::Positional, {}, "Week number (required for 'week' type)", false, "", 2},
         {"format", ArgType::Option, {"-f", "--format"}, "Output format (md, tex, typ)", false, "md"}
     };
 }
 
 std::string QueryCommand::get_help() const {
-    return "Queries statistics (daily, monthly, period) from the database.";
+    return "Queries statistics (daily, weekly, monthly, period) from the database.";
 }
 
 void QueryCommand::execute(const CommandParser& parser) {
+    // [新增] 运行时检查依赖
+    if (!report_handler_) {
+        throw std::runtime_error("Database service not initialized. (Check if database file exists)");
+    }
+
     // 1. 统一验证与解析
     ParsedArgs args = CommandValidator::validate(parser, get_definitions());
 
-    // 2. 获取清洗后的参数
+    // 2. 获取参数
     std::string sub_command = args.get("type");
     std::string query_arg = args.get("argument");
     std::string format_str = args.get("format"); 
+    std::string week_arg = args.get("week_num");
 
     // 3. 业务逻辑
     std::vector<ReportFormat> formats = ArgUtils::parse_report_formats(format_str);
 
-    // 预处理日期格式
     if (sub_command == "daily") {
-        // [Fix] 添加 TimeUtils:: 命名空间
         query_arg = TimeUtils::normalize_to_date_format(query_arg);
     } else if (sub_command == "monthly") {
-        // [Fix] 添加 TimeUtils:: 命名空间
         query_arg = TimeUtils::normalize_to_month_format(query_arg);
-    }
+    } 
 
-    // 执行查询
     for (size_t i = 0; i < formats.size(); ++i) {
         ReportFormat format = formats[i];
         
@@ -61,11 +66,26 @@ void QueryCommand::execute(const CommandParser& parser) {
             std::cout << "\n" << std::string(40, '=') << "\n";
         }
 
+        // [修改] 使用 -> 调用成员函数
         if (sub_command == "daily") {
-            std::cout << report_handler_.run_daily_query(query_arg, format);
-        } else if (sub_command == "monthly") {
-            std::cout << report_handler_.run_monthly_query(query_arg, format);
-        } else if (sub_command == "period") {
+            std::cout << report_handler_->run_daily_query(query_arg, format);
+        } 
+        else if (sub_command == "monthly") {
+            std::cout << report_handler_->run_monthly_query(query_arg, format);
+        } 
+        else if (sub_command == "week") {
+            if (week_arg.empty()) {
+                throw std::runtime_error("Week number is required for 'week' query. Usage: query week <year> <week_num>");
+            }
+            try {
+                int year = std::stoi(query_arg);
+                int week = std::stoi(week_arg);
+                std::cout << report_handler_->run_weekly_query(year, week, format);
+            } catch (const std::exception&) {
+                throw std::runtime_error("Invalid year or week number.");
+            }
+        }
+        else if (sub_command == "period") {
             std::vector<int> periods;
             std::string token;
             std::istringstream tokenStream(query_arg);
@@ -84,10 +104,10 @@ void QueryCommand::execute(const CommandParser& parser) {
             }
 
             if (!periods.empty()) {
-                std::cout << report_handler_.run_period_queries(periods, format);
+                std::cout << report_handler_->run_period_queries(periods, format);
             }
         } else {
-            throw std::runtime_error("Unknown query type '" + sub_command + "'. Supported: daily, monthly, period.");
+            throw std::runtime_error("Unknown query type '" + sub_command + "'. Supported: daily, week, monthly, period.");
         }
     }
 }

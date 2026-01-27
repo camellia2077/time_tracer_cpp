@@ -3,7 +3,7 @@
 #include "cli/impl/utils/help_formatter.hpp"
 #include "io/disk_file_system.hpp"
 #include "cli/impl/ui/console_notifier.hpp" 
-#include "core/infrastructure/persistence/sqlite_report_repository.hpp"
+#include "core/infrastructure/persistence/sqlite_report_repository_adapter.hpp"
 
 // Implementation Includes
 #include "serializer/json_serializer.hpp"
@@ -83,7 +83,6 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
     db_manager_ = std::make_unique<DBManager>(db_path.string());
 
     // 7. 初始化 Core Service (WorkflowHandler)
-    // WorkflowHandler 负责写入路径，它通过 ImportService 自行管理 DB 连接（或路径），不需要 db_manager 已打开
     auto workflow_impl = std::make_shared<WorkflowHandler>(
         db_path.string(), 
         app_config_, 
@@ -110,29 +109,29 @@ CliApplication::CliApplication(const std::vector<std::string>& args)
             // 获取连接（此时非空）
             sqlite3* db_connection = db_manager_->get_db_connection();
             
-            // 初始化 Repository (它会检查 db_connection != nullptr)
-            auto report_repo = std::make_shared<infrastructure::persistence::SqliteReportRepository>(
+            // 初始化 Repository
+            // 初始化 Repository
+            auto report_repo = std::make_shared<infrastructure::persistence::SqliteReportRepositoryAdapter>(
                 db_connection, 
-                app_config_
+                app_config_.loaded_reports 
             );
 
             auto report_generator = std::make_unique<ReportGenerator>(report_repo);
             auto exporter = std::make_unique<Exporter>(exported_files_path_, disk_fs, notifier);
             
+            // [核心修改] 传入 app_config_.exe_dir_path.string()
             auto report_impl = std::make_shared<ReportHandler>(
                 std::move(report_generator), 
-                std::move(exporter)
+                std::move(exporter),
+                app_config_.exe_dir_path.string() // <--- 新增参数
             );
             app_context_->report_handler = report_impl;
 
         } catch (const std::exception& e) {
             notifier->notify_error("Database Error: " + std::string(e.what()));
-            // 如果是查询命令但无法连接数据库，抛出异常终止程序是合理的
             throw;
         }
     }
-    // 对于其他命令（如 ingest），app_context_->report_handler 保持为 nullptr。
-    // 这没问题，因为这些命令的 Handler（如 IngestCommand）不会使用 report_handler。
 }
 
 CliApplication::~CliApplication() = default;

@@ -31,9 +31,11 @@ void process_stat_items(
         // 注意：目前 IStatStrategy 只定义了 main_item 和 sub_item。
         // 这里做一个简单的映射：Level 0 为 Main，Level > 0 为 Sub。
         if (level == 0) {
-            lines.push_back(strategy->format_main_item(item.label, time_format_duration(duration)));
+            // [修复] 添加第二个参数 1 (avg_days)
+            lines.push_back(strategy->format_main_item(item.label, time_format_duration(duration, 1)));
         } else {
-            lines.push_back(strategy->format_sub_item(item.label, time_format_duration(duration)));
+            // [修复] 添加第二个参数 1 (avg_days)
+            lines.push_back(strategy->format_sub_item(item.label, time_format_duration(duration, 1)));
         }
 
         // 3. 递归处理子项

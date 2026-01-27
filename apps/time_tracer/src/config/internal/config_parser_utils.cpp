@@ -14,8 +14,6 @@ void parse_system_settings(const toml::table& tbl, const fs::path& exe_path, App
     if (!sys_node) {
         if (tbl.contains("general")) {
             const toml::node_view<const toml::node> gen_node = tbl["general"];
-             // 复用逻辑或简单复制
-             // 这里为了演示直接写
              if (auto val = gen_node["error_log"].value<std::string>()) {
                 config.error_log_path = exe_path / *val;
             } else {
@@ -77,11 +75,13 @@ void parse_report_paths(const toml::table& tbl, const fs::path& config_dir, AppC
     if (tbl.contains("reports")) {
         const auto& reports = tbl["reports"];
         
-        auto load_paths = [&](const std::string& key, fs::path& day, fs::path& month, fs::path& period) {
+        // [修改] lambda 增加 week 参数
+        auto load_paths = [&](const std::string& key, fs::path& day, fs::path& month, fs::path& week, fs::path& period) {
             if (reports[key].is_table()) {
                 const auto& section = reports[key];
                 if (auto v = section["day"].value<std::string>()) day = config_dir / *v;
                 if (auto v = section["month"].value<std::string>()) month = config_dir / *v;
+                if (auto v = section["week"].value<std::string>()) week = config_dir / *v; // [新增]
                 if (auto v = section["period"].value<std::string>()) period = config_dir / *v;
             }
         };
@@ -89,18 +89,21 @@ void parse_report_paths(const toml::table& tbl, const fs::path& config_dir, AppC
         load_paths("typst", 
             config.reports.day_typ_config_path, 
             config.reports.month_typ_config_path, 
+            config.reports.week_typ_config_path, // [新增]
             config.reports.period_typ_config_path
         );
         
         load_paths("latex", 
             config.reports.day_tex_config_path, 
             config.reports.month_tex_config_path, 
+            config.reports.week_tex_config_path, // [新增]
             config.reports.period_tex_config_path
         );
         
         load_paths("markdown", 
             config.reports.day_md_config_path, 
             config.reports.month_md_config_path, 
+            config.reports.week_md_config_path, // [新增]
             config.reports.period_md_config_path
         );
 
