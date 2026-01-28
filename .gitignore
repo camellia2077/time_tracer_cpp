@@ -1,9 +1,11 @@
 build/
 __pycache__/
 html/
+logs/
 
 *.exe
 out/
 *.ttf
 *.dll
-*.exe
+*.txt
+*.log

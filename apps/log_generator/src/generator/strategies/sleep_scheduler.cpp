@@ -1,12 +1,14 @@
 // generator/strategies/sleep_scheduler.cpp
 #include "generator/strategies/sleep_scheduler.hpp"
 
+namespace generator {
+
 SleepScheduler::SleepScheduler(bool enabled, std::mt19937& gen)
     : enabled_(enabled), gen_(gen),
       nosleep_length_dist_(1, 3),
       normal_length_dist_(2, 3) {}
 
-void SleepScheduler::reset_for_new_month() {
+void SleepScheduler::ResetForNewMonth() {
     if (enabled_) {
         // 原逻辑：每月第1天强制重置
         is_in_nosleep_block_ = false;
@@ -15,7 +17,7 @@ void SleepScheduler::reset_for_new_month() {
     }
 }
 
-bool SleepScheduler::determine_if_nosleep(int day, int days_in_month) {
+bool SleepScheduler::DetermineIfNosleep(int day, int days_in_month) {
     if (!enabled_) return false;
 
     // 原逻辑：第1天强制 false (已经在 reset_for_new_month 处理了初始状态，这里只需返回当前判定)
@@ -51,3 +53,5 @@ bool SleepScheduler::determine_if_nosleep(int day, int days_in_month) {
     
     return is_nosleep;
 }
+
+}  // namespace generator

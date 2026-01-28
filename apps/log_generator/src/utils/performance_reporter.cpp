@@ -1,23 +1,25 @@
 // utils/performance_reporter.cpp
 #include "utils/performance_reporter.hpp"
-#include "common/ansi_colors.hpp"
+#include "cli/framework/ansi_colors.hpp"
 #include <iostream>
 #include <format>
+
+namespace utils {
 
 PerformanceReporter::PerformanceReporter()
     : total_generation_duration_(0), total_io_duration_(0) {}
 
-void PerformanceReporter::add_generation_time(const std::chrono::nanoseconds& duration) {
+void PerformanceReporter::AddGenerationTime(const std::chrono::nanoseconds& duration) {
     std::lock_guard<std::mutex> lock(mutex_); 
     total_generation_duration_ += duration;
 }
 
-void PerformanceReporter::add_io_time(const std::chrono::nanoseconds& duration) {
+void PerformanceReporter::AddIoTime(const std::chrono::nanoseconds& duration) {
     std::lock_guard<std::mutex> lock(mutex_); 
     total_io_duration_ += duration;
 }
 
-void PerformanceReporter::report(const Config& config, int files_generated, const std::chrono::nanoseconds& total_duration) const {
+void PerformanceReporter::Report(const domain::model::Config& config, int files_generated, const std::chrono::nanoseconds& total_duration) const {
     auto total_s = std::chrono::duration<double>(total_duration);
     auto total_ms = std::chrono::duration_cast<std::chrono::milliseconds>(total_duration);
 
@@ -35,11 +37,11 @@ void PerformanceReporter::report(const Config& config, int files_generated, cons
                              config.end_year);
     
     std::cout << "--------------------------------------------------\n";
-    // 使用更准确的时间统计术语
     std::cout << std::format("Total Wall Time:      {:.2f} s ({}ms)\n", total_s.count(), total_ms.count());
     std::cout << "--------------------------------------------------\n";
-    // 增加 Cumulative 前缀，并解释这是所有线程之和
     std::cout << std::format("Cumulative Gen Time:  {:.2f} s ({}ms) [Sum of all threads]\n", gen_s.count(), gen_ms.count());
     std::cout << std::format("Cumulative IO Time:   {:.2f} s ({}ms) [Sum of all threads]\n", io_s.count(), io_ms.count());
     std::cout << "--------------------------------------------------\n";
 }
+
+}  // namespace utils

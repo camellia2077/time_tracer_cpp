@@ -1,19 +1,19 @@
 // utils/Utils.hpp
-#ifndef UTILS_UTILS_HPP_
-#define UTILS_UTILS_HPP_
+#ifndef UTILS_UTILS_H_
+#define UTILS_UTILS_H_
 
 #include <string>
 
-namespace Utils {
+namespace utils {
     
     // 设置控制台以支持UTF-8和颜色代码
-    void setup_console();
+    void SetupConsole();
 
     // 判断是否为闰年
-    bool is_leap(int year);
+    bool IsLeap(int year);
 
     // 获取指定月份的天数
-    int get_days_in_month(int year, int month);
+    int GetDaysInMonth(int year, int month);
     
-} // namespace Utils
-#endif // UTILS_UTILS_HPP_
+} // namespace utils
+#endif // UTILS_UTILS_H_

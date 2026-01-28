@@ -1,4 +1,4 @@
-// common/config/global_report_config.hpp
+﻿// common/config/global_report_config.hpp
 #ifndef COMMON_CONFIG_GLOBAL_REPORT_CONFIG_HPP_
 #define COMMON_CONFIG_GLOBAL_REPORT_CONFIG_HPP_
 
@@ -6,16 +6,16 @@
 
 // 定义每种格式 (Markdown/LaTeX/Typst) 下包含的具体报告类型配置
 struct FormatReportConfig {
-    DailyReportConfig day;
-    RangeReportConfig month;
-    RangeReportConfig week;   // [新增] Week 配置
-    RangeReportConfig period; 
+  DailyReportConfig day_;
+  RangeReportConfig month_;
+  RangeReportConfig week_; // [新增] Week 配置
+  RangeReportConfig period_;
 };
 
 struct GlobalReportConfig {
-    FormatReportConfig markdown;
-    FormatReportConfig latex;
-    FormatReportConfig typst;
+  FormatReportConfig markdown_;
+  FormatReportConfig latex_;
+  FormatReportConfig typst_;
 };
 
 #endif // COMMON_CONFIG_GLOBAL_REPORT_CONFIG_HPP_

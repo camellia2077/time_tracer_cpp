@@ -1,35 +1,44 @@
-// converter/convert/core/day_processor.cpp
+﻿// converter/convert/core/day_processor.cpp
 #include "converter/convert/core/day_processor.hpp"
-#include "day_stats.hpp"
 #include "activity_mapper.hpp"
 #include "common/utils/time_utils.hpp"
+#include "day_stats.hpp"
 
 // [Fix] 类型重命名
-DayProcessor::DayProcessor(const LogMapperConfig& config) : config_(config) {}
+DayProcessor::DayProcessor(const LogMapperConfig &config) : config_(config) {}
 
-void DayProcessor::process(DailyLog& previousDay, DailyLog& dayToProcess) {
-    if (dayToProcess.date.empty()) return;
+void DayProcessor::Process(DailyLog &previousDay, DailyLog &dayToProcess) {
+  if (dayToProcess.date_.empty())
+    return;
 
-    // ActivityMapper 构造函数现在接受 LogMapperConfig
-    ActivityMapper activity_mapper(config_);
-    activity_mapper.map_activities(dayToProcess);
+  // ActivityMapper 构造函数现在接受 LogMapperConfig
+  ActivityMapper activity_mapper(config_);
+  activity_mapper.MapActivities(dayToProcess);
 
-    if (!previousDay.date.empty() && !previousDay.rawEvents.empty() && !dayToProcess.getupTime.empty() && !dayToProcess.isContinuation) {
-        std::string lastEventTime = TimeUtils::formatTime(previousDay.rawEvents.back().endTimeStr);
+  if (!previousDay.date_.empty() && !previousDay.raw_events_.empty() &&
+      !dayToProcess.getup_time_.empty() && !dayToProcess.is_continuation_) {
+    std::string lastEventTime =
+        TimeUtils::FormatTime(previousDay.raw_events_.back().end_time_str_);
 
-        BaseActivityRecord sleepActivity;
-        sleepActivity.start_time_str = lastEventTime;
-        sleepActivity.end_time_str = dayToProcess.getupTime;
-        sleepActivity.project_path = "sleep_night"; 
+    if (lastEventTime != dayToProcess.getup_time_) {
+      // 只有在两者不同时才进行跨天关联
+      // ProcessCrossDay ...
+      BaseActivityRecord sleepActivity;
+      sleepActivity.start_time_str_ = lastEventTime;
+      sleepActivity.end_time_str_ = dayToProcess.getup_time_;
+      sleepActivity.project_path_ = "sleep_night";
 
-        dayToProcess.processedActivities.insert(dayToProcess.processedActivities.begin(), sleepActivity);
-        dayToProcess.hasSleepActivity = true;
+      dayToProcess.processed_activities_.insert(
+          dayToProcess.processed_activities_.begin(), sleepActivity);
+      dayToProcess.has_sleep_activity_ = true;
     }
+  }
 
-    if (dayToProcess.isContinuation && !previousDay.rawEvents.empty()) {
-        dayToProcess.getupTime = TimeUtils::formatTime(previousDay.rawEvents.back().endTimeStr);
-    }
-    
-    DayStats stats_calculator;
-    stats_calculator.calculate_stats(dayToProcess);
+  if (dayToProcess.is_continuation_ && !previousDay.raw_events_.empty()) {
+    dayToProcess.getup_time_ =
+        TimeUtils::FormatTime(previousDay.raw_events_.back().end_time_str_);
+  }
+
+  DayStats stats_calculator;
+  stats_calculator.CalculateStats(dayToProcess);
 }

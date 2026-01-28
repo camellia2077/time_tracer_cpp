@@ -1,11 +1,11 @@
-// main_cli.cpp
+﻿// main_cli.cpp
 #include <filesystem>
-#include <iostream>
 #include <format>
+#include <iostream>
+#include <memory> // [新增] for std::make_shared
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <memory> // [新增] for std::make_shared
 
 // --- Windows-specific include for console functions ---
 #if defined(_WIN32) || defined(_WIN64)
@@ -14,9 +14,9 @@
 
 // --- 核心模块 ---
 #include "bootstrap/startup_validator.hpp"
+#include "cli/impl/app/cli_application.hpp"
 #include "common/config/app_config.hpp"
 #include "config/config_loader.hpp"
-#include "cli/impl/app/cli_application.hpp"
 
 #include "io/disk_file_system.hpp"
 
@@ -25,7 +25,7 @@
 #include "common/ansi_colors.hpp"
 #include "common/version.hpp"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 // --- Console Setup (Windows Only) ---
 #if defined(_WIN32) || defined(_WIN64)
   SetConsoleOutputCP(CP_UTF8);
@@ -42,35 +42,39 @@ int main(int argc, char* argv[]) {
   std::vector<std::string> args(argv, argv + argc);
 
   if (args.size() < 2) {
-      args.push_back("--help");
+    args.push_back("--help");
   }
 
   bool is_help_mode = (args[1] == "-h" || args[1] == "--help");
 
   // 彩蛋逻辑
   if (args[1] == "tracer") {
-    std::cout << std::format("\n{}{}{}\n\n", CYAN_COLOR,
-                 "  \"Cheers, love! The timetracer is here.\"", RESET_COLOR);
+    std::cout << std::format("\n{}{}{}\n\n", kCyanColor,
+                             "  \"Cheers, love! The timetracer is here.\"",
+                             kResetColor);
     return 0;
   }
   if (args[1] == "motto" || args[1] == "zen") {
     std::cout << "\n";
-    std::cout << std::format("{}  \"Trace your time, log your life.\"{}\n\n", CYAN_COLOR,
-                 RESET_COLOR);
+    std::cout << std::format("{}  \"Trace your time, log your life.\"{}\n\n",
+                             kCyanColor, kResetColor);
     return 0;
   }
 
   // 处理缩写命令
   if (!is_help_mode) {
-      if (args[1] == "pre") args[1] = "preprocess";
-      if (args[1] == "blink") args[1] = "ingest";
+    if (args[1] == "pre")
+      args[1] = "preprocess";
+    if (args[1] == "blink")
+      args[1] = "ingest";
   }
 
-  const std::string& command = args[1];
+  const std::string &command = args[1];
 
   if (command == "-v" || command == "--version") {
-    std::cout << std::format("TimeMaster Command Version: {}\n", AppInfo::VERSION);
-    std::cout << std::format("Last Updated:  {}\n", AppInfo::LAST_UPDATED);
+    std::cout << std::format("TimeMaster Command Version: {}\n",
+                             AppInfo::kVersion);
+    std::cout << std::format("Last Updated:  {}\n", AppInfo::kLastUpdated);
     return 0;
   }
 
@@ -87,26 +91,27 @@ int main(int argc, char* argv[]) {
 
     // 2. 验证环境 (委托给 StartupValidator)
     if (!is_help_mode) {
-        if (!StartupValidator::validate_environment(config)) {
-          std::cerr << std::format(
-                       "\n{}Configuration validation failed. Please check the "
-                       "errors above.{}\n\n",
-                       RED_COLOR, RESET_COLOR);
-          return 1;
-        }
+      if (!StartupValidator::validate_environment(config)) {
+        std::cerr << std::format(
+            "\n{}Configuration validation failed. Please check the "
+            "errors above.{}\n\n",
+            kRedColor, kResetColor);
+        return 1;
+      }
     }
 
     // 3. 执行业务
     CliApplication controller(args);
-    controller.execute();
+    controller.Execute();
 
-  } catch (const std::exception& e) {
-    std::cerr << std::format("{}Startup Error: {}{}\n", RED_COLOR, e.what(),
-                 RESET_COLOR);
+  } catch (const std::exception &e) {
+    std::cerr << std::format("{}Startup Error: {}{}\n", kRedColor, e.what(),
+                             kResetColor);
 
     if (std::string(e.what()).find("command") != std::string::npos ||
         std::string(e.what()).find("argument") != std::string::npos) {
-      std::cout << std::format("\nUse '{} --help' for more information.\n", args[0]);
+      std::cout << std::format("\nUse '{} --help' for more information.\n",
+                               args[0]);
     }
     return 1;
   }

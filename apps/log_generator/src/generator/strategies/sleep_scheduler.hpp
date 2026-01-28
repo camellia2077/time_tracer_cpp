@@ -1,18 +1,20 @@
 // generator/strategies/sleep_scheduler.hpp
-#ifndef GENERATOR_STRATEGIES_SLEEP_SCHEDULER_HPP_
-#define GENERATOR_STRATEGIES_SLEEP_SCHEDULER_HPP_
+#ifndef GENERATOR_STRATEGIES_SLEEP_SCHEDULER_H_
+#define GENERATOR_STRATEGIES_SLEEP_SCHEDULER_H_
 
 #include <random>
+
+namespace generator {
 
 class SleepScheduler {
 public:
     SleepScheduler(bool enabled, std::mt19937& gen);
 
     // 在每个月开始时重置状态（对应原代码中 month loop 开始时的逻辑）
-    void reset_for_new_month();
+    void ResetForNewMonth();
 
     // 决定指定的一天是否为通宵日
-    bool determine_if_nosleep(int day, int days_in_month);
+    bool DetermineIfNosleep(int day, int days_in_month);
 
 private:
     bool enabled_;
@@ -27,4 +29,6 @@ private:
     std::uniform_int_distribution<> normal_length_dist_;
 };
 
-#endif // GENERATOR_STRATEGIES_SLEEP_SCHEDULER_HPP_
+}  // namespace generator
+
+#endif // GENERATOR_STRATEGIES_SLEEP_SCHEDULER_H_

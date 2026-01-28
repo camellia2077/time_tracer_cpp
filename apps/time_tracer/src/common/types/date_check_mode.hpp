@@ -1,4 +1,4 @@
-// common/types/date_check_mode.hpp
+﻿// common/types/date_check_mode.hpp
 #ifndef COMMON_TYPES_DATE_CHECK_MODE_HPP_
 #define COMMON_TYPES_DATE_CHECK_MODE_HPP_
 
@@ -7,9 +7,9 @@
 // 而不需要 Common 依赖 Converter。
 
 enum class DateCheckMode {
-    None,       // 不检查
-    Continuity, // 只检查连续性 (1号到当前存在的最大日期)
-    Full        // 检查完整性 (1号到月底)
+  None,       // 不检查
+  Continuity, // 只检查连续性 (1号到当前存在的最大日期)
+  Full        // 检查完整性 (1号到月底)
 };
 
 #endif // COMMON_TYPES_DATE_CHECK_MODE_HPP_

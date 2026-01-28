@@ -1,4 +1,4 @@
-// bootstrap/startup_validator.hpp
+﻿// bootstrap/startup_validator.hpp
 #ifndef BOOTSTRAP_STARTUP_VALIDATOR_HPP_
 #define BOOTSTRAP_STARTUP_VALIDATOR_HPP_
 
@@ -12,12 +12,12 @@
  */
 class StartupValidator {
 public:
-    /**
-     * @brief 执行环境完整性检查。
-     * @param config 应用程序配置对象，用于获取插件目录路径。
-     * @return true 如果环境依赖（DLL）完整。
-     */
-    static bool validate_environment(const AppConfig& config);
+  /**
+   * @brief 执行环境完整性检查。
+   * @param config 应用程序配置对象，用于获取插件目录路径。
+   * @return true 如果环境依赖（DLL）完整。
+   */
+  static bool validate_environment(const AppConfig &config);
 };
 
 #endif // BOOTSTRAP_STARTUP_VALIDATOR_HPP_

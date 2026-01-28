@@ -1,4 +1,4 @@
-# 架构与模块 (Architecture & Modules)
+﻿# 架构与模块 (Architecture & Modules)
 **核心设计理念**：
 TimeTracer 采用**模块化单体 (Modular Monolith)** 架构，以 **Core Orchestration** 为核心，实现了业务逻辑与 IO、UI 的彻底解耦，旨在构建一个可插拔、易于跨平台移植的量化生活引擎。
 ## 0. 系统分层与职责边界 (System Layers & Responsibilities)
@@ -38,7 +38,7 @@ TimeTracer 采用**模块化单体 (Modular Monolith)** 架构，以 **Core Orch
 *   **目录结构**:
     ```
     application/
-    ├── ports/                  # 技术端口 (IFileSystem, IUserNotifier)
+    ├── pipeline/               # Pipeline 框架 (Factory, Runner, Context)
     ├── commands/               # 命令对象 (IngestCommand, ExportCommand)
     ├── handlers/               # 命令处理器 (IngestHandler, ExportHandler)
     └── steps/                  # Pipeline 步骤
@@ -46,24 +46,54 @@ TimeTracer 采用**模块化单体 (Modular Monolith)** 架构，以 **Core Orch
 *   **职责**:
     *   **业务编排**: 系统的“大脑”，负责协调 Core 层完成具体的业务用例（如“导入日志”、“导出报表”）。
     *   **流程控制**: 管理 Pipeline 的执行顺序，处理命令的分发。
-    *   **隔离性**: 不依赖具体的数据库或文件系统实现，而是依赖 `ports` 接口。
+    *   **依赖倒置**: 不依赖具体的数据库或文件系统实现，依赖 `core/domain/ports` 中定义的接口。
 
 ### 0.4 核心支撑层 (Core Layer)
 *   **核心组件**: `core/` 模块
 *   **目录结构**:
     ```
     core/
-    ├── domain/                 # 领域层 (业务核心)
-    │   ├── model/              # 领域实体 (DailyLog)
-    │   └── interfaces/         # 业务接口 (ILogRepository)
+    ├── domain/                     # 领域层 (业务核心)
+    │   ├── model/                  # 领域实体 (DailyLog, QueryDataStructs)
+    │   ├── types/                  # 共享类型 (ReportFormat)
+    │   ├── ports/                  # 技术端口接口 (IFileSystem, IUserNotifier)
+    │   ├── interfaces/             # 业务接口 (ILogRepository, ILogConverter)
+    │   └── repositories/           # 仓储接口 (IReportRepository)
     │
-    └── infrastructure/         # 基础设施层 (技术实现)
-        ├── persistence/        # 数据库实现 (SQLite)
-        └── services/           # 外部服务适配
+    └── infrastructure/             # 基础设施层 (技术实现)
+        ├── persistence/            # 数据库实现 (SQLite)
+        ├── reporting/              # 报表导出设施
+        └── services/               # 外部服务适配
     ```
-*   **职责**:
-    *   **Domain**: 定义业务的核心概念和规则（如“一天不能超过24小时”），纯净且无依赖。
-    *   **Infrastructure**: 提供具体的底层实现（如 SQLite 读写、文件 I/O），实现 Domain 和 Application 定义的接口。
+*   **依赖倒置原则**: 
+    *   `domain/ports` 定义技术端口接口，其他模块依赖这些接口。
+    *   `domain/types` 定义共享类型（如 `ReportFormat`），避免跨模块依赖。
+    *   `infrastructure` 实现 `domain` 中定义的接口。
+
+### 0.5 报表模块 (Reports Module)
+*   **核心组件**: `reports/` 模块
+*   **架构模式**: 领域驱动设计 (DDD) + Clean Architecture
+*   **目录结构**:
+    ```
+    reports/
+    ├── domain/                 # 领域层 (DailyReportData, RangeReportData)
+    ├── application/            # 应用层 (DailyReportService, RangeReportService)
+    ├── infrastructure/         # 基础设施层 (SqliteReportDataRepository)
+    ├── presentation/           # 表现层 (Formatters: Markdown, LaTeX, Typst)
+    ├── shared/                 # 共享组件 (原 core/)
+    │   ├── formatters/         # 通用格式化器基类
+    │   ├── factories/          # 格式化器工厂
+    │   ├── config/             # 样式配置
+    │   └── utils/              # 工具函数
+    └── data/                   # 数据访问层 (Queriers, Cache)
+    ```
+*   **分层结构**:
+    *   **Domain**: 定义报表数据模型 (`DailyReportData`, `RangeReportData`) 和 仓储接口 (`IReportRepository`)。
+    *   **Infrastructure**: 实现数据访问 (`SqliteReportDataRepository`)。
+    *   **Application**: 报表生成用例 (`DailyReportService`, `RangeReportService`)。
+    *   **Presentation**: 多格式渲染 (`Markdown`, `LaTeX`, `Typst`)。
+    *   **Shared**: 通用格式化器、工厂、工具函数（原 `reports/core`）。
+*   **职责**: 独立负责所有报表数据的查询、聚合与格式化，与核心业务解耦。
 
 ### 0.5 跨平台核心引擎设计 (Cross-Platform Core Engine)
 * **设计理念**: 类似于现代工业软件（如 Photoshop, VS Code）的 "Stub Executable" 模式。

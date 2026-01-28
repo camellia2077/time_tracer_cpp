@@ -1,11 +1,14 @@
 // generator/components/remark_generator.hpp
-#ifndef GENERATOR_COMPONENTS_REMARK_GENERATOR_HPP_
-#define GENERATOR_COMPONENTS_REMARK_GENERATOR_HPP_
+#pragma once
+#ifndef GENERATOR_COMPONENTS_REMARK_GENERATOR_H_
+#define GENERATOR_COMPONENTS_REMARK_GENERATOR_H_
 
-#include "config/config.hpp"
+#include "domain/model/remark_config.hpp"
 #include <optional>
 #include <string>
 #include <random>
+
+namespace generator {
 
 /**
  * @class RemarkGenerator
@@ -13,19 +16,19 @@
  */
 class RemarkGenerator {
 public:
-    RemarkGenerator(const std::optional<DailyRemarkConfig>& config, std::mt19937& gen);
+    RemarkGenerator(const std::optional<domain::model::DailyRemarkConfig>& config, std::mt19937& gen);
 
-    std::optional<std::string> try_generate();
+    std::optional<std::string> TryGenerate();
 
 private:
-    const std::optional<DailyRemarkConfig>& remark_config_;
+    const std::optional<domain::model::DailyRemarkConfig>& remark_config_;
     std::mt19937& gen_; 
 
     std::optional<std::uniform_int_distribution<>> selector_;
     std::optional<std::bernoulli_distribution> should_generate_;
-    
-    // [新增] 用于生成 1 到 max_lines 之间的随机整数
     std::optional<std::uniform_int_distribution<>> lines_count_dist_;
 };
 
-#endif // GENERATOR_COMPONENTS_REMARK_GENERATOR_HPP_
+}  // namespace generator
+
+#endif  // GENERATOR_COMPONENTS_REMARK_GENERATOR_H_

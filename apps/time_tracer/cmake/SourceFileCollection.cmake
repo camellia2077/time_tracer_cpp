@@ -6,9 +6,9 @@
 # 显式列出所有源文件以确保构建系统的稳定性和可预测性。
 # --- Application Sources ---
 set(APPLICATION_SOURCES
-    # Application - Root
-    src/application/pipeline_factory.cpp
-    src/application/pipeline_runner.cpp
+    # Application - Pipeline
+    src/application/pipeline/factory.cpp
+    src/application/pipeline/runner.cpp
 
     # Application - Handlers (NEW - Command/Handler Pattern)
     src/application/handlers/ingest_handler.cpp
@@ -86,25 +86,25 @@ set(REPORTS_SHARED_SOURCES
     "src/common/utils/string_utils.cpp"
     
     # 基础配置
-    "src/reports/daily/common/day_base_config.cpp"
+    "src/reports/presentation/daily/common/day_base_config.cpp"
     # [新增] Range 基础配置 (替代 Month/Period)
-    "src/reports/range/common/range_base_config.cpp"
+    "src/reports/presentation/range/common/range_base_config.cpp"
     # [删除] Month/Period Base Config (已移除)
 
-    "src/reports/daily/formatters/statistics/stat_formatter.cpp"
+    "src/reports/presentation/daily/formatters/statistics/stat_formatter.cpp"
 
     # Shared - 内部工具与配置
-    "src/reports/core/utils/report_string_utils.cpp"
-    "src/reports/core/utils/report_time_format.cpp"
+    "src/reports/shared/utils/report_string_utils.cpp"
+    "src/reports/shared/utils/report_time_format.cpp"
     
     # Shared - 样式配置
-    "src/reports/core/config/export_style_config.cpp"
+    "src/reports/shared/config/export_style_config.cpp"
 
     # Shared - 格式化器实现
-    "src/reports/core/formatters/base/project_tree_formatter.cpp"
-    "src/reports/core/formatters/markdown/markdown_formatter.cpp" 
-    "src/reports/core/formatters/typst/typ_utils.cpp"
-    "src/reports/core/formatters/latex/tex_utils.cpp"
+    "src/reports/shared/formatters/base/project_tree_formatter.cpp"
+    "src/reports/shared/formatters/markdown/markdown_formatter.cpp" 
+    "src/reports/shared/formatters/typst/typ_utils.cpp"
+    "src/reports/shared/formatters/latex/tex_utils.cpp"
 )
 
 # ==========================================
@@ -114,7 +114,7 @@ set(REPORTS_DATA_SOURCES
     # 工具类
     "src/reports/data/utils/project_tree_builder.cpp"
 
-    "src/reports/data/repositories/sqlite_report_data_repository.cpp"
+    "src/reports/infrastructure/persistence/sqlite_report_data_repository.cpp"
 
     # Daily Queriers (保留)
     "src/reports/data/queriers/daily/day_querier.cpp"
@@ -123,8 +123,8 @@ set(REPORTS_DATA_SOURCES
 
 set(REPORTS_SOURCES
     # [新增] 统一的 Range Service (替代 Monthly/Period Service)
-    "src/reports/services/daily_report_service.cpp"
-    "src/reports/services/range_report_service.cpp"
+    "src/reports/application/usecases/daily_report_service.cpp"
+    "src/reports/application/usecases/range_report_service.cpp"
 )
 
 

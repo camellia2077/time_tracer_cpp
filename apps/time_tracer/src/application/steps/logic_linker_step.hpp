@@ -1,4 +1,4 @@
-// application/steps/logic_linker_step.hpp
+﻿// application/steps/logic_linker_step.hpp
 #ifndef APPLICATION_STEPS_LOGIC_LINKER_STEP_HPP_
 #define APPLICATION_STEPS_LOGIC_LINKER_STEP_HPP_
 
@@ -8,9 +8,9 @@ namespace core::pipeline {
 
 class LogicLinkerStep : public IPipelineStep {
 public:
-    bool execute(PipelineContext& context) override;
-    std::string get_name() const override { return "LogicLinker"; }
+  bool Execute(PipelineContext &context) override;
+  std::string GetName() const override { return "LogicLinker"; }
 };
 
-}
+} // namespace core::pipeline
 #endif

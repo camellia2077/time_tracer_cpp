@@ -1,8 +1,10 @@
 // infrastructure/concurrency/thread_pool_executor.hpp
-#ifndef INFRASTRUCTURE_CONCURRENCY_THREAD_POOL_EXECUTOR_HPP_
-#define INFRASTRUCTURE_CONCURRENCY_THREAD_POOL_EXECUTOR_HPP_
+// 基础设施层：线程池执行器
+#pragma once
+#ifndef INFRASTRUCTURE_CONCURRENCY_THREAD_POOL_EXECUTOR_H_
+#define INFRASTRUCTURE_CONCURRENCY_THREAD_POOL_EXECUTOR_H_
 
-#include "infrastructure/concurrency/i_task_executor.hpp"
+#include "domain/ports/task_executor_interface.hpp"
 #include <vector>
 #include <queue>
 #include <thread>
@@ -11,38 +13,45 @@
 #include <functional>
 #include <atomic>
 
-namespace Common {
+namespace infrastructure::concurrency {
 
-    class ThreadPoolExecutor : public ITaskExecutor {
-    public:
-        // 默认使用硬件并发数
-        explicit ThreadPoolExecutor(size_t threads = std::thread::hardware_concurrency());
-        ~ThreadPoolExecutor();
+/**
+ * @class ThreadPoolExecutor
+ * @brief 线程池任务执行器实现
+ * 
+ * 实现 domain::ports::TaskExecutorInterface 接口，
+ * 使用固定大小的线程池并行执行提交的任务。
+ */
+class ThreadPoolExecutor : public domain::ports::TaskExecutorInterface {
+public:
+    // 默认使用硬件并发数
+    explicit ThreadPoolExecutor(size_t threads = std::thread::hardware_concurrency());
+    ~ThreadPoolExecutor();
 
-        // 禁止拷贝和移动
-        ThreadPoolExecutor(const ThreadPoolExecutor&) = delete;
-        ThreadPoolExecutor& operator=(const ThreadPoolExecutor&) = delete;
+    // 禁止拷贝和移动
+    ThreadPoolExecutor(const ThreadPoolExecutor&) = delete;
+    ThreadPoolExecutor& operator=(const ThreadPoolExecutor&) = delete;
 
-        // 实现 ITaskExecutor 接口
-        void submit(std::function<void()> task) override;
-        void wait_all() override;
+    // 实现 TaskExecutorInterface 接口
+    void Submit(std::function<void()> task) override;
+    void WaitAll() override;
 
-    private:
-        void worker_thread();
+private:
+    void WorkerThread();
 
-        std::vector<std::thread> threads_;
-        std::queue<std::function<void()>> tasks_;
-        
-        std::mutex queue_mutex_;
-        std::condition_variable condition_;
-        
-        // 用于 wait_all 的同步机制
-        std::condition_variable wait_condition_;
-        std::atomic<int> active_task_count_{0}; // 正在排队 + 正在执行的任务数
-        
-        bool stop_ = false;
-    };
+    std::vector<std::thread> threads_;
+    std::queue<std::function<void()>> tasks_;
+    
+    std::mutex queue_mutex_;
+    std::condition_variable condition_;
+    
+    // 用于 WaitAll 的同步机制
+    std::condition_variable wait_condition_;
+    std::atomic<int> active_task_count_{0};
+    
+    bool stop_ = false;
+};
 
-}
+}  // namespace infrastructure::concurrency
 
-#endif // INFRASTRUCTURE_CONCURRENCY_THREAD_POOL_EXECUTOR_HPP_
+#endif  // INFRASTRUCTURE_CONCURRENCY_THREAD_POOL_EXECUTOR_H_

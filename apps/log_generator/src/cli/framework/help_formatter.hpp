@@ -1,11 +1,11 @@
 // cli/framework/help_formatter.hpp
-#ifndef CLI_FRAMEWORK_HELP_FORMATTER_HPP_
-#define CLI_FRAMEWORK_HELP_FORMATTER_HPP_
+#ifndef CLI_FRAMEWORK_HELP_FORMATTER_H_
+#define CLI_FRAMEWORK_HELP_FORMATTER_H_
 
 #include <string>
 #include <vector>
 
-namespace Cli::Framework {
+namespace cli::framework {
 
     struct Option {
         std::string short_name;
@@ -22,13 +22,13 @@ namespace Cli::Framework {
     public:
         explicit HelpFormatter(std::string prog_name);
 
-        void print_help(const std::vector<Option>& options) const;
-        void print_error(const std::string& msg) const;
+        void PrintHelp(const std::vector<Option>& options) const;
+        void PrintError(const std::string& msg) const;
 
     private:
         std::string prog_name_;
     };
 
-}
+}  // namespace cli::framework
 
-#endif // CLI_FRAMEWORK_HELP_FORMATTER_HPP_
+#endif // CLI_FRAMEWORK_HELP_FORMATTER_H_

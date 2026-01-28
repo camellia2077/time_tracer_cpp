@@ -6,24 +6,23 @@
 #include <initializer_list>
 
 struct StatsRule {
-    const char* match_path;
-    int ActivityStats::*member;
+  const char *match_path;
+  int ActivityStats::*member;
 };
 
 namespace StatsRules {
-    constexpr StatsRule rules[] = {
-        {"study", &ActivityStats::study_time},
-        {"exercise", &ActivityStats::total_exercise_time},
-        {"exercise_cardio", &ActivityStats::cardio_time},
-        {"exercise_anaerobic", &ActivityStats::anaerobic_time},
-        {"routine_grooming", &ActivityStats::grooming_time},
-        {"routine_toilet", &ActivityStats::toilet_time},
-        {"recreation_game", &ActivityStats::gaming_time},
-        {"recreation", &ActivityStats::recreation_time},
-        {"recreation_zhihu", &ActivityStats::recreation_zhihu_time},
-        {"recreation_bilibili", &ActivityStats::recreation_bilibili_time},
-        {"recreation_douyin", &ActivityStats::recreation_douyin_time}
-    };
+constexpr StatsRule rules[] = {
+    {"study", &ActivityStats::study_time_},
+    {"exercise", &ActivityStats::total_exercise_time_},
+    {"exercise_cardio", &ActivityStats::cardio_time_},
+    {"exercise_anaerobic", &ActivityStats::anaerobic_time_},
+    {"routine_grooming", &ActivityStats::grooming_time_},
+    {"routine_toilet", &ActivityStats::toilet_time_},
+    {"recreation_game", &ActivityStats::gaming_time_},
+    {"recreation", &ActivityStats::recreation_time_},
+    {"recreation_zhihu", &ActivityStats::recreation_zhihu_time_},
+    {"recreation_bilibili", &ActivityStats::recreation_bilibili_time_},
+    {"recreation_douyin", &ActivityStats::recreation_douyin_time_}};
 }
 
 #endif // CONVERTER_CONVERT_CORE_STATS_RULES_HPP_

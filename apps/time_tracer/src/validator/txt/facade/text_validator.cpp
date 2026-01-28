@@ -1,57 +1,69 @@
-// validator/txt/facade/text_validator.cpp
+﻿// validator/txt/facade/text_validator.cpp
 #include "validator/txt/facade/text_validator.hpp"
+#include "common/utils/string_utils.hpp"
 #include "validator/txt/rules/line_rules.hpp"
 #include "validator/txt/rules/structure_rules.hpp"
-#include "common/utils/string_utils.hpp" 
-#include <sstream> 
+#include <sstream>
 
 namespace validator {
 namespace txt {
 
 struct TextValidator::PImpl {
-    LineRules line_processor;
-    StructureRules structural_validator;
+  LineRules line_processor;
+  StructureRules structural_validator;
 
-    PImpl(const ConverterConfig& config)
-        : line_processor(config) {} // 将 Config 传递给 LineRules
+  PImpl(const ConverterConfig &config)
+      : line_processor(config) {} // 将 Config 传递给 LineRules
 };
 
-TextValidator::TextValidator(const ConverterConfig& config)
+TextValidator::TextValidator(const ConverterConfig &config)
     : pimpl_(std::make_unique<PImpl>(config)) {}
 
 TextValidator::~TextValidator() = default;
 
-bool TextValidator::validate(const std::string& /*filename*/, const std::string& content, std::set<Error>& errors) {
-    pimpl_->structural_validator.reset();
+bool TextValidator::validate(const std::string & /*filename*/,
+                             const std::string &content,
+                             std::set<Error> &errors) {
+  pimpl_->structural_validator.reset();
 
-    std::stringstream ss(content);
-    std::string line;
-    int line_number = 0;
-    
-    while (std::getline(ss, line)) {
-        line_number++;
-        std::string trimmed_line = trim(line);
-        if (trimmed_line.empty()) continue;
+  std::stringstream ss(content);
+  std::string line;
+  int line_number = 0;
 
-        if (pimpl_->line_processor.is_year(trimmed_line)) {
-            pimpl_->structural_validator.process_year_line(line_number, trimmed_line, errors);
-        } else if (pimpl_->line_processor.is_date(trimmed_line)) {
-            pimpl_->structural_validator.process_date_line(line_number, trimmed_line, errors);
-        } else if (pimpl_->line_processor.is_remark(trimmed_line)) {
-            pimpl_->structural_validator.process_remark_line(line_number, trimmed_line, errors);
-        } else if (pimpl_->line_processor.is_valid_event_line(trimmed_line, line_number, errors)) {
-            pimpl_->structural_validator.process_event_line(line_number, trimmed_line, errors);
-        } else {
-            pimpl_->structural_validator.process_unrecognized_line(line_number, trimmed_line, errors);
-        }
-        
-        if (!pimpl_->structural_validator.has_seen_year() && !pimpl_->line_processor.is_year(trimmed_line)) {
-             errors.insert({line_number, "The file must start with a year header (e.g., 'y2025').", ErrorType::Source_MissingYearHeader});
-             return false; 
-        }
+  while (std::getline(ss, line)) {
+    line_number++;
+    std::string trimmed_line = Trim(line);
+    if (trimmed_line.empty())
+      continue;
+
+    if (pimpl_->line_processor.is_year(trimmed_line)) {
+      pimpl_->structural_validator.process_year_line(line_number, trimmed_line,
+                                                     errors);
+    } else if (pimpl_->line_processor.is_date(trimmed_line)) {
+      pimpl_->structural_validator.process_date_line(line_number, trimmed_line,
+                                                     errors);
+    } else if (pimpl_->line_processor.is_remark(trimmed_line)) {
+      pimpl_->structural_validator.process_remark_line(line_number,
+                                                       trimmed_line, errors);
+    } else if (pimpl_->line_processor.is_valid_event_line(
+                   trimmed_line, line_number, errors)) {
+      pimpl_->structural_validator.process_event_line(line_number, trimmed_line,
+                                                      errors);
+    } else {
+      pimpl_->structural_validator.process_unrecognized_line(
+          line_number, trimmed_line, errors);
     }
 
-    return errors.empty();
+    if (!pimpl_->structural_validator.has_seen_year() &&
+        !pimpl_->line_processor.is_year(trimmed_line)) {
+      errors.insert({line_number,
+                     "The file must start with a year header (e.g., 'y2025').",
+                     ErrorType::Source_MissingYearHeader});
+      return false;
+    }
+  }
+
+  return errors.empty();
 }
 
 } // namespace txt

@@ -105,15 +105,12 @@ target_link_libraries(time_tracker_cli PRIVATE
 )
 
 # 添加子目录以构建所有日报格式化器的 DLL
-add_subdirectory(src/reports/daily/formatters/markdown)
-add_subdirectory(src/reports/daily/formatters/typst)
-add_subdirectory(src/reports/daily/formatters/latex)
-
-# [修改] 删除了 month 和 period 的 add_subdirectory
-# [修改] 新增 range 模块 (注意加上 src/ 前缀)
-add_subdirectory(src/reports/range/formatters/markdown)
-add_subdirectory(src/reports/range/formatters/typst)
-add_subdirectory(src/reports/range/formatters/latex)
+add_subdirectory(src/reports/presentation/daily/formatters/markdown)
+add_subdirectory(src/reports/presentation/daily/formatters/typst)
+add_subdirectory(src/reports/presentation/daily/formatters/latex)
+add_subdirectory(src/reports/presentation/range/formatters/markdown)
+add_subdirectory(src/reports/presentation/range/formatters/typst)
+add_subdirectory(src/reports/presentation/range/formatters/latex)
 
 # 定义所有插件目标的列表
 set(FORMATTER_PLUGINS

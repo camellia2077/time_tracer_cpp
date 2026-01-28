@@ -2,7 +2,9 @@
 #include "generator/components/remark_generator.hpp"
 #include <format>
 
-RemarkGenerator::RemarkGenerator(const std::optional<DailyRemarkConfig>& config, std::mt19937& gen)
+namespace generator {
+
+RemarkGenerator::RemarkGenerator(const std::optional<domain::model::DailyRemarkConfig>& config, std::mt19937& gen)
     : remark_config_(config), gen_(gen) {
     if (remark_config_ && !remark_config_->contents.empty()) {
         selector_.emplace(0, static_cast<int>(remark_config_->contents.size()) - 1);
@@ -13,7 +15,7 @@ RemarkGenerator::RemarkGenerator(const std::optional<DailyRemarkConfig>& config,
     }
 }
 
-std::optional<std::string> RemarkGenerator::try_generate() {
+std::optional<std::string> RemarkGenerator::TryGenerate() {
     if (should_generate_ && (*should_generate_)(gen_)) {
         // [新增] 确定本次生成的行数
         int count = (*lines_count_dist_)(gen_);
@@ -35,3 +37,5 @@ std::optional<std::string> RemarkGenerator::try_generate() {
     }
     return std::nullopt;
 }
+
+}  // namespace generator

@@ -51,3 +51,8 @@ ConfigLoader::load_configuration()
 - **`ConfigParserUtils`**: 主配置解析
 - **`TomlLoaderUtils`**: TOML 工具函数
 - **`ConfigValidator`**: 验证策略 (IQueryStrategy, BaseStrategy, StrategyFactory 等)
+
+## 依赖关系
+
+- ✅ 依赖: `core/domain/ports` (IFileSystem)
+- ❌ 不依赖: application 层、reports 层

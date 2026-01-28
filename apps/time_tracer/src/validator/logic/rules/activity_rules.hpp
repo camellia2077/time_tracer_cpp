@@ -1,4 +1,4 @@
-// validator/logic/rules/activity_rules.hpp
+﻿// validator/logic/rules/activity_rules.hpp
 #ifndef VALIDATOR_LOGIC_RULES_ACTIVITY_RULES_HPP_
 #define VALIDATOR_LOGIC_RULES_ACTIVITY_RULES_HPP_
 
@@ -9,8 +9,8 @@
 namespace validator {
 namespace logic {
 
-void validateActivityCount(const DailyLog& day, std::set<Error>& errors);
+void validateActivityCount(const DailyLog &day, std::set<Error> &errors);
 
-} 
-} 
+}
+} // namespace validator
 #endif

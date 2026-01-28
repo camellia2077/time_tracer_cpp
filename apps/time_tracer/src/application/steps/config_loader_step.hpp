@@ -1,4 +1,4 @@
-// application/steps/config_loader_step.hpp
+﻿// application/steps/config_loader_step.hpp
 #ifndef APPLICATION_STEPS_CONFIG_LOADER_STEP_HPP_
 #define APPLICATION_STEPS_CONFIG_LOADER_STEP_HPP_
 
@@ -8,9 +8,9 @@ namespace core::pipeline {
 
 class ConfigLoaderStep : public IPipelineStep {
 public:
-    bool execute(PipelineContext& context) override;
-    std::string get_name() const override { return "ConfigLoader"; }
+  bool Execute(PipelineContext &context) override;
+  std::string GetName() const override { return "ConfigLoader"; }
 };
 
-} 
+} // namespace core::pipeline
 #endif
