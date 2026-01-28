@@ -55,9 +55,13 @@ ExportHandler::GenerateReport(const core::commands::ExportCommand &command) {
   case core::commands::ReportType::Monthly:
     return repository_->GetMonthlyReport(
         command.date_range.start_date.substr(0, 7), command.format);
-  case core::commands::ReportType::Period:
+  case core::commands::ReportType::Recent:
     // TODO: 计算天数
-    return repository_->GetPeriodReport(30, command.format);
+    return repository_->GetRecentReport(30, command.format);
+  case core::commands::ReportType::Range:
+    return repository_->GetRangeReport(command.date_range.start_date,
+                                       command.date_range.end_date,
+                                       command.format);
   default:
     throw std::invalid_argument("Unknown report type");
   }

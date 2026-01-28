@@ -13,17 +13,26 @@ interval_config = "converter/interval_processor_config.toml"
 [reports.typst]
 day = "reports/day/DayTypConfig.toml"
 month = "reports/month/MonthTypConfig.toml"
-period = "reports/period/PeriodTypConfig.toml"
+
 week = "reports/week/WeekTypConfig.toml"
+year = "reports/year/YearTypConfig.toml"
+recent = "reports/recent/RecentTypConfig.toml"
+range = "reports/range/RangeTypConfig.toml"
 
 [reports.latex]
 day = "reports/day/DayTexConfig.toml"
 month = "reports/month/MonthTexConfig.toml"
-period = "reports/period/PeriodTexConfig.toml"
+
 week = "reports/week/WeekTexConfig.toml"
+year = "reports/year/YearTexConfig.toml"
+recent = "reports/recent/RecentTexConfig.toml"
+range = "reports/range/RangeTexConfig.toml"
 
 [reports.markdown]
 day = "reports/day/DayMdConfig.toml"
 month = "reports/month/MonthMdConfig.toml"
-period = "reports/period/PeriodMdConfig.toml"
+
 week = "reports/week/WeekMdConfig.toml"
+year = "reports/year/YearMdConfig.toml"
+recent = "reports/recent/RecentMdConfig.toml"
+range = "reports/range/RangeMdConfig.toml"

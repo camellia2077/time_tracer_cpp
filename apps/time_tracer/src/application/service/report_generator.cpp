@@ -17,14 +17,25 @@ std::string ReportGenerator::GenerateWeeklyReport(int year, int week,
   return repository_->GetWeeklyReport(year, week, format);
 }
 
+std::string ReportGenerator::GenerateYearlyReport(int year,
+                                                  ReportFormat format) {
+  return repository_->GetYearlyReport(year, format);
+}
+
 std::string ReportGenerator::GenerateMonthlyReport(const std::string &month,
                                                    ReportFormat format) {
   return repository_->GetMonthlyReport(month, format);
 }
 
-std::string ReportGenerator::GeneratePeriodReport(int days,
+std::string ReportGenerator::GenerateRecentReport(int days,
                                                   ReportFormat format) {
-  return repository_->GetPeriodReport(days, format);
+  return repository_->GetRecentReport(days, format);
+}
+
+std::string ReportGenerator::GenerateRangeReport(const std::string &start_date,
+                                                 const std::string &end_date,
+                                                 ReportFormat format) {
+  return repository_->GetRangeReport(start_date, end_date, format);
 }
 
 FormattedGroupedReports
@@ -42,8 +53,13 @@ ReportGenerator::GenerateAllWeeklyReports(ReportFormat format) {
   return repository_->GetAllWeeklyReports(format);
 }
 
-FormattedPeriodReports
-ReportGenerator::GenerateAllPeriodReports(const std::vector<int> &days_list,
+FormattedRecentReports
+ReportGenerator::GenerateAllRecentReports(const std::vector<int> &days_list,
                                           ReportFormat format) {
-  return repository_->GetAllPeriodReports(days_list, format);
+  return repository_->GetAllRecentReports(days_list, format);
+}
+
+FormattedYearlyReports
+ReportGenerator::GenerateAllYearlyReports(ReportFormat format) {
+  return repository_->GetAllYearlyReports(format);
 }

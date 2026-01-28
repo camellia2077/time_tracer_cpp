@@ -257,8 +257,8 @@ using MonthlyTexConfig = RangeReportConfig;
 using MonthlyTypConfig = RangeReportConfig;
 using MonthlyMdConfig = RangeReportConfig;
 
-using PeriodTexConfig = RangeReportConfig;
-using PeriodTypConfig = RangeReportConfig;
-using PeriodMdConfig = RangeReportConfig;
+using RecentTexConfig = RangeReportConfig;
+using RecentTypConfig = RangeReportConfig;
+using RecentMdConfig = RangeReportConfig;
 
 #endif // COMMON_CONFIG_REPORT_CONFIG_MODELS_HPP_

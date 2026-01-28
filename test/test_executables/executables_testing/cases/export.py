@@ -7,10 +7,13 @@ from ..conf.definitions import Colors, TestContext, TestReport, SingleTestResult
 class ExportTester(BaseTester):
     def __init__(self, counter: TestCounter, module_order: int, context: TestContext,
                  generated_db_file_name: str, 
-                 is_bulk_mode: bool,
+                 export_mode: str,
                  specific_dates: list,
                  specific_months: list,
-                 period_export_days: list,
+                 specific_weeks: list,
+                 specific_years: list,
+                 specific_recent: list,
+                 specific_range: list,
                  test_formats: list,
                  export_output_path: Path):
                  
@@ -18,10 +21,13 @@ class ExportTester(BaseTester):
         
         self.db_file = context.db_path if context.db_path else context.exe_path.parent / generated_db_file_name
         self.export_output_path = export_output_path
-        self.is_bulk_mode = is_bulk_mode
+        self.export_mode = export_mode
         self.specific_dates = specific_dates
         self.specific_months = specific_months
-        self.period_days_to_export = period_export_days
+        self.specific_weeks = specific_weeks
+        self.specific_years = specific_years
+        self.specific_recent_days = specific_recent
+        self.specific_range_dates = specific_range
         self.formats = test_formats
 
     def run_tests(self) -> TestReport:
@@ -65,25 +71,29 @@ class ExportTester(BaseTester):
             "--output", str(self.export_output_path)
         ]
 
-        if self.is_bulk_mode:
+        if self.export_mode == "bulk":
             return self._build_bulk_cases(common_args)
-        else:
+        elif self.export_mode == "specific":
             return self._build_specific_cases(common_args)
+        else:
+            return []
 
     def _build_bulk_cases(self, common_args: List[str]) -> List[Tuple[str, List[str]]]:
         """构建批量导出模式的测试用例"""
         cases = []
         
-        # 1. Daily & Monthly
-        cases.extend(self._make_cases("Bulk Export All Daily", ["export", "all-daily"], common_args))
-        cases.extend(self._make_cases("Bulk Export All Monthly", ["export", "all-monthly"], common_args))
+        # 1. day & month & week & year
+        cases.extend(self._make_cases("Bulk Export All Day", ["export", "all-day"], common_args))
+        cases.extend(self._make_cases("Bulk Export All Month", ["export", "all-month"], common_args))
+        cases.extend(self._make_cases("Bulk Export All Week", ["export", "all-week"], common_args))
+        cases.extend(self._make_cases("Bulk Export All Year", ["export", "all-year"], common_args))
 
-        # 2. Period
-        if self.period_days_to_export:
-            period_days_str = ",".join(map(str, self.period_days_to_export))
+        # 2. recent
+        if self.specific_recent_days:
+            recent_days_str = ",".join(map(str, self.specific_recent_days))
             cases.extend(self._make_cases(
-                f"Bulk Period Export ({period_days_str})", 
-                ["export", "all-period", period_days_str], 
+                "Bulk Export All Recent", 
+                ["export", "all-recent", recent_days_str], 
                 common_args
             ))
         return cases
@@ -92,27 +102,51 @@ class ExportTester(BaseTester):
         """构建指定导出模式的测试用例"""
         cases = []
 
-        # 1. Specific Daily
+        # 1. Specific Day
         for date in self.specific_dates:
             cases.extend(self._make_cases(
-                f"Specific Export Daily ({date})", 
-                ["export", "daily", date], 
+                f"Specific Export Day ({date})", 
+                ["export", "day", date], 
                 common_args
             ))
 
-        # 2. Specific Monthly
+        # 2. Specific Month
         for month in self.specific_months:
             cases.extend(self._make_cases(
-                f"Specific Export Monthly ({month})", 
-                ["export", "monthly", month], 
+                f"Specific Export Month ({month})", 
+                ["export", "month", month], 
                 common_args
             ))
             
-        # 3. Specific Period
-        for days in self.period_days_to_export:
+        # 3. Specific Week
+        for year, week in self.specific_weeks:
             cases.extend(self._make_cases(
-                f"Specific Period Export ({days} days)", 
-                ["export", "period", str(days)], 
+                f"Specific Export Week ({year} W{week})", 
+                ["export", "week", str(year), str(week)], 
+                common_args
+            ))
+
+        # 4. Specific Year
+        for year in self.specific_years:
+            cases.extend(self._make_cases(
+                f"Specific Export Year ({year})", 
+                ["export", "year", str(year)], 
+                common_args
+            ))
+
+        # 5. Specific Recent
+        for days in self.specific_recent_days:
+            cases.extend(self._make_cases(
+                f"Specific Recent Export ({days} days)", 
+                ["export", "recent", str(days)], 
+                common_args
+            ))
+
+        # 6. Specific Range
+        for start, end in self.specific_range_dates:
+            cases.extend(self._make_cases(
+                f"Specific Range Export ({start} to {end})", 
+                ["export", "range", start, end], 
                 common_args
             ))
             

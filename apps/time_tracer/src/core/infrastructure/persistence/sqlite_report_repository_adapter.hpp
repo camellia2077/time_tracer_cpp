@@ -26,14 +26,19 @@ public:
   std::string GetMonthlyReport(const std::string &month,
                                ReportFormat format) override;
   std::string GetWeeklyReport(int year, int week, ReportFormat format) override;
-  std::string GetPeriodReport(int days, ReportFormat format) override;
+  std::string GetYearlyReport(int year, ReportFormat format) override;
+  std::string GetRecentReport(int days, ReportFormat format) override;
+  std::string GetRangeReport(const std::string &start_date,
+                             const std::string &end_date,
+                             ReportFormat format) override;
 
   FormattedGroupedReports GetAllDailyReports(ReportFormat format) override;
 
   FormattedWeeklyReports GetAllWeeklyReports(ReportFormat format) override;
+  FormattedYearlyReports GetAllYearlyReports(ReportFormat format) override;
 
   FormattedMonthlyReports GetAllMonthlyReports(ReportFormat format) override;
-  FormattedPeriodReports GetAllPeriodReports(const std::vector<int> &days_list,
+  FormattedRecentReports GetAllRecentReports(const std::vector<int> &days_list,
                                              ReportFormat format) override;
 
 private:

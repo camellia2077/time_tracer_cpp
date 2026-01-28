@@ -26,9 +26,12 @@ def create_test_suite(config: GlobalConfig, context: TestContext, counter: TestC
         module_order=2,
         context=context,
         generated_db_file_name=config.cli_names.GENERATED_DB_FILE_NAME,
-        daily_query_dates=config.test_params.DAILY_QUERY_DATES,
-        monthly_query_months=config.test_params.MONTHLY_QUERY_MONTHS,
-        period_query_days=config.test_params.PERIOD_QUERY_DAYS,
+        day_dates=config.test_params.QUERY_DAY_DATES,
+        month_dates=config.test_params.QUERY_MONTH_DATES,
+        week_params=config.test_params.QUERY_WEEK_PARAMS,
+        year_params=config.test_params.QUERY_YEAR_PARAMS,
+        recent_days=config.test_params.QUERY_RECENT_DAYS,
+        range_dates=config.test_params.QUERY_RANGE_DATES,
         test_formats=config.test_params.TEST_FORMATS
     ))
 
@@ -38,10 +41,13 @@ def create_test_suite(config: GlobalConfig, context: TestContext, counter: TestC
         module_order=3,
         context=context,
         generated_db_file_name=config.cli_names.GENERATED_DB_FILE_NAME,
-        is_bulk_mode=config.test_params.EXPORT_MODE_IS_BULK,
+        export_mode=config.test_params.EXPORT_MODE,
         specific_dates=config.test_params.SPECIFIC_EXPORT_DATES,
         specific_months=config.test_params.SPECIFIC_EXPORT_MONTHS,
-        period_export_days=config.test_params.PERIOD_EXPORT_DAYS,
+        specific_weeks=config.test_params.SPECIFIC_EXPORT_WEEKS,
+        specific_years=config.test_params.SPECIFIC_EXPORT_YEARS,
+        specific_recent=config.test_params.SPECIFIC_EXPORT_RECENT,
+        specific_range=config.test_params.SPECIFIC_EXPORT_RANGE,
         test_formats=config.test_params.TEST_FORMATS,
         export_output_path=config.paths.EXPORT_OUTPUT_DIR
     ))

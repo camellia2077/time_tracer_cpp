@@ -28,10 +28,20 @@ void load_detailed_reports(core::interfaces::IFileSystem &fs,
         ReportConfigLoader::loadRangeTypConfig(
             fs, config.reports_.week_typ_config_path_);
 
-  if (!config.reports_.period_typ_config_path_.empty())
-    config.loaded_reports_.typst_.period_ =
+  if (!config.reports_.year_typ_config_path_.empty())
+    config.loaded_reports_.typst_.year_ =
         ReportConfigLoader::loadRangeTypConfig(
-            fs, config.reports_.period_typ_config_path_);
+            fs, config.reports_.year_typ_config_path_);
+
+  if (!config.reports_.recent_typ_config_path_.empty())
+    config.loaded_reports_.typst_.recent_ =
+        ReportConfigLoader::loadRangeTypConfig(
+            fs, config.reports_.recent_typ_config_path_);
+
+  if (!config.reports_.range_typ_config_path_.empty())
+    config.loaded_reports_.typst_.range_ =
+        ReportConfigLoader::loadRangeTypConfig(
+            fs, config.reports_.range_typ_config_path_);
 
   // --- LaTeX ---
   if (!config.reports_.day_tex_config_path_.empty())
@@ -43,15 +53,25 @@ void load_detailed_reports(core::interfaces::IFileSystem &fs,
         ReportConfigLoader::loadRangeTexConfig(
             fs, config.reports_.month_tex_config_path_);
 
-  if (!config.reports_.week_tex_config_path_.empty()) // [新增]
+  if (!config.reports_.week_tex_config_path_.empty())
     config.loaded_reports_.latex_.week_ =
         ReportConfigLoader::loadRangeTexConfig(
             fs, config.reports_.week_tex_config_path_);
 
-  if (!config.reports_.period_tex_config_path_.empty())
-    config.loaded_reports_.latex_.period_ =
+  if (!config.reports_.year_tex_config_path_.empty())
+    config.loaded_reports_.latex_.year_ =
         ReportConfigLoader::loadRangeTexConfig(
-            fs, config.reports_.period_tex_config_path_);
+            fs, config.reports_.year_tex_config_path_);
+
+  if (!config.reports_.recent_tex_config_path_.empty())
+    config.loaded_reports_.latex_.recent_ =
+        ReportConfigLoader::loadRangeTexConfig(
+            fs, config.reports_.recent_tex_config_path_);
+
+  if (!config.reports_.range_tex_config_path_.empty())
+    config.loaded_reports_.latex_.range_ =
+        ReportConfigLoader::loadRangeTexConfig(
+            fs, config.reports_.range_tex_config_path_);
 
   // --- Markdown ---
   if (!config.reports_.day_md_config_path_.empty())
@@ -64,15 +84,25 @@ void load_detailed_reports(core::interfaces::IFileSystem &fs,
         ReportConfigLoader::loadRangeMdConfig(
             fs, config.reports_.month_md_config_path_);
 
-  if (!config.reports_.week_md_config_path_.empty()) // [新增]
+  if (!config.reports_.week_md_config_path_.empty())
     config.loaded_reports_.markdown_.week_ =
         ReportConfigLoader::loadRangeMdConfig(
             fs, config.reports_.week_md_config_path_);
 
-  if (!config.reports_.period_md_config_path_.empty())
-    config.loaded_reports_.markdown_.period_ =
+  if (!config.reports_.year_md_config_path_.empty())
+    config.loaded_reports_.markdown_.year_ =
         ReportConfigLoader::loadRangeMdConfig(
-            fs, config.reports_.period_md_config_path_);
+            fs, config.reports_.year_md_config_path_);
+
+  if (!config.reports_.recent_md_config_path_.empty())
+    config.loaded_reports_.markdown_.recent_ =
+        ReportConfigLoader::loadRangeMdConfig(
+            fs, config.reports_.recent_md_config_path_);
+
+  if (!config.reports_.range_md_config_path_.empty())
+    config.loaded_reports_.markdown_.range_ =
+        ReportConfigLoader::loadRangeMdConfig(
+            fs, config.reports_.range_md_config_path_);
 }
 } // namespace
 

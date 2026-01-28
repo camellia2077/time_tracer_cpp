@@ -22,7 +22,7 @@ struct DailyReportLabels {
   std::string activity_connector;
 };
 
-// [新增] 统一的 Range 标签模型 (替代 Monthly 和 Period)
+// [新增] 统一的 Range 标签模型 (替代 Monthly 和 Recent)
 struct RangeReportLabels {
   std::string
       report_title_label; // [New] Replaces report_title & report_title_prefix

@@ -24,19 +24,25 @@ struct ReportConfigPaths {
   fs::path day_typ_config_path_;
   fs::path month_typ_config_path_;
   fs::path week_typ_config_path_; // [新增]
-  fs::path period_typ_config_path_;
+  fs::path year_typ_config_path_; // [新增]
+  fs::path recent_typ_config_path_;
+  fs::path range_typ_config_path_;
 
   // LaTeX
   fs::path day_tex_config_path_;
   fs::path month_tex_config_path_;
   fs::path week_tex_config_path_; // [新增]
-  fs::path period_tex_config_path_;
+  fs::path year_tex_config_path_; // [新增]
+  fs::path recent_tex_config_path_;
+  fs::path range_tex_config_path_;
 
   // Markdown
   fs::path day_md_config_path_;
   fs::path month_md_config_path_;
   fs::path week_md_config_path_; // [新增]
-  fs::path period_md_config_path_;
+  fs::path year_md_config_path_; // [新增]
+  fs::path recent_md_config_path_;
+  fs::path range_md_config_path_;
 };
 
 struct AppConfig {

@@ -94,9 +94,8 @@ bool ConfigFacade::validate_query_configs(
 bool ConfigFacade::validate_plugins(
     const std::filesystem::path &plugins_path) const {
   const std::vector<std::string> expected_plugins = {
-      "DayMdFormatter",    "DayTexFormatter",    "DayTypFormatter",
-      "MonthMdFormatter",  "MonthTexFormatter",  "MonthTypFormatter",
-      "PeriodMdFormatter", "PeriodTexFormatter", "PeriodTypFormatter"};
+      "DayMdFormatter",   "DayTexFormatter",   "DayTypFormatter",
+      "RangeMdFormatter", "RangeTexFormatter", "RangeTypFormatter"};
 
   PluginValidator validator;
   io::DiskFileSystem fs;

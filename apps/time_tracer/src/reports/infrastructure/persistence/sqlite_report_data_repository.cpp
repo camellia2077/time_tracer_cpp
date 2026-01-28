@@ -357,3 +357,52 @@ SqliteReportDataRepository::get_all_weeks_active_days() {
   sqlite3_finalize(stmt);
   return results;
 }
+
+// [新增] Yearly Bulk Implementation
+
+std::map<std::string, std::vector<std::pair<long long, long long>>>
+SqliteReportDataRepository::get_all_years_project_stats() {
+  std::map<std::string, std::vector<std::pair<long long, long long>>> results;
+  sqlite3_stmt *stmt;
+
+  const char *sql =
+      "SELECT strftime('%Y', date) as y, project_id, SUM(duration) "
+      "FROM time_records GROUP BY y, project_id ORDER BY y ASC;";
+
+  if (sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      const char *y_ptr =
+          reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
+      if (!y_ptr)
+        continue;
+      std::string y_str(y_ptr);
+      long long pid = sqlite3_column_int64(stmt, 1);
+      long long duration = sqlite3_column_int64(stmt, 2);
+
+      results[y_str].emplace_back(pid, duration);
+    }
+  }
+  sqlite3_finalize(stmt);
+  return results;
+}
+
+std::map<std::string, int>
+SqliteReportDataRepository::get_all_years_active_days() {
+  std::map<std::string, int> results;
+  sqlite3_stmt *stmt;
+
+  const char *sql = "SELECT strftime('%Y', date) as y, COUNT(DISTINCT date) "
+                    "FROM time_records GROUP BY y;";
+
+  if (sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      const char *y_ptr =
+          reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
+      if (!y_ptr)
+        continue;
+      results[std::string(y_ptr)] = sqlite3_column_int(stmt, 1);
+    }
+  }
+  sqlite3_finalize(stmt);
+  return results;
+}

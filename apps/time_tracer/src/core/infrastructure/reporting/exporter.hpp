@@ -31,8 +31,15 @@ public:
   void ExportSingleMonthReport(const std::string &month,
                                const std::string &content,
                                ReportFormat format) const;
-  void ExportSinglePeriodReport(int days, const std::string &content,
+  void ExportSingleYearReport(const std::string &year,
+                              const std::string &content,
+                              ReportFormat format) const;
+  void ExportSingleRecentReport(int days, const std::string &content,
                                 ReportFormat format) const;
+  void ExportSingleRangeReport(const std::string &start_date,
+                               const std::string &end_date,
+                               const std::string &content,
+                               ReportFormat format) const;
 
   void ExportAllDailyReports(const FormattedGroupedReports &reports,
                              ReportFormat format) const;
@@ -40,7 +47,9 @@ public:
                               ReportFormat format) const;
   void ExportAllMonthlyReports(const FormattedMonthlyReports &reports,
                                ReportFormat format) const;
-  void ExportAllPeriodReports(const FormattedPeriodReports &reports,
+  void ExportAllYearlyReports(const FormattedYearlyReports &reports,
+                              ReportFormat format) const;
+  void ExportAllRecentReports(const FormattedRecentReports &reports,
                               ReportFormat format) const;
 
 private:

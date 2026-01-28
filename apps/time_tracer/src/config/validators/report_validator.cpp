@@ -263,7 +263,8 @@ std::unique_ptr<IQueryStrategy> StrategyFactory::create(ReportType type,
     }
   case ReportType::Monthly:
   case ReportType::Weekly:
-  case ReportType::Periodic:
+  case ReportType::Recent:
+  case ReportType::Range:
     return std::make_unique<RangeStrategy>();
   default:
     throw std::invalid_argument("Unsupported report type");
@@ -277,8 +278,11 @@ StrategyFactory::create_from_filename(const std::string &file_name) {
     type = ReportType::Monthly;
   else if (file_name.find("Week") != std::string::npos)
     type = ReportType::Weekly;
-  else if (file_name.find("Period") != std::string::npos)
-    type = ReportType::Periodic;
+  else if (file_name.find("Recent") != std::string::npos ||
+           file_name.find("Period") != std::string::npos)
+    type = ReportType::Recent;
+  else if (file_name.find("Range") != std::string::npos)
+    type = ReportType::Range;
 
   ReportFormat format = ReportFormat::Markdown;
   if (file_name.find("Tex") != std::string::npos)

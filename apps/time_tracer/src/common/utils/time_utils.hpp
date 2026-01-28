@@ -44,6 +44,8 @@ long long TimeStringToTimestamp(const std::string &date,
 int TimeStrToSeconds(const std::string &time_str_in);
 std::string NormalizeToDateFormat(const std::string &input);
 std::string NormalizeToMonthFormat(const std::string &input);
+std::string NormalizeRangeStart(const std::string &input);
+std::string NormalizeRangeEnd(const std::string &input);
 } // namespace TimeUtils
 
 #endif // COMMON_UTILS_TIME_UTILS_HPP_

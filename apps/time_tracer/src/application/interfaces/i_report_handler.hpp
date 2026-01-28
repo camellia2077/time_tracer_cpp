@@ -15,26 +15,36 @@ public:
                                     ReportFormat format) = 0;
   virtual std::string RunWeeklyQuery(int year, int week,
                                      ReportFormat format) = 0;
+  virtual std::string RunYearlyQuery(int year,
+                                     ReportFormat format) = 0; // [新增]
   virtual std::string RunMonthlyQuery(const std::string &month,
                                       ReportFormat format) = 0;
-  virtual std::string RunPeriodQuery(int days, ReportFormat format) = 0;
-
-  // [新增] 批量周期查询接口
-  virtual std::string RunPeriodQueries(const std::vector<int> &days_list,
+  virtual std::string RunRecentQuery(int days, ReportFormat format) = 0;
+  virtual std::string RunRecentQueries(const std::vector<int> &days_list,
                                        ReportFormat format) = 0;
+  virtual std::string RunRangeQuery(const std::string &start_date,
+                                    const std::string &end_date,
+                                    ReportFormat format) = 0;
 
   // 导出方法
   virtual void RunExportSingleDayReport(const std::string &date,
                                         ReportFormat format) = 0;
   virtual void RunExportSingleMonthReport(const std::string &month,
                                           ReportFormat format) = 0;
-  virtual void RunExportSinglePeriodReport(int days, ReportFormat format) = 0;
   virtual void RunExportSingleWeekReport(int year, int week,
                                          ReportFormat format) = 0;
+  virtual void RunExportSingleYearReport(int year, ReportFormat format) = 0;
+  virtual void RunExportSingleRecentReport(int days, ReportFormat format) = 0;
+  virtual void RunExportSingleRangeReport(const std::string &start_date,
+                                          const std::string &end_date,
+                                          ReportFormat format) = 0;
+
   virtual void RunExportAllDailyReportsQuery(ReportFormat format) = 0;
   virtual void RunExportAllWeeklyReportsQuery(ReportFormat format) = 0;
   virtual void RunExportAllMonthlyReportsQuery(ReportFormat format) = 0;
-  virtual void RunExportAllPeriodReportsQuery(const std::vector<int> &days_list,
+  virtual void
+  RunExportAllYearlyReportsQuery(ReportFormat format) = 0; // [新增]
+  virtual void RunExportAllRecentReportsQuery(const std::vector<int> &days_list,
                                               ReportFormat format) = 0;
 };
 

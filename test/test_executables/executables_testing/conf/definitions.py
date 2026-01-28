@@ -79,13 +79,22 @@ class CLINames:
 @dataclass
 class TestParams:
     TEST_FORMATS: List[str] = field(default_factory=list)
-    DAILY_QUERY_DATES: List[str] = field(default_factory=list)
-    MONTHLY_QUERY_MONTHS: List[str] = field(default_factory=list)
-    PERIOD_QUERY_DAYS: List[int] = field(default_factory=list)
-    EXPORT_MODE_IS_BULK: bool = False
+    DAILY_QUERY_DATES: List[str] = field(default_factory=list) # Keep internal names for now or rename? Plan says rename.
+    # Actually, I'll use the names from the plan for clarity.
+    QUERY_DAY_DATES: List[str] = field(default_factory=list)
+    QUERY_MONTH_DATES: List[str] = field(default_factory=list)
+    QUERY_WEEK_PARAMS: List[List[int]] = field(default_factory=list)
+    QUERY_YEAR_PARAMS: List[int] = field(default_factory=list)
+    QUERY_RECENT_DAYS: List[int] = field(default_factory=list)
+    QUERY_RANGE_DATES: List[List[str]] = field(default_factory=list)
+    
+    EXPORT_MODE: str = "specific"
     SPECIFIC_EXPORT_DATES: List[str] = field(default_factory=list)
     SPECIFIC_EXPORT_MONTHS: List[str] = field(default_factory=list)
-    PERIOD_EXPORT_DAYS: List[int] = field(default_factory=list)
+    SPECIFIC_EXPORT_WEEKS: List[List[int]] = field(default_factory=list)
+    SPECIFIC_EXPORT_YEARS: List[int] = field(default_factory=list)
+    SPECIFIC_EXPORT_RECENT: List[int] = field(default_factory=list)
+    SPECIFIC_EXPORT_RANGE: List[List[str]] = field(default_factory=list)
 
 @dataclass
 class Cleanup:

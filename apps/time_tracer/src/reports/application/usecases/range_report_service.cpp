@@ -99,7 +99,7 @@ RangeReportService::RangeReportService(IReportRepository &repo,
                                        const GlobalReportConfig &config)
     : repo_(repo), config_(config) {}
 
-// [关键修改] 根据 type 选择 config.week / config.month / config.period
+// [关键修改] 根据 type 选择 config.week / config.month / config.recent
 const RangeReportConfig &
 RangeReportService::get_config_by_format(ReportFormat format,
                                          RangeType type) const {
@@ -124,10 +124,14 @@ RangeReportService::get_config_by_format(ReportFormat format,
     return fmt_config->week_;
   case RangeType::Month:
     return fmt_config->month_;
-  case RangeType::Period:
-    return fmt_config->period_;
+  case RangeType::Year: // [新增]
+    return fmt_config->year_;
+  case RangeType::Recent: // [修改]
+    return fmt_config->recent_;
+  case RangeType::Range: // [新增]
+    return fmt_config->range_;
   default:
-    return fmt_config->period_;
+    return fmt_config->recent_;
   }
 }
 
@@ -190,6 +194,45 @@ RangeReportService::generate_all_monthly_history(ReportFormat format) {
     auto [y, m] = parse_year_month(ym);
     if (y > 0) {
       reports[y][m] = formatter->format_report(data);
+    }
+  }
+  return reports;
+}
+
+std::map<int, std::string>
+RangeReportService::generate_all_yearly_history(ReportFormat format) {
+  std::map<int, std::string> reports;
+
+  // 1. Config
+  const auto &cfg = get_config_by_format(format, RangeType::Year);
+
+  // 2. Data
+  auto all_project_stats = repo_.get_all_years_project_stats();
+  auto all_active_days = repo_.get_all_years_active_days();
+
+  auto formatter =
+      GenericFormatterFactory<RangeReportData>::create(format, cfg);
+
+  for (auto &[year_str, stats] : all_project_stats) {
+    RangeReportData data;
+    data.report_name_ = year_str;
+    data.start_date_ = year_str + "-01-01";
+    data.end_date_ = year_str + "-12-31";
+    data.covered_days_ = 365; // 近似
+    data.project_stats_ = stats;
+    data.actual_active_days_ =
+        all_active_days.count(year_str) ? all_active_days[year_str] : 0;
+
+    for (auto &p : stats)
+      data.total_duration_ += p.second;
+
+    build_project_tree_from_ids(data.project_tree_, data.project_stats_,
+                                ProjectNameCache::instance());
+
+    try {
+      int y = std::stoi(year_str);
+      reports[y] = formatter->format_report(data);
+    } catch (...) {
     }
   }
   return reports;

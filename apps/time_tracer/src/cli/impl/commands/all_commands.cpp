@@ -83,7 +83,7 @@ std::vector<ArgDef> ConvertCommand::GetDefinitions() const {
 }
 
 std::string ConvertCommand::GetHelp() const {
-  return "Converts source files (e.g., .txt) to processed JSON format.";
+  return "Transform raw log files (e.g., .txt) into structured JSON data.";
 }
 
 void ConvertCommand::Execute(const CommandParser &parser) {
@@ -115,7 +115,7 @@ std::vector<ArgDef> ImportCommand::GetDefinitions() const {
 }
 
 std::string ImportCommand::GetHelp() const {
-  return "Imports processed JSON data into the database.";
+  return "Load structured JSON data into the database.";
 }
 
 void ImportCommand::Execute(const CommandParser &parser) {
@@ -163,7 +163,7 @@ std::vector<ArgDef> IngestCommand::GetDefinitions() const {
 }
 
 std::string IngestCommand::GetHelp() const {
-  return "Runs the full data ingestion pipeline.";
+  return "Full pipeline: Transform raw logs and load them into the database.";
 }
 
 void IngestCommand::Execute(const CommandParser &parser) {
@@ -209,7 +209,7 @@ std::vector<ArgDef> ValidateLogicCommand::GetDefinitions() const {
 }
 
 std::string ValidateLogicCommand::GetHelp() const {
-  return "Validates business logic (e.g., date continuity).";
+  return "Verify business logic (e.g., date continuity) in source files.";
 }
 
 void ValidateLogicCommand::Execute(const CommandParser &parser) {
@@ -256,7 +256,7 @@ std::vector<ArgDef> ValidateStructureCommand::GetDefinitions() const {
 }
 
 std::string ValidateStructureCommand::GetHelp() const {
-  return "Validates the syntax and structure of source TXT files.";
+  return "Check source files for syntax and formatting errors.";
 }
 
 void ValidateStructureCommand::Execute(const CommandParser &parser) {
@@ -283,21 +283,22 @@ std::vector<ArgDef> ExportCommand::GetDefinitions() const {
   return {{"type",
            ArgType::Positional,
            {},
-           "Export type (daily, monthly, week, period, all-daily...)",
+           "Export scope: day, month, week, year, recent, range, "
+           "all-day, all-month, all-week, all-year, all-recent",
            true,
            "",
            0},
           {"argument",
            ArgType::Positional,
            {},
-           "Date, Year, or Period",
+           "Date, Month, Year, StartDate, or Days",
            false,
            "",
            1},
           {"week_num",
            ArgType::Positional,
            {},
-           "Week number (for 'week' type)",
+           "Week number or EndDate (for 'week' or 'range' type)",
            false,
            "",
            2},
@@ -322,7 +323,7 @@ std::vector<ArgDef> ExportCommand::GetDefinitions() const {
 }
 
 std::string ExportCommand::GetHelp() const {
-  return "Exports reports (daily, weekly, monthly, period, etc.) to files.";
+  return "Export statistical reports (daily, weekly, etc.) to files.";
 }
 
 void ExportCommand::Execute(const CommandParser &parser) {
@@ -345,18 +346,19 @@ void ExportCommand::Execute(const CommandParser &parser) {
   }
 
   for (const auto &format : formats) {
-    if (sub_command == "daily" || sub_command == "monthly" ||
-        sub_command == "period" || sub_command == "all-period" ||
-        sub_command == "week") {
+    if (sub_command == "day" || sub_command == "month" ||
+        sub_command == "recent" || sub_command == "all-recent" ||
+        sub_command == "week" || sub_command == "year" ||
+        sub_command == "range") {
       if (export_arg.empty()) {
         throw std::runtime_error("Argument required for export type '" +
                                  sub_command + "'.");
       }
 
-      if (sub_command == "daily") {
+      if (sub_command == "day") {
         std::string date_str = TimeUtils::NormalizeToDateFormat(export_arg);
         report_handler_->RunExportSingleDayReport(date_str, format);
-      } else if (sub_command == "monthly") {
+      } else if (sub_command == "month") {
         std::string month_str = TimeUtils::NormalizeToMonthFormat(export_arg);
         report_handler_->RunExportSingleMonthReport(month_str, format);
       } else if (sub_command == "week") {
@@ -371,15 +373,32 @@ void ExportCommand::Execute(const CommandParser &parser) {
         } catch (const std::exception &) {
           throw std::runtime_error("Invalid year or week number.");
         }
-      } else if (sub_command == "period") {
+      } else if (sub_command == "recent") {
         try {
-          report_handler_->RunExportSinglePeriodReport(std::stoi(export_arg),
+          report_handler_->RunExportSingleRecentReport(std::stoi(export_arg),
                                                        format);
         } catch (const std::exception &) {
           throw std::runtime_error(
-              "Invalid number provided for 'export period': " + export_arg);
+              "Invalid number provided for 'export recent': " + export_arg);
         }
-      } else if (sub_command == "all-period") {
+      } else if (sub_command == "range") {
+        if (week_arg.empty()) {
+          throw std::runtime_error("End date required for 'export range'. "
+                                   "Usage: export range <start> <end>");
+        }
+        std::string start_normalized =
+            TimeUtils::NormalizeRangeStart(export_arg);
+        std::string end_normalized = TimeUtils::NormalizeRangeEnd(week_arg);
+        report_handler_->RunExportSingleRangeReport(start_normalized,
+                                                    end_normalized, format);
+      } else if (sub_command == "year") {
+        try {
+          report_handler_->RunExportSingleYearReport(std::stoi(export_arg),
+                                                     format);
+        } catch (const std::exception &) {
+          throw std::runtime_error("Invalid year provided: " + export_arg);
+        }
+      } else if (sub_command == "all-recent") {
         std::vector<int> days_list;
         std::string token;
         std::istringstream tokenStream(export_arg);
@@ -388,17 +407,19 @@ void ExportCommand::Execute(const CommandParser &parser) {
             days_list.push_back(std::stoi(token));
           } catch (const std::exception &) {
             throw std::runtime_error(
-                "Invalid number in days list for 'export all-period': " +
+                "Invalid number in days list for 'export all-recent': " +
                 token);
           }
         }
-        report_handler_->RunExportAllPeriodReportsQuery(days_list, format);
+        report_handler_->RunExportAllRecentReportsQuery(days_list, format);
       }
-    } else if (sub_command == "all-daily") {
+    } else if (sub_command == "all-day") {
       report_handler_->RunExportAllDailyReportsQuery(format);
-    } else if (sub_command == "all-monthly") {
+    } else if (sub_command == "all-month") {
       report_handler_->RunExportAllMonthlyReportsQuery(format);
-    } else if (sub_command == "all-week" || sub_command == "all-weekly") {
+    } else if (sub_command == "all-year") {
+      report_handler_->RunExportAllYearlyReportsQuery(format);
+    } else if (sub_command == "all-week") {
       report_handler_->RunExportAllWeeklyReportsQuery(format);
     } else {
       throw std::runtime_error("Unknown export type '" + sub_command + "'.");
@@ -414,38 +435,38 @@ QueryCommand::QueryCommand(std::shared_ptr<IReportHandler> report_handler)
     : report_handler_(std::move(report_handler)) {}
 
 std::vector<ArgDef> QueryCommand::GetDefinitions() const {
-  return {{"type",
-           ArgType::Positional,
-           {},
-           "Query type (daily, monthly, week, period)",
-           true,
-           "",
-           0},
-          {"argument",
-           ArgType::Positional,
-           {},
-           "Date (YYYY-MM-DD), Month (YYYY-MM), Year (YYYY), or Period (days)",
-           true,
-           "",
-           1},
-          {"week_num",
-           ArgType::Positional,
-           {},
-           "Week number (required for 'week' type)",
-           false,
-           "",
-           2},
-          {"format",
-           ArgType::Option,
-           {"-f", "--format"},
-           "Output format (md, tex, typ)",
-           false,
-           "md"}};
+  return {
+      {"type",
+       ArgType::Positional,
+       {},
+       "Query scope: day, month, week, year, recent, range",
+       true,
+       "",
+       0},
+      {"argument",
+       ArgType::Positional,
+       {},
+       "Date (YYYY-MM-DD), Month (YYYY-MM), Year (YYYY), StartDate, or Days",
+       true,
+       "",
+       1},
+      {"week_num",
+       ArgType::Positional,
+       {},
+       "Week number or EndDate (required for 'week' or 'range' type)",
+       false,
+       "",
+       2},
+      {"format",
+       ArgType::Option,
+       {"-f", "--format"},
+       "Output format (md, tex, typ)",
+       false,
+       "md"}};
 }
 
 std::string QueryCommand::GetHelp() const {
-  return "Queries statistics (daily, weekly, monthly, period) from the "
-         "database.";
+  return "Search and display statistics from the database.";
 }
 
 void QueryCommand::Execute(const CommandParser &parser) {
@@ -463,9 +484,9 @@ void QueryCommand::Execute(const CommandParser &parser) {
 
   std::vector<ReportFormat> formats = ArgUtils::ParseReportFormats(format_str);
 
-  if (sub_command == "daily") {
+  if (sub_command == "day") {
     query_arg = TimeUtils::NormalizeToDateFormat(query_arg);
-  } else if (sub_command == "monthly") {
+  } else if (sub_command == "month") {
     query_arg = TimeUtils::NormalizeToMonthFormat(query_arg);
   }
 
@@ -476,9 +497,9 @@ void QueryCommand::Execute(const CommandParser &parser) {
       std::cout << "\n" << std::string(40, '=') << "\n";
     }
 
-    if (sub_command == "daily") {
+    if (sub_command == "day") {
       std::cout << report_handler_->RunDailyQuery(query_arg, format);
-    } else if (sub_command == "monthly") {
+    } else if (sub_command == "month") {
       std::cout << report_handler_->RunMonthlyQuery(query_arg, format);
     } else if (sub_command == "week") {
       if (week_arg.empty()) {
@@ -492,8 +513,15 @@ void QueryCommand::Execute(const CommandParser &parser) {
       } catch (const std::exception &) {
         throw std::runtime_error("Invalid year or week number.");
       }
-    } else if (sub_command == "period") {
-      std::vector<int> periods;
+    } else if (sub_command == "year") {
+      try {
+        int year = std::stoi(query_arg);
+        std::cout << report_handler_->RunYearlyQuery(year, format);
+      } catch (const std::exception &) {
+        throw std::runtime_error("Invalid year number.");
+      }
+    } else if (sub_command == "recent") {
+      std::vector<int> recent_days_list;
       std::string token;
       std::istringstream tokenStream(query_arg);
 
@@ -503,7 +531,7 @@ void QueryCommand::Execute(const CommandParser &parser) {
           token.erase(token.find_last_not_of(" \t\n\r") + 1);
 
           if (!token.empty()) {
-            periods.push_back(std::stoi(token));
+            recent_days_list.push_back(std::stoi(token));
           }
         } catch (const std::exception &) {
           std::cerr << "\033[31mError: \033[0mInvalid number '" << token
@@ -511,12 +539,23 @@ void QueryCommand::Execute(const CommandParser &parser) {
         }
       }
 
-      if (!periods.empty()) {
-        std::cout << report_handler_->RunPeriodQueries(periods, format);
+      if (!recent_days_list.empty()) {
+        std::cout << report_handler_->RunRecentQueries(recent_days_list,
+                                                       format);
       }
+    } else if (sub_command == "range") {
+      if (week_arg.empty()) {
+        throw std::runtime_error("End date is required for 'range' query. "
+                                 "Usage: query range <start_date> <end_date>");
+      }
+      std::string start_normalized = TimeUtils::NormalizeRangeStart(query_arg);
+      std::string end_normalized = TimeUtils::NormalizeRangeEnd(week_arg);
+      std::cout << report_handler_->RunRangeQuery(start_normalized,
+                                                  end_normalized, format);
     } else {
       throw std::runtime_error("Unknown query type '" + sub_command +
-                               "'. Supported: daily, week, monthly, period.");
+                               "'. Supported: day, week, month, year, "
+                               "recent, range.");
     }
   }
 }

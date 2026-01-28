@@ -62,9 +62,21 @@ SqliteReportRepositoryAdapter::GetWeeklyReport(int year, int week,
 }
 
 std::string
-SqliteReportRepositoryAdapter::GetPeriodReport(int days, ReportFormat format) {
+SqliteReportRepositoryAdapter::GetYearlyReport(int year, ReportFormat format) {
+  RangeRequest req;
+  req.name = std::to_string(year);
+  req.start_date = std::to_string(year) + "-01-01";
+  req.end_date = std::to_string(year) + "-12-31";
+  req.covered_days = 365;     // Simplified
+  req.type = RangeType::Year; // 指定类型
+
+  return range_service_->generate_report(req, format);
+}
+
+std::string
+SqliteReportRepositoryAdapter::GetRecentReport(int days, ReportFormat format) {
   // 1. 使用新工具计算日期范围
-  auto [start_date, end_date] = get_period_dates(days);
+  auto [start_date, end_date] = get_recent_dates(days);
 
   // 2. 构造请求
   RangeRequest req;
@@ -72,9 +84,24 @@ SqliteReportRepositoryAdapter::GetPeriodReport(int days, ReportFormat format) {
   req.start_date = start_date;
   req.end_date = end_date;
   req.covered_days = days;
-  req.type = RangeType::Period; // 明确指定为 Period 类型
+  req.type = RangeType::Recent; // 明确指定为 Recent 类型
 
   // 3. 生成报告
+  return range_service_->generate_report(req, format);
+}
+
+std::string
+SqliteReportRepositoryAdapter::GetRangeReport(const std::string &start_date,
+                                              const std::string &end_date,
+                                              ReportFormat format) {
+  RangeRequest req;
+  req.name = "Custom Range";
+  req.start_date = start_date;
+  req.end_date = end_date;
+  // 计算 covered_days (简单近似)
+  req.covered_days = 0; // 可以留给 Service 或进一步计算
+  req.type = RangeType::Range;
+
   return range_service_->generate_report(req, format);
 }
 
@@ -89,13 +116,13 @@ SqliteReportRepositoryAdapter::GetAllMonthlyReports(ReportFormat format) {
   return range_service_->generate_all_monthly_history(format);
 }
 
-FormattedPeriodReports SqliteReportRepositoryAdapter::GetAllPeriodReports(
+FormattedRecentReports SqliteReportRepositoryAdapter::GetAllRecentReports(
     const std::vector<int> &days_list, ReportFormat format) {
   std::vector<RangeRequest> reqs;
 
   // 1. 批量构造请求
   for (int days : days_list) {
-    auto [start, end] = get_period_dates(days);
+    auto [start, end] = get_recent_dates(days);
 
     RangeRequest req;
     // 使用天数作为临时 name，方便后续映射回 map<int, string>
@@ -103,7 +130,7 @@ FormattedPeriodReports SqliteReportRepositoryAdapter::GetAllPeriodReports(
     req.start_date = start;
     req.end_date = end;
     req.covered_days = days;
-    req.type = RangeType::Period;
+    req.type = RangeType::Recent;
 
     reqs.push_back(req);
   }
@@ -112,7 +139,7 @@ FormattedPeriodReports SqliteReportRepositoryAdapter::GetAllPeriodReports(
   auto results_map = range_service_->generate_batch(reqs, format);
 
   // 3. 转换结果格式 map<string, string> -> map<int, string>
-  FormattedPeriodReports final_reports;
+  FormattedRecentReports final_reports;
   for (const auto &[days_str, content] : results_map) {
     try {
       int days = std::stoi(days_str);
@@ -128,6 +155,11 @@ FormattedPeriodReports SqliteReportRepositoryAdapter::GetAllPeriodReports(
 FormattedWeeklyReports
 SqliteReportRepositoryAdapter::GetAllWeeklyReports(ReportFormat format) {
   return range_service_->generate_all_weekly_history(format);
+}
+
+FormattedYearlyReports
+SqliteReportRepositoryAdapter::GetAllYearlyReports(ReportFormat format) {
+  return range_service_->generate_all_yearly_history(format);
 }
 
 } // namespace infrastructure::persistence

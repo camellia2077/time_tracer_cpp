@@ -50,6 +50,14 @@ public:
 
   // 返回 map<"YYYY-Www", actual_days>
   virtual std::map<std::string, int> get_all_weeks_active_days() = 0;
+
+  // [新增] Yearly Bulk Optimization
+  // 返回 map<"YYYY", vector<pair<projectId, duration>>>
+  virtual std::map<std::string, std::vector<std::pair<long long, long long>>>
+  get_all_years_project_stats() = 0;
+
+  // 返回 map<"YYYY", actual_days>
+  virtual std::map<std::string, int> get_all_years_active_days() = 0;
 };
 
 #endif // REPORTS_DOMAIN_REPOSITORIES_I_REPORT_REPOSITORY_HPP_

@@ -10,11 +10,13 @@
 #include <string>
 #include <vector>
 
-// [新增] 定义范围类型，用于选择对应的配置 (Week/Month/Period)
+// [新增] 定义范围类型，用于选择对应的配置 (Week/Month/Recent/Range)
 enum class RangeType {
-  Period, // Default generic range
+  Recent, // Previously Period
   Month,
-  Week
+  Week,
+  Year,
+  Range
 };
 
 struct RangeRequest {
@@ -23,7 +25,7 @@ struct RangeRequest {
   std::string end_date;
   int covered_days;
   // [新增]
-  RangeType type = RangeType::Period;
+  RangeType type = RangeType::Recent;
 };
 
 class RangeReportService {
@@ -40,6 +42,8 @@ public:
   generate_all_weekly_history(ReportFormat format); // 生成所有历史周报
   std::map<int, std::map<int, std::string>>
   generate_all_monthly_history(ReportFormat format); // 生成所有历史月报
+  std::map<int, std::string>
+  generate_all_yearly_history(ReportFormat format); // 生成所有历史年报
 
 private:
   IReportRepository &repo_;

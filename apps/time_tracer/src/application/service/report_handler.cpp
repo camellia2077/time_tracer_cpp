@@ -87,11 +87,21 @@ std::string ReportHandler::RunWeeklyQuery(int year, int week,
   return generator_->GenerateWeeklyReport(year, week, format);
 }
 
-std::string ReportHandler::RunPeriodQuery(int days, ReportFormat format) {
-  return generator_->GeneratePeriodReport(days, format);
+std::string ReportHandler::RunYearlyQuery(int year, ReportFormat format) {
+  return generator_->GenerateYearlyReport(year, format);
 }
 
-std::string ReportHandler::RunPeriodQueries(const std::vector<int> &days_list,
+std::string ReportHandler::RunRecentQuery(int days, ReportFormat format) {
+  return generator_->GenerateRecentReport(days, format);
+}
+
+std::string ReportHandler::RunRangeQuery(const std::string &start_date,
+                                         const std::string &end_date,
+                                         ReportFormat format) {
+  return generator_->GenerateRangeReport(start_date, end_date, format);
+}
+
+std::string ReportHandler::RunRecentQueries(const std::vector<int> &days_list,
                                             ReportFormat format) {
   std::ostringstream oss;
   for (size_t i = 0; i < days_list.size(); ++i) {
@@ -99,9 +109,9 @@ std::string ReportHandler::RunPeriodQueries(const std::vector<int> &days_list,
       oss << "\n" << std::string(40, '-') << "\n";
     }
     try {
-      oss << RunPeriodQuery(days_list[i], format);
+      oss << RunRecentQuery(days_list[i], format);
     } catch (const std::exception &e) {
-      oss << "Error querying period " << days_list[i] << " days: " << e.what();
+      oss << "Error querying recent " << days_list[i] << " days: " << e.what();
     }
   }
   return oss.str();
@@ -110,9 +120,14 @@ std::string ReportHandler::RunPeriodQueries(const std::vector<int> &days_list,
 void ReportHandler::RunExportSingleWeekReport(int year, int week,
                                               ReportFormat format) {
   auto content = generator_->GenerateWeeklyReport(year, week, format);
-  // æé å¨æ¥åç§°ï¼ä¾å¦ "2025-W04"
+  // æé å¨æ¥åç§°ï¼ä¾‹å¦ "2025-W04"
   std::string week_name = std::format("{}-W{:02d}", year, week);
   exporter_->ExportSingleWeekReport(week_name, content, format);
+}
+
+void ReportHandler::RunExportSingleYearReport(int year, ReportFormat format) {
+  auto content = generator_->GenerateYearlyReport(year, format);
+  exporter_->ExportSingleYearReport(std::to_string(year), content, format);
 }
 
 void ReportHandler::RunExportSingleDayReport(const std::string &date,
@@ -127,9 +142,16 @@ void ReportHandler::RunExportSingleMonthReport(const std::string &month,
   exporter_->ExportSingleMonthReport(month, content, format);
 }
 
-void ReportHandler::RunExportSinglePeriodReport(int days, ReportFormat format) {
-  auto content = generator_->GeneratePeriodReport(days, format);
-  exporter_->ExportSinglePeriodReport(days, content, format);
+void ReportHandler::RunExportSingleRecentReport(int days, ReportFormat format) {
+  auto content = generator_->GenerateRecentReport(days, format);
+  exporter_->ExportSingleRecentReport(days, content, format);
+}
+
+void ReportHandler::RunExportSingleRangeReport(const std::string &start_date,
+                                               const std::string &end_date,
+                                               ReportFormat format) {
+  auto content = generator_->GenerateRangeReport(start_date, end_date, format);
+  exporter_->ExportSingleRangeReport(start_date, end_date, content, format);
 }
 
 void ReportHandler::RunExportAllDailyReportsQuery(ReportFormat format) {
@@ -147,8 +169,13 @@ void ReportHandler::RunExportAllMonthlyReportsQuery(ReportFormat format) {
   exporter_->ExportAllMonthlyReports(reports, format);
 }
 
-void ReportHandler::RunExportAllPeriodReportsQuery(
+void ReportHandler::RunExportAllYearlyReportsQuery(ReportFormat format) {
+  auto reports = generator_->GenerateAllYearlyReports(format);
+  exporter_->ExportAllYearlyReports(reports, format);
+}
+
+void ReportHandler::RunExportAllRecentReportsQuery(
     const std::vector<int> &days_list, ReportFormat format) {
-  auto reports = generator_->GenerateAllPeriodReports(days_list, format);
-  exporter_->ExportAllPeriodReports(reports, format);
+  auto reports = generator_->GenerateAllRecentReports(days_list, format);
+  exporter_->ExportAllRecentReports(reports, format);
 }

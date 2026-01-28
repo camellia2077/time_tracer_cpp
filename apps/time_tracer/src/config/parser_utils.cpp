@@ -87,34 +87,47 @@ void parse_report_paths(const toml::table &tbl, const fs::path &config_dir,
     const auto &reports = tbl["reports"];
 
     auto load_paths = [&](const std::string &key, fs::path &day,
-                          fs::path &month, fs::path &week, fs::path &period) {
-      if (reports[key].is_table()) {
-        const auto &section = reports[key];
+                          fs::path &month, fs::path &week, fs::path &year,
+                          fs::path &recent, fs::path &range) {
+      if (auto config_node = reports[key].as_table()) {
+        const auto &section = *config_node;
         if (auto v = section["day"].value<std::string>())
           day = config_dir / *v;
         if (auto v = section["month"].value<std::string>())
           month = config_dir / *v;
         if (auto v = section["week"].value<std::string>())
           week = config_dir / *v;
-        if (auto v = section["period"].value<std::string>())
-          period = config_dir / *v;
+        if (auto v = section["year"].value<std::string>())
+          year = config_dir / *v;
+        if (auto v = section["recent"].value<std::string>())
+          recent = config_dir / *v;
+        else if (auto v = section["period"].value<std::string>()) // Fallback
+          recent = config_dir / *v;
+        if (auto v = section["range"].value<std::string>())
+          range = config_dir / *v;
       }
     };
 
     load_paths("typst", config.reports_.day_typ_config_path_,
                config.reports_.month_typ_config_path_,
                config.reports_.week_typ_config_path_,
-               config.reports_.period_typ_config_path_);
+               config.reports_.year_typ_config_path_,
+               config.reports_.recent_typ_config_path_,
+               config.reports_.range_typ_config_path_);
 
     load_paths("latex", config.reports_.day_tex_config_path_,
                config.reports_.month_tex_config_path_,
                config.reports_.week_tex_config_path_,
-               config.reports_.period_tex_config_path_);
+               config.reports_.year_tex_config_path_,
+               config.reports_.recent_tex_config_path_,
+               config.reports_.range_tex_config_path_);
 
     load_paths("markdown", config.reports_.day_md_config_path_,
                config.reports_.month_md_config_path_,
                config.reports_.week_md_config_path_,
-               config.reports_.period_md_config_path_);
+               config.reports_.year_md_config_path_,
+               config.reports_.recent_md_config_path_,
+               config.reports_.range_md_config_path_);
 
   } else {
     throw std::runtime_error("Missing [reports] configuration block.");

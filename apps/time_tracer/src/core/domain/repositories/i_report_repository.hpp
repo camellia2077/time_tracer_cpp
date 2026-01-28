@@ -20,15 +20,22 @@ public:
                                        ReportFormat format) = 0;
   virtual std::string GetWeeklyReport(int year, int week,
                                       ReportFormat format) = 0;
-  virtual std::string GetPeriodReport(int days, ReportFormat format) = 0;
+  virtual std::string GetRecentReport(int days, ReportFormat format) = 0;
+  virtual std::string GetRangeReport(const std::string &start_date,
+                                     const std::string &end_date,
+                                     ReportFormat format) = 0;
+
+  virtual std::string GetYearlyReport(int year, ReportFormat format) = 0;
 
   virtual FormattedGroupedReports GetAllDailyReports(ReportFormat format) = 0;
   virtual FormattedMonthlyReports GetAllMonthlyReports(ReportFormat format) = 0;
 
   virtual FormattedWeeklyReports GetAllWeeklyReports(ReportFormat format) = 0;
 
-  virtual FormattedPeriodReports
-  GetAllPeriodReports(const std::vector<int> &days_list,
+  virtual FormattedYearlyReports GetAllYearlyReports(ReportFormat format) = 0;
+
+  virtual FormattedRecentReports
+  GetAllRecentReports(const std::vector<int> &days_list,
                       ReportFormat format) = 0;
 };
 

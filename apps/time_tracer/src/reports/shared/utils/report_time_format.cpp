@@ -7,7 +7,7 @@
 #include <sstream>
 #include <tuple>
 
-std::pair<std::string, std::string> get_period_dates(int days) {
+std::pair<std::string, std::string> get_recent_dates(int days) {
   auto now = std::chrono::system_clock::now();
   std::time_t end_time = std::chrono::system_clock::to_time_t(now);
   std::tm end_tm = *std::localtime(&end_time);

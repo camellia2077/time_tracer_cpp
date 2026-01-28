@@ -19,7 +19,7 @@ public:
   static DailyMdConfig loadDailyMdConfig(core::interfaces::IFileSystem &fs,
                                          const std::filesystem::path &path);
 
-  // --- Unified Range Loaders (Month & Period) ---
+  // --- Unified Range Loaders (Month & Recent) ---
   static RangeTexConfig loadRangeTexConfig(core::interfaces::IFileSystem &fs,
                                            const std::filesystem::path &path);
   static RangeTypConfig loadRangeTypConfig(core::interfaces::IFileSystem &fs,

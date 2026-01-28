@@ -33,6 +33,11 @@ public:
   get_all_weeks_project_stats() override;
   std::map<std::string, int> get_all_weeks_active_days() override;
 
+  // [新增] Yearly Bulk Implementation
+  std::map<std::string, std::vector<std::pair<long long, long long>>>
+  get_all_years_project_stats() override;
+  std::map<std::string, int> get_all_years_active_days() override;
+
 private:
   sqlite3 *db_;
 };

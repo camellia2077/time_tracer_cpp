@@ -63,12 +63,32 @@ void Exporter::ExportSingleMonthReport(const std::string &month,
                            fs::absolute(path).string());
 }
 
-void Exporter::ExportSinglePeriodReport(int days, const std::string &content,
+void Exporter::ExportSingleYearReport(const std::string &year,
+                                      const std::string &content,
+                                      ReportFormat format) const {
+  fs::path path = file_manager_->GetSingleYearReportPath(year, format);
+  WriteReportToFile(content, path);
+  notifier_->NotifySuccess("Success: Yearly Report exported to " +
+                           fs::absolute(path).string());
+}
+
+void Exporter::ExportSingleRecentReport(int days, const std::string &content,
                                         ReportFormat format) const {
-  fs::path path = file_manager_->GetSinglePeriodReportPath(days, format);
+  fs::path path = file_manager_->GetSingleRecentReportPath(days, format);
   WriteReportToFile(content, path);
   // [修改] 使用 notifier 提示成功
-  notifier_->NotifySuccess("Success: Report exported to " +
+  notifier_->NotifySuccess("Success: Recent report exported to " +
+                           fs::absolute(path).string());
+}
+
+void Exporter::ExportSingleRangeReport(const std::string &start_date,
+                                       const std::string &end_date,
+                                       const std::string &content,
+                                       ReportFormat format) const {
+  fs::path path =
+      file_manager_->GetSingleRangeReportPath(start_date, end_date, format);
+  WriteReportToFile(content, path);
+  notifier_->NotifySuccess("Success: Custom range report exported to " +
                            fs::absolute(path).string());
 }
 
@@ -154,18 +174,39 @@ void Exporter::ExportAllMonthlyReports(const FormattedMonthlyReports &reports,
   });
 }
 
-void Exporter::ExportAllPeriodReports(const FormattedPeriodReports &reports,
+void Exporter::ExportAllYearlyReports(const FormattedYearlyReports &reports,
                                       ReportFormat format) const {
-  fs::path base_dir = file_manager_->GetAllPeriodReportsBaseDir(format);
+  fs::path base_dir = file_manager_->GetAllYearlyReportsBaseDir(format);
+
+  ExportUtils::ExecuteExportTask("年报", base_dir, *notifier_, [&]() {
+    int files_created = 0;
+    for (const auto &year_pair : reports) {
+      int year = year_pair.first;
+      const std::string &content = year_pair.second;
+      std::string year_str = std::to_string(year);
+
+      fs::path report_path =
+          file_manager_->GetSingleYearReportPath(year_str, format);
+      WriteReportToFile(content, report_path);
+      if (!content.empty())
+        files_created++;
+    }
+    return files_created;
+  });
+}
+
+void Exporter::ExportAllRecentReports(const FormattedRecentReports &reports,
+                                      ReportFormat format) const {
+  fs::path base_dir = file_manager_->GetAllRecentReportsBaseDir(format);
 
   // [修改] 传递 notifier 给通用工具
-  ExportUtils::ExecuteExportTask("周期报告", base_dir, *notifier_, [&]() {
+  ExportUtils::ExecuteExportTask("近期报告", base_dir, *notifier_, [&]() {
     int files_created = 0;
     for (const auto &report_pair : reports) {
       int days = report_pair.first;
       const std::string &content = report_pair.second;
       fs::path report_path =
-          file_manager_->GetSinglePeriodReportPath(days, format);
+          file_manager_->GetSingleRecentReportPath(days, format);
       WriteReportToFile(content, report_path);
       if (!content.empty())
         files_created++;

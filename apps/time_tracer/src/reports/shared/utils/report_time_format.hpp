@@ -21,7 +21,7 @@ get_week_date_range(int year, int week);
 // 获取过去 N 天的日期范围 (包含今天)
 // 例如 days=7, 今天是 2026-01-26，则返回 {2026-01-20, 2026-01-26}
 REPORTS_SHARED_API std::pair<std::string, std::string>
-get_period_dates(int days);
+get_recent_dates(int days);
 
 // [修复] 添加缺失的声明，供 Formatter 调用
 // 格式化时长 (例如 "2h 30m")

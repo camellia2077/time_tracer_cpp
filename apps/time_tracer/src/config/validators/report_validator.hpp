@@ -63,7 +63,7 @@ protected:
 };
 
 // ============================================================================
-// Range Strategy (Month, Week, Period)
+// Range Strategy (Month, Week, Recent)
 // ============================================================================
 class RangeStrategy : public BaseStrategy {
 protected:
@@ -74,7 +74,7 @@ protected:
 // ============================================================================
 // StrategyFactory - 策略工厂
 // ============================================================================
-enum class ReportType { Daily, Monthly, Weekly, Periodic };
+enum class ReportType { Daily, Monthly, Weekly, Recent, Range };
 
 class StrategyFactory {
 public:

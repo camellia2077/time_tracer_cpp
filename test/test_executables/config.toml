@@ -20,7 +20,7 @@ enable_test_execution = 1
 # ==============================================================================
 [paths]
 # 从这里复制exe和exe运行需要的文件
-source_executables_dir = "C:/Computer/my_github/github_cpp/time_tracer/Time_Master_cpp/apps/time_tracer/build/bin"
+source_executables_dir = "C:/Computer/my_github/github_cpp/time_tracer/time_tracer_cpp/apps/time_tracer/build/bin"
 
 # 存放 txt 源文件的文件夹
 test_data_path = "C:/Computer/my_github/github_cpp/time_tracer/my_test/Date"
@@ -35,7 +35,7 @@ output_dir_name = "C:/Computer/my_github/github_cpp/time_tracer/my_test"
 db_dir = "C:/Computer/my_github/github_cpp/time_tracer/my_test/time_tracer_test/output/time_data.sqlite3"
 
 # 导出文件的存放路径
-export_output_dir = "C:/Computer/my_github/github_cpp/time_tracer/my_test/time_tracer_test/output"
+export_output_dir = "C:/Computer/my_github/github_cpp/time_tracer/my_test/time_tracer_test/output/exported_files"
 
 # 明确指定 Python 测试日志的输出文件夹地址
 py_output_dir = "C:/Computer/my_github/github_cpp/time_tracer/my_test/time_tracer_test/py_output"
@@ -55,21 +55,25 @@ generated_db_file_name = "time_data.sqlite3"
 test_formats = ["md", "tex", "typ"]
 
 # 这个是查询，只查询，不把查询的内容保存到本地
-daily_query_dates = ["20260101", "20260201"]
-monthly_query_months = ["202605", "202606"]
-period_query_days = [7, 10, 15]
+query_day_dates = ["20250101", "20250201"]
+query_month_date = ["202605", "202606"]
+query_week_params = [[2025, 4], [2025, 5]]
+query_year_params = [2025, 2026]
+query_recent_days = [7, 10, 15]
+query_range_dates = [["20250101", "20250110"], ["20250201", "20250205"]]
 
-# 全部导出总开关: true -> 批量导出, false -> 按指定列表导出
-export_mode_is_bulk = false
+# 导出模式: "specific" -> 导出指定列表, "bulk" -> 批量导出全部
+export_mode = "specific"
 
 # 仅在 export_mode_is_bulk = false 时生效
 specific_export_dates = [
-    "20260101","20260102","20260103", "20260104","20260105",
-    "20260106","20260107","20260108","20260109","202601010",
-    "20260201"
+    "20250101","20250102","20250103"
 ]
-specific_export_months = ["202605", "202606"]
-period_export_days = [7, 10, 15]
+specific_export_month = ["202505", "202506"]
+specific_export_weeks = [[2025, 4], [2025, 5]]
+specific_export_years = [2025, 2026]
+specific_export_recent = [7, 10, 15]
+specific_export_range = [["20250101", "20250110"], ["202503", "202506"], ["2025", "2026"]]
 
 
 # ==============================================================================

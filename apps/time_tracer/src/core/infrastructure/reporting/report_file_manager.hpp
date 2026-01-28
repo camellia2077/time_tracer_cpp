@@ -19,12 +19,18 @@ public:
                                    ReportFormat format) const;
   fs::path GetSingleMonthReportPath(const std::string &month,
                                     ReportFormat format) const;
-  fs::path GetSinglePeriodReportPath(int days, ReportFormat format) const;
+  fs::path GetSingleYearReportPath(const std::string &year,
+                                   ReportFormat format) const;
+  fs::path GetSingleRecentReportPath(int days, ReportFormat format) const;
+  fs::path GetSingleRangeReportPath(const std::string &start_date,
+                                    const std::string &end_date,
+                                    ReportFormat format) const;
 
   fs::path GetAllDailyReportsBaseDir(ReportFormat format) const;
   fs::path GetAllWeeklyReportsBaseDir(ReportFormat format) const;
   fs::path GetAllMonthlyReportsBaseDir(ReportFormat format) const;
-  fs::path GetAllPeriodReportsBaseDir(ReportFormat format) const;
+  fs::path GetAllYearlyReportsBaseDir(ReportFormat format) const;
+  fs::path GetAllRecentReportsBaseDir(ReportFormat format) const;
 
 private:
   fs::path export_root_path_;

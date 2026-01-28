@@ -9,7 +9,9 @@ struct FormatReportConfig {
   DailyReportConfig day_;
   RangeReportConfig month_;
   RangeReportConfig week_; // [新增] Week 配置
-  RangeReportConfig period_;
+  RangeReportConfig year_; // [新增] Year 配置
+  RangeReportConfig recent_;
+  RangeReportConfig range_;
 };
 
 struct GlobalReportConfig {

@@ -66,14 +66,20 @@ def _load_test_params(toml_data) -> TestParams:
     test_params_data = toml_data.get("test_params", {})
     params_inst = TestParams()
     params_inst.TEST_FORMATS = test_params_data.get("test_formats", [])
-    params_inst.DAILY_QUERY_DATES = test_params_data.get("daily_query_dates", [])
-    params_inst.MONTHLY_QUERY_MONTHS = test_params_data.get("monthly_query_months", [])
-    params_inst.PERIOD_QUERY_DAYS = test_params_data.get("period_query_days", [])
+    params_inst.QUERY_DAY_DATES = test_params_data.get("query_day_dates", [])
+    params_inst.QUERY_MONTH_DATES = test_params_data.get("query_month_date", [])
+    params_inst.QUERY_WEEK_PARAMS = test_params_data.get("query_week_params", [])
+    params_inst.QUERY_YEAR_PARAMS = test_params_data.get("query_year_params", [])
+    params_inst.QUERY_RECENT_DAYS = test_params_data.get("query_recent_days", [])
+    params_inst.QUERY_RANGE_DATES = test_params_data.get("query_range_dates", [])
     
-    params_inst.EXPORT_MODE_IS_BULK = bool(test_params_data.get("export_mode_is_bulk", False))
+    params_inst.EXPORT_MODE = test_params_data.get("export_mode", "specific")
     params_inst.SPECIFIC_EXPORT_DATES = test_params_data.get("specific_export_dates", [])
-    params_inst.SPECIFIC_EXPORT_MONTHS = test_params_data.get("specific_export_months", [])
-    params_inst.PERIOD_EXPORT_DAYS = test_params_data.get("period_export_days", [])
+    params_inst.SPECIFIC_EXPORT_MONTHS = test_params_data.get("specific_export_month", [])
+    params_inst.SPECIFIC_EXPORT_WEEKS = test_params_data.get("specific_export_weeks", [])
+    params_inst.SPECIFIC_EXPORT_YEARS = test_params_data.get("specific_export_years", [])
+    params_inst.SPECIFIC_EXPORT_RECENT = test_params_data.get("specific_export_recent", [])
+    params_inst.SPECIFIC_EXPORT_RANGE = test_params_data.get("specific_export_range", [])
     return params_inst
 
 def _load_cleanup_params(toml_data) -> Cleanup:

@@ -15,7 +15,7 @@ namespace core::commands {
 // ============================================================================
 // ReportType - 报表类型
 // ============================================================================
-enum class ReportType { Daily, Weekly, Monthly, Period };
+enum class ReportType { Daily, Weekly, Monthly, Recent, Range };
 
 // ============================================================================
 // DateRange - 日期范围

@@ -18,7 +18,11 @@ using FormattedMonthlyReports = std::map<int, std::map<int, std::string>>;
 // Map<Year, Map<Week, Content>>
 using FormattedWeeklyReports = std::map<int, std::map<int, std::string>>;
 
-// 用于导出所有周期报告的数据结构
-using FormattedPeriodReports = std::map<int, std::string>;
+// [新增] 用于导出所有年报的数据结构
+// Map<Year, Content>
+using FormattedYearlyReports = std::map<int, std::string>;
+
+// 用于导出所有近期报告的数据结构
+using FormattedRecentReports = std::map<int, std::string>;
 
 #endif // CORE_DOMAIN_MODEL_QUERY_DATA_STRUCTS_HPP_

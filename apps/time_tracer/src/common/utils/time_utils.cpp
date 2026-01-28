@@ -100,4 +100,34 @@ std::string NormalizeToMonthFormat(const std::string &input) {
   return input;
 }
 
+std::string NormalizeRangeStart(const std::string &input) {
+  if (input.length() == 4) { // YYYY
+    return input + "-01-01";
+  } else if (input.length() == 6) { // YYYYMM
+    return input.substr(0, 4) + "-" + input.substr(4, 2) + "-01";
+  }
+  return NormalizeToDateFormat(input);
+}
+
+std::string NormalizeRangeEnd(const std::string &input) {
+  if (input.length() == 4) { // YYYY
+    return input + "-12-31";
+  } else if (input.length() == 6) { // YYYYMM
+    std::string year = input.substr(0, 4);
+    std::string month = input.substr(4, 2);
+    // Simple logic for end of month
+    if (month == "02") {
+      int y = std::stoi(year);
+      bool is_leap = (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+      return year + "-02-" + (is_leap ? "29" : "28");
+    } else if (month == "04" || month == "06" || month == "09" ||
+               month == "11") {
+      return year + "-" + month + "-30";
+    } else {
+      return year + "-" + month + "-31";
+    }
+  }
+  return NormalizeToDateFormat(input);
+}
+
 } // namespace TimeUtils
